@@ -19,12 +19,16 @@ const Text = React.forwardRef<React.ComponentRef<typeof RNText>, ITextProps>(
       sub,
       italic,
       highlight,
+      style,
       ...props
     },
     ref
   ) {
+    const fontFamily = bold ? 'PlusJakartaSans_700Bold' : 'PlusJakartaSans_500Medium';
+
     return (
       <RNText
+        style={[{ fontFamily }, style]}
         className={textStyle({
           isTruncated: isTruncated as boolean,
           bold: bold as boolean,

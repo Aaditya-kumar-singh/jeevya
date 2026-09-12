@@ -40,12 +40,15 @@ const MappedHeading = memo(
       },
       ref
     ) {
+      const headingStyleObj = [{ fontFamily: 'Outfit_700Bold' }, props.style];
+
       switch (size) {
         case '5xl':
         case '4xl':
         case '3xl':
           return (
             <H1
+              style={headingStyleObj}
               className={headingStyle({
                 size,
                 isTruncated: isTruncated as boolean,
@@ -65,6 +68,7 @@ const MappedHeading = memo(
         case '2xl':
           return (
             <H2
+              style={headingStyleObj}
               className={headingStyle({
                 size,
                 isTruncated: isTruncated as boolean,
@@ -84,6 +88,7 @@ const MappedHeading = memo(
         case 'xl':
           return (
             <H3
+              style={headingStyleObj}
               className={headingStyle({
                 size,
                 isTruncated: isTruncated as boolean,
@@ -103,6 +108,7 @@ const MappedHeading = memo(
         case 'lg':
           return (
             <H4
+              style={headingStyleObj}
               className={headingStyle({
                 size,
                 isTruncated: isTruncated as boolean,
@@ -122,6 +128,7 @@ const MappedHeading = memo(
         case 'md':
           return (
             <H5
+              style={headingStyleObj}
               className={headingStyle({
                 size,
                 isTruncated: isTruncated as boolean,
@@ -142,6 +149,7 @@ const MappedHeading = memo(
         case 'xs':
           return (
             <H6
+              style={headingStyleObj}
               className={headingStyle({
                 size,
                 isTruncated: isTruncated as boolean,
@@ -161,6 +169,7 @@ const MappedHeading = memo(
         default:
           return (
             <H4
+              style={headingStyleObj}
               className={headingStyle({
                 size,
                 isTruncated: isTruncated as boolean,

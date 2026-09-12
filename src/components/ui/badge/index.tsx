@@ -10,26 +10,25 @@ import { Svg } from 'react-native-svg';
 const SCOPE = 'BADGE';
 
 const badgeStyle = tva({
-  base: 'flex-row items-center justify-center rounded-sm px-2 py-0.5',
+  base: 'flex-row items-center justify-center rounded-full px-3 py-1 border',
   variants: {
     variant: {
-      default: 'bg-primary',
-      secondary: 'bg-secondary',
-      destructive:
-        'bg-destructive dark:bg-destructive/60',
-      outline: 'border border-border dark:border-border/90 bg-transparent',
+      default: 'bg-indigo-500/15 border-indigo-500/30',
+      secondary: 'bg-violet-500/15 border-violet-500/30',
+      destructive: 'bg-rose-500/15 border-rose-500/30',
+      outline: 'bg-emerald-500/15 border-emerald-500/30',
     },
   },
 });
 
 const badgeTextStyle = tva({
-  base: 'text-xs font-medium tracking-normal uppercase',
+  base: 'text-xs font-bold tracking-wider',
   parentVariants: {
     variant: {
-      default: 'text-primary-foreground',
-      secondary: 'text-secondary-foreground',
-      destructive: 'text-white',
-      outline: 'text-foreground',
+      default: 'text-indigo-600 dark:text-indigo-400',
+      secondary: 'text-violet-600 dark:text-violet-400',
+      destructive: 'text-rose-600 dark:text-rose-400',
+      outline: 'text-emerald-600 dark:text-emerald-400',
     },
   },
 });

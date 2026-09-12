@@ -3,111 +3,179 @@
 @import "tailwindcss/utilities.css";
 @import "nativewind/theme";
 
-/* ─── Theme: design tokens (light / dark) ─────────────────────────
+/* ─── LifeOS Design System ────────────────────────────────────────────────────
+   Brand: Indigo-violet primary — calm, intelligent, focused.
+   Status: Emerald success · Amber warning · Rose destructive · Sky info
+   
    1. :root              — light defaults (all platforms)
-   2. @media dark :root  — dark defaults; nativewind maps this to
-                           Appearance.getColorScheme() on native.
-   3. :root.dark / :root.light — higher specificity for web class toggle. */
+   2. @media dark :root  — dark defaults; nativewind maps to Appearance.getColorScheme()
+   3. :root.dark / :root.light — higher specificity for web class toggle.
+   ──────────────────────────────────────────────────────────────────────────── */
 @layer theme {
   :root {
-    --primary: 23 23 23;
-    --primary-foreground: 250 250 250;
+    /* Brand — Indigo */
+    --primary: 99 102 241;
+    --primary-foreground: 255 255 255;
+
+    /* Surfaces */
+    --background: 250 250 255;
+    --foreground: 15 15 25;
     --card: 255 255 255;
-    --secondary: 245 245 245;
-    --secondary-foreground: 23 23 23;
-    --background: 255 255 255;
+    --card-foreground: 15 15 25;
     --popover: 255 255 255;
-    --popover-foreground: 10 10 10;
-    --muted: 245 245 245;
-    --muted-foreground: 115 115 115;
-    --destructive: 231 0 11;
-    --foreground: 10 10 10;
-    --border: 229 229 229;
-    --input: 229 229 229;
-    --ring: 212 212 212;
-    --accent: 247 247 247;
-    --accent-foreground: 52 52 52;
+    --popover-foreground: 15 15 25;
+
+    /* Supporting UI */
+    --secondary: 238 239 253;
+    --secondary-foreground: 67 56 202;
+    --accent: 238 239 253;
+    --accent-foreground: 99 102 241;
+    --muted: 241 241 247;
+    --muted-foreground: 107 114 128;
+
+    /* Borders & Input */
+    --border: 226 227 240;
+    --input: 226 227 240;
+    --ring: 199 210 254;
+
+    /* Semantic Status */
+    --destructive: 244 63 94;
+    --destructive-foreground: 255 255 255;
+    --success: 16 185 129;
+    --success-foreground: 255 255 255;
+    --warning: 245 158 11;
+    --warning-foreground: 255 255 255;
+    --info: 56 189 248;
+    --info-foreground: 255 255 255;
   }
 
   @media (prefers-color-scheme: dark) {
     :root {
-      --primary: 255 245 245;
-      --primary-foreground: 23 23 23;
-      --card: 23 23 23;
-      --secondary: 38 38 38;
-      --secondary-foreground: 250 250 250;
-      --background: 10 10 10;
-      --popover: 23 23 23;
-      --popover-foreground: 250 250 250;
-      --muted: 38 38 38;
-      --muted-foreground: 161 161 161;
-      --destructive: 255 100 103;
-      --foreground: 250 250 250;
-      --border: 46 46 46;
-      --input: 46 46 46;
-      --accent: 38 38 38;
-      --accent-foreground: 250 250 250;
-      --ring: 115 115 115;
+      /* Brand — Indigo (lighter for dark bg) */
+      --primary: 129 140 248;
+      --primary-foreground: 15 15 25;
+
+      /* Surfaces */
+      --background: 10 10 18;
+      --foreground: 238 240 255;
+      --card: 18 18 28;
+      --card-foreground: 238 240 255;
+      --popover: 18 18 28;
+      --popover-foreground: 238 240 255;
+
+      /* Supporting UI */
+      --secondary: 30 27 75;
+      --secondary-foreground: 199 210 254;
+      --accent: 30 27 75;
+      --accent-foreground: 199 210 254;
+      --muted: 24 24 38;
+      --muted-foreground: 148 163 184;
+
+      /* Borders & Input */
+      --border: 38 38 60;
+      --input: 38 38 60;
+      --ring: 99 102 241;
+
+      /* Semantic Status */
+      --destructive: 251 113 133;
+      --destructive-foreground: 15 15 25;
+      --success: 52 211 153;
+      --success-foreground: 15 15 25;
+      --warning: 251 191 36;
+      --warning-foreground: 15 15 25;
+      --info: 125 211 252;
+      --info-foreground: 15 15 25;
     }
   }
 
   :root.dark {
-    --primary: 255 245 245;
-    --primary-foreground: 23 23 23;
-    --card: 23 23 23;
-    --secondary: 38 38 38;
-    --secondary-foreground: 250 250 250;
-    --background: 10 10 10;
-    --popover: 23 23 23;
-    --popover-foreground: 250 250 250;
-    --muted: 38 38 38;
-    --muted-foreground: 161 161 161;
-    --destructive: 255 100 103;
-    --foreground: 250 250 250;
-    --border: 46 46 46;
-    --input: 46 46 46;
-    --accent: 38 38 38;
-    --accent-foreground: 250 250 250;
-    --ring: 115 115 115;
+    --primary: 129 140 248;
+    --primary-foreground: 15 15 25;
+    --background: 10 10 18;
+    --foreground: 238 240 255;
+    --card: 18 18 28;
+    --card-foreground: 238 240 255;
+    --popover: 18 18 28;
+    --popover-foreground: 238 240 255;
+    --secondary: 30 27 75;
+    --secondary-foreground: 199 210 254;
+    --accent: 30 27 75;
+    --accent-foreground: 199 210 254;
+    --muted: 24 24 38;
+    --muted-foreground: 148 163 184;
+    --border: 38 38 60;
+    --input: 38 38 60;
+    --ring: 99 102 241;
+    --destructive: 251 113 133;
+    --destructive-foreground: 15 15 25;
+    --success: 52 211 153;
+    --success-foreground: 15 15 25;
+    --warning: 251 191 36;
+    --warning-foreground: 15 15 25;
+    --info: 125 211 252;
+    --info-foreground: 15 15 25;
   }
 
   :root.light {
-    --primary: 23 23 23;
-    --primary-foreground: 250 250 250;
+    --primary: 99 102 241;
+    --primary-foreground: 255 255 255;
+    --background: 250 250 255;
+    --foreground: 15 15 25;
     --card: 255 255 255;
-    --secondary: 245 245 245;
-    --secondary-foreground: 23 23 23;
-    --background: 255 255 255;
+    --card-foreground: 15 15 25;
     --popover: 255 255 255;
-    --popover-foreground: 10 10 10;
-    --muted: 245 245 245;
-    --muted-foreground: 115 115 115;
-    --destructive: 231 0 11;
-    --foreground: 10 10 10;
-    --border: 229 229 229;
-    --input: 229 229 229;
-    --ring: 212 212 212;
-    --accent: 247 247 247;
-    --accent-foreground: 52 52 52;
+    --popover-foreground: 15 15 25;
+    --secondary: 238 239 253;
+    --secondary-foreground: 67 56 202;
+    --accent: 238 239 253;
+    --accent-foreground: 99 102 241;
+    --muted: 241 241 247;
+    --muted-foreground: 107 114 128;
+    --border: 226 227 240;
+    --input: 226 227 240;
+    --ring: 199 210 254;
+    --destructive: 244 63 94;
+    --destructive-foreground: 255 255 255;
+    --success: 16 185 129;
+    --success-foreground: 255 255 255;
+    --warning: 245 158 11;
+    --warning-foreground: 255 255 255;
+    --info: 56 189 248;
+    --info-foreground: 255 255 255;
   }
 }
 
 @theme inline {
+  /* Core */
   --color-primary: rgb(var(--primary));
   --color-primary-foreground: rgb(var(--primary-foreground));
-  --color-card: rgb(var(--card));
-  --color-secondary: rgb(var(--secondary));
-  --color-secondary-foreground: rgb(var(--secondary-foreground));
   --color-background: rgb(var(--background));
+  --color-foreground: rgb(var(--foreground));
+  --color-card: rgb(var(--card));
+  --color-card-foreground: rgb(var(--card-foreground));
   --color-popover: rgb(var(--popover));
   --color-popover-foreground: rgb(var(--popover-foreground));
+
+  /* Supporting */
+  --color-secondary: rgb(var(--secondary));
+  --color-secondary-foreground: rgb(var(--secondary-foreground));
+  --color-accent: rgb(var(--accent));
+  --color-accent-foreground: rgb(var(--accent-foreground));
   --color-muted: rgb(var(--muted));
   --color-muted-foreground: rgb(var(--muted-foreground));
-  --color-destructive: rgb(var(--destructive));
-  --color-foreground: rgb(var(--foreground));
+
+  /* Borders */
   --color-border: rgb(var(--border));
   --color-input: rgb(var(--input));
   --color-ring: rgb(var(--ring));
-  --color-accent: rgb(var(--accent));
-  --color-accent-foreground: rgb(var(--accent-foreground));
+
+  /* Status */
+  --color-destructive: rgb(var(--destructive));
+  --color-destructive-foreground: rgb(var(--destructive-foreground));
+  --color-success: rgb(var(--success));
+  --color-success-foreground: rgb(var(--success-foreground));
+  --color-warning: rgb(var(--warning));
+  --color-warning-foreground: rgb(var(--warning-foreground));
+  --color-info: rgb(var(--info));
+  --color-info-foreground: rgb(var(--info-foreground));
 }

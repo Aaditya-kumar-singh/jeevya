@@ -1,8 +1,9 @@
 import { View, Pressable } from 'react-native';
 import { Link } from 'expo-router';
-import { Check } from 'lucide-react-native';
-import { HabitCard } from '@/components/habit';
+import { Flame } from 'lucide-react-native';
 import { Heading, Text, Card } from '@/components/ui';
+import { AnimatedCheckbox } from '@/components/motion/AnimatedCheckbox';
+import { ScalePressable } from '@/components/motion/ScalePressable';
 import type { Habit } from '@/types/habit';
 
 interface HabitPreviewProps {
@@ -24,76 +25,63 @@ export function HabitPreview({ habits, onComplete }: HabitPreviewProps) {
 
   return (
     <View className="mt-4">
-      <View className="flex-row items-center justify-between mb-2">
-        <Heading size="sm">Today's Habits</Heading>
-        <Text size="xs" className="text-muted-foreground">
-          {completedCount}/{totalCount} completed
-        </Text>
+      <View className="flex-row items-center justify-between mb-3">
+        <View className="flex-row items-center gap-2">
+          <View className="h-7 w-7 items-center justify-center rounded-lg bg-violet-500/15 text-violet-500">
+            <Flame size={16} className="text-violet-500" fill="#8B5CF6" />
+          </View>
+          <Heading size="sm" className="font-bold">Today's Habits</Heading>
+        </View>
+        <View className="rounded-full bg-violet-500/10 px-2.5 py-0.5 border border-violet-500/20">
+          <Text size="xs" className="font-bold text-violet-600 dark:text-violet-400">
+            {completedCount}/{totalCount} done
+          </Text>
+        </View>
       </View>
 
-      <View className="gap-2">
+      <View className="gap-2.5">
         {previewHabits.map((habit) => (
-          <Pressable
+          <ScalePressable
             key={habit.id}
             onPress={() => onComplete?.(habit.id)}
-            className="w-full"
           >
-            <Card className="w-full p-3">
+            <Card className="w-full p-3.5 border border-border/50 shadow-xs">
               <View className="flex-row items-center gap-3">
-                {/* Completion indicator */}
-                <View
-                  className={`h-6 w-6 rounded-full flex-row items-center justify-center ${
-                    habit.isCompleted
-                      ? 'bg-success'
-                      : 'bg-muted/50 border border-border'
-                  }`}
-                >
-                  {habit.isCompleted ? (
-                    <Check size={14} color="white" strokeWidth={3} />
-                  ) : (
-                    <View className="h-3 w-3 rounded-full border border-border" />
-                  )}
-                </View>
+                <AnimatedCheckbox
+                  checked={habit.isCompleted}
+                  onPress={() => onComplete?.(habit.id)}
+                  checkedColor="#8B5CF6"
+                  size={22}
+                />
 
                 <View className="flex-1">
                   <Text
                     size="sm"
-                    className={habit.isCompleted ? 'text-muted-foreground line-through' : ''}
+                    className={`font-medium ${
+                      habit.isCompleted
+                        ? 'line-through text-muted-foreground'
+                        : 'text-foreground'
+                    }`}
                   >
                     {habit.name}
                   </Text>
+                  {habit.description ? (
+                    <Text size="xs" className="text-muted-foreground/80 font-medium mt-0.5">
+                      {habit.description}
+                    </Text>
+                  ) : null}
                 </View>
-
-                {/* Quick action */}
-                {!habit.isCompleted && (
-                  <Pressable
-                    onPress={(e) => {
-                      e.stopPropagation();
-                      onComplete?.(habit.id);
-                    }}
-                    className="h-7 w-7 rounded-full bg-success/20 items-center justify-center"
-                  >
-                    <Check size={14} color="#16A34A" strokeWidth={2.5} />
-                  </Pressable>
-                )}
               </View>
             </Card>
-          </Pressable>
+          </ScalePressable>
         ))}
 
         {remainingCount > 0 && (
-          <Link href={"/habits" as any} asChild>
-            <Pressable>
-              <Card className="w-full p-3">
-                <View className="flex-row items-center justify-between">
-                  <Text size="sm" className="text-muted-foreground">
-                    +{remainingCount} more habit{remainingCount > 1 ? 's' : ''}
-                  </Text>
-                  <Text size="xs" className="text-primary">
-                    View all →
-                  </Text>
-                </View>
-              </Card>
+          <Link href="/(tabs)/tasks" asChild>
+            <Pressable className="py-2 items-center">
+              <Text size="xs" className="font-bold text-violet-600 dark:text-violet-400">
+                + {remainingCount} more habits →
+              </Text>
             </Pressable>
           </Link>
         )}

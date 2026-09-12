@@ -29,18 +29,20 @@ export function HomeHeader({ name = 'there', dateText }: HomeHeaderProps) {
   return (
     <View className="flex-row items-center justify-between">
       <View className="flex-1">
-        <Text size="sm" className="text-muted-foreground">
+        <Text size="xs" className="font-semibold text-indigo-500 uppercase tracking-wider">
           {today}
         </Text>
-        <Heading size="xl" className="mt-1">
-          {greeting}, {name}
+        <Heading size="xl" className="mt-1 font-bold tracking-tight text-foreground">
+          {greeting}, {name} 👋
         </Heading>
       </View>
       <Pressable
         accessibilityRole="button"
         accessibilityLabel="Notifications"
-        className="h-11 w-11 items-center justify-center rounded-full bg-muted">
-        <Bell size={20} />
+        className="h-11 w-11 items-center justify-center rounded-2xl bg-indigo-500/10 border border-indigo-500/20 relative"
+      >
+        <Bell size={20} className="text-indigo-600 dark:text-indigo-400" />
+        <View className="absolute top-2.5 right-2.5 h-2.5 w-2.5 rounded-full bg-rose-500 border-2 border-background" />
       </Pressable>
     </View>
   );

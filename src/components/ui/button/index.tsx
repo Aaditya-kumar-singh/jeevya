@@ -23,13 +23,13 @@ const UIButton = createButton({
   Icon: StyledUIIcon,
 });
 const buttonStyle = tva({
-  base: 'rounded-md flex-row items-center justify-center data-[focus-visible=true]:web:outline-none data-[focus-visible=true]:web:ring-2 data-[disabled=true]:opacity-40 gap-2 h-fit',
+  base: 'rounded-xl flex-row items-center justify-center data-[focus-visible=true]:web:outline-none data-[focus-visible=true]:web:ring-2 data-[disabled=true]:opacity-40 gap-2 h-fit',
   variants: {
     variant: {
       default:
-        'bg-primary data-[hover=true]:bg-primary/90 data-[active=true]:bg-primary/90',
+        'bg-indigo-600 dark:bg-indigo-500 shadow-md shadow-indigo-500/25 data-[hover=true]:bg-indigo-700 data-[active=true]:bg-indigo-700 active:opacity-90',
       destructive:
-        'bg-destructive data-[hover=true]:bg-destructive/90 data-[active=true]:bg-destructive/90 focus-visible:ring-destructive/20 dark:focus-visible:ring-destructive/40 dark:bg-destructive/60',
+        'bg-rose-600 dark:bg-rose-500 shadow-md shadow-rose-500/25 data-[hover=true]:bg-rose-700 data-[active=true]:bg-rose-700 active:opacity-90',
       outline:
         'border border-border bg-background shadow-xs data-[hover=true]:bg-accent data-[active=true]:bg-accent dark:bg-input/[0.045] dark:border-border/90 dark:data-[hover=true]:bg-input/[0.075] dark:data-[active=true]:bg-input/[0.075]',
       secondary:
@@ -38,9 +38,9 @@ const buttonStyle = tva({
       link: 'text-primary underline-offset-4 data-[hover=true]:underline data-[active=true]:underline',
     },
     size: {
-      default: 'px-4 py-2',
-      sm: 'min-h-8 rounded-md px-3 text-xs',
-      lg: 'min-h-10 rounded-md px-8',
+      default: 'px-4 py-2.5',
+      sm: 'min-h-8 rounded-lg px-3 text-xs',
+      lg: 'min-h-11 rounded-xl px-6',
       icon: 'min-h-9 min-w-9',
     },
   },
@@ -145,11 +145,12 @@ type IButtonTextProps = React.ComponentPropsWithoutRef<typeof UIButton.Text> &
 const ButtonText = React.forwardRef<
   React.ElementRef<typeof UIButton.Text>,
   IButtonTextProps
->(({ className, size, ...props }, ref) => {
+>(({ className, size, style, ...props }, ref) => {
   const { size: parentSize, variant: parentVariant } = useStyleContext(SCOPE);
   return (
     <UIButton.Text
       ref={ref}
+      style={[{ fontFamily: 'PlusJakartaSans_700Bold' }, style]}
       {...props}
       className={buttonTextStyle({
         parentVariants: {

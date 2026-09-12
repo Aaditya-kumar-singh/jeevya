@@ -1,5 +1,6 @@
 import { useMemo } from 'react';
 import { ActivityIndicator, Pressable, RefreshControl, ScrollView, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Link, type Href } from 'expo-router';
 
 // Extended route type for new finance routes
@@ -29,6 +30,8 @@ import { Heading } from '@/components/ui/heading';
 import { Progress, ProgressFilledTrack } from '@/components/ui/progress';
 import { Text } from '@/components/ui/text';
 import { useFinance } from '@/hooks/useFinance';
+import { FadeInView } from '@/components/motion/FadeInView';
+import { ScalePressable } from '@/components/motion/ScalePressable';
 import type { FinanceTransaction } from '@/types/finance';
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -105,40 +108,40 @@ function BalanceSummary({
       </View>
 
       <View className="mt-4 flex-row gap-3">
-        <View className="flex-1 rounded-2xl bg-muted p-3">
+        <View className="flex-1 rounded-2xl bg-muted/60 p-3">
           <View className="flex-row items-center gap-1">
-            <ArrowDownLeft size={14} className="text-green-600 dark:text-green-400" />
-            <Text size="xs" className="text-muted-foreground">
+            <ArrowDownLeft size={14} className="text-success" />
+            <Text size="xs" className="text-muted-foreground font-medium">
               Income
             </Text>
           </View>
-          <Text size="md" className="mt-1 font-semibold text-green-600 dark:text-green-400">
+          <Text size="md" className="mt-1 font-semibold text-success">
             +{formatCurrency(monthlyIncome)}
           </Text>
         </View>
 
-        <View className="flex-1 rounded-2xl bg-muted p-3">
+        <View className="flex-1 rounded-2xl bg-muted/60 p-3">
           <View className="flex-row items-center gap-1">
-            <ArrowUpRight size={14} className="text-red-600 dark:text-red-400" />
-            <Text size="xs" className="text-muted-foreground">
+            <ArrowUpRight size={14} className="text-destructive" />
+            <Text size="xs" className="text-muted-foreground font-medium">
               Expenses
             </Text>
           </View>
-          <Text size="md" className="mt-1 font-semibold text-red-600 dark:text-red-400">
+          <Text size="md" className="mt-1 font-semibold text-destructive">
             -{formatCurrency(monthlyExpenses)}
           </Text>
         </View>
 
-        <View className="flex-1 rounded-2xl bg-muted p-3">
+        <View className="flex-1 rounded-2xl bg-muted/60 p-3">
           <View className="flex-row items-center gap-1">
-            <CircleDollarSign size={14} />
-            <Text size="xs" className="text-muted-foreground">
+            <CircleDollarSign size={14} className="text-muted-foreground" />
+            <Text size="xs" className="text-muted-foreground font-medium">
               Net
             </Text>
           </View>
           <Text
             size="md"
-            className={`mt-1 font-semibold ${net >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
+            className={`mt-1 font-semibold ${net >= 0 ? 'text-success' : 'text-destructive'}`}>
             {net >= 0 ? '+' : '-'}{formatCurrency(Math.abs(net))}
           </Text>
         </View>
@@ -492,6 +495,8 @@ export default function FinanceScreen() {
   } = useFinance();
 
   const monthKey = getMonthKey();
+  const insets = useSafeAreaInsets();
+  const topPadding = Math.max(insets.top + 12, 48);
 
   // Build category lookup map
   const categoryMap = useMemo(() => {
@@ -594,7 +599,7 @@ export default function FinanceScreen() {
       className="flex-1 bg-background"
       contentContainerStyle={{ paddingBottom: 32 }}
       refreshControl={<RefreshControl refreshing={refreshing} onRefresh={refresh} />}>
-      <View className="gap-4 px-5 pt-14">
+      <View className="gap-4 px-5 pb-12" style={{ paddingTop: topPadding }}>
         {/* Header */}
         <View>
           <Text size="sm" className="text-muted-foreground">
