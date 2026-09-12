@@ -1,0 +1,41 @@
+
+Name                      Length        Attributes
+----                      ------        ----------
+.expo                                    Directory
+.git                             Hidden, Directory
+.vscode                                  Directory
+assets                                   Directory
+node_modules                             Directory
+scripts                                  Directory
+sql                                      Directory
+src                                      Directory
+.env                      122              Archive
+.env.example              219              Archive
+.env.local                140              Archive
+.gitignore                517              Archive
+.npmrc                    22               Archive
+app.json                  1098             Archive
+babel.config.js           417              Archive
+eslint.config.js          276              Archive
+expo-env.d.ts             110              Archive
+global.css                3565             Archive
+l.trim()                  104              Archive
+LICENSE                   1106             Archive
+lint.log                  18800            Archive
+lint.out                  13646            Archive
+metro.config.js           248              Archive
+nativewind-env.d.ts       44               Archive
+not-a-real-file           101              Archive
+package-lock.json         636118           Archive
+package.json              2204             Archive
+postcss.config.mjs        70               Archive
+problems.txt              0                Archive
+react-native-css-env.d.ts 174              Archive
+README.md                 6881             Archive
+tailwind.config.js        296              Archive
+todo.md                   12               Archive
+tsc.out                   81               Archive
+tsconfig.json             339              Archive
+
+
+

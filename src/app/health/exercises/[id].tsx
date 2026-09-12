@@ -10,6 +10,8 @@ import { Heading } from '@/components/ui/heading';
 import { Text } from '@/components/ui/text';
 import { getExerciseById } from '@/services/exercises';
 import type { Exercise } from '@/types/exercise';
+import { Image } from 'expo-image';
+import { useOfflineExercise } from '@/hooks/useOfflineExercise';
 
 function DetailRow({ label, value }: { label: string; value: string }) {
   return (
@@ -25,6 +27,18 @@ export default function ExerciseDetailScreen() {
   const [exercise, setExercise] = useState<Exercise | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  const {
+    isDownloaded,
+    isDownloading,
+    downloadProgress,
+    downloadError,
+    removing,
+    download,
+    removeDownload,
+    exercise: offlineExercise,
+    mediaLocalUri
+  } = useOfflineExercise(id ?? '');
 
   const load = useCallback(async () => {
     if (!id) return;
@@ -42,7 +56,6 @@ export default function ExerciseDetailScreen() {
   }, [id]);
 
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
     void load();
   }, [load]);
 
@@ -54,7 +67,10 @@ export default function ExerciseDetailScreen() {
     );
   }
 
-  if (error || !exercise) {
+  // Use offline exercise data if it exists, otherwise online data
+  const activeExercise = offlineExercise || exercise;
+
+  if (error || !activeExercise) {
     return (
       <View className="flex-1 items-center justify-center gap-4 bg-background px-6">
         <Text size="sm" className="text-center text-muted-foreground">{error ?? 'Exercise not found.'}</Text>
@@ -65,8 +81,28 @@ export default function ExerciseDetailScreen() {
     );
   }
 
-  const steps: string[] = exercise.instruction_steps?.en ?? [];
-  const paragraph = exercise.instructions?.en ?? '';
+  const rawSteps = activeExercise.instruction_steps;
+  const steps: string[] = Array.isArray(rawSteps) ? rawSteps : (rawSteps?.en ?? []);
+  
+  const rawParagraph = activeExercise.instructions;
+  const paragraph: string = typeof rawParagraph === 'string' ? rawParagraph : (rawParagraph?.en ?? '');
+
+  const mediaUri = activeExercise.gif_url ?? activeExercise.image ?? null;
+  let finalMediaUrl: string | null = null;
+  if (mediaLocalUri) {
+    finalMediaUrl = mediaLocalUri;
+  } else if (mediaUri) {
+    finalMediaUrl = mediaUri.startsWith('http') 
+      ? mediaUri 
+      : `https://raw.githubusercontent.com/hasaneyldrm/exercises-dataset/main/${mediaUri}`;
+  }
+
+  console.log('DEBUG [id].tsx:', {
+    exerciseId: activeExercise.id,
+    mediaLocalUri,
+    mediaUri,
+    finalMediaUrl
+  });
 
   return (
     <ScrollView className="flex-1 bg-background">
@@ -76,29 +112,63 @@ export default function ExerciseDetailScreen() {
           <Text size="sm" className="text-muted-foreground">Back</Text>
         </Pressable>
 
-        <View className="flex-row items-start justify-between gap-2">
-          <Heading size="2xl" className="flex-1">{exercise.name}</Heading>
-          <Badge variant="secondary"><BadgeText>{exercise.body_part ?? '—'}</BadgeText></Badge>
+        {finalMediaUrl ? (
+          <Image
+            source={{ uri: finalMediaUrl }}
+            style={{ width: '100%', height: 256, borderRadius: 16, backgroundColor: '#f5f5f5' }}
+            contentFit="contain"
+            transition={200}
+          />
+        ) : null}
+
+        <View className="flex-row items-start justify-between gap-2 mt-2">
+          <Heading size="2xl" className="flex-1">{activeExercise.name}</Heading>
+          <Badge variant="secondary"><BadgeText>{activeExercise.body_part ?? '—'}</BadgeText></Badge>
         </View>
 
-        <Button
-          variant="default"
-          onPress={() =>
-            router.push({
-              pathname: '/health/workout-builder',
-              params: { exerciseId: exercise.id },
-            } as never)
-          }>
-          <ButtonText>Add to Workout</ButtonText>
-        </Button>
+        <View className="flex-row items-center gap-3">
+          <Button
+            variant="default"
+            className="flex-1"
+            onPress={() =>
+              router.push({
+                pathname: '/health/workout-builder',
+                params: { exerciseId: activeExercise.id },
+              } as never)
+            }>
+            <ButtonText>Add to Workout</ButtonText>
+          </Button>
+
+          {isDownloaded ? (
+             <Button
+               variant="outline"
+               disabled={removing}
+               onPress={() => void removeDownload()}
+             >
+               <ButtonText>{removing ? 'Removing...' : 'Remove Offline'}</ButtonText>
+             </Button>
+          ) : (
+             <Button
+               variant="outline"
+               disabled={isDownloading}
+               onPress={() => void download(activeExercise)}
+             >
+               <ButtonText>{isDownloading ? `Downloading ${Math.round((downloadProgress ?? 0) * 100)}%` : 'Download Offline'}</ButtonText>
+             </Button>
+          )}
+        </View>
+
+        {downloadError ? (
+          <Text size="sm" className="text-destructive">{downloadError}</Text>
+        ) : null}
 
         <Card className="gap-3 p-4">
-          <DetailRow label="Body part" value={exercise.body_part ?? '—'} />
-          <DetailRow label="Equipment" value={exercise.equipment ?? '—'} />
-          <DetailRow label="Target" value={exercise.target ?? '—'} />
-          <DetailRow label="Muscle group" value={exercise.muscle_group ?? '—'} />
-          {exercise.secondary_muscles && exercise.secondary_muscles.length > 0 ? (
-            <DetailRow label="Secondary" value={exercise.secondary_muscles.join(', ')} />
+          <DetailRow label="Body part" value={activeExercise.body_part ?? '—'} />
+          <DetailRow label="Equipment" value={activeExercise.equipment ?? '—'} />
+          <DetailRow label="Target" value={activeExercise.target ?? '—'} />
+          <DetailRow label="Muscle group" value={activeExercise.muscle_group ?? '—'} />
+          {activeExercise.secondary_muscles && activeExercise.secondary_muscles.length > 0 ? (
+            <DetailRow label="Secondary" value={activeExercise.secondary_muscles.join(', ')} />
           ) : null}
         </Card>
 
