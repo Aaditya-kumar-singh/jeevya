@@ -1,4 +1,5 @@
 import { Pressable, ScrollView, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Check, Trophy } from 'lucide-react-native';
 
 import { Button, ButtonText } from '@/components/ui/button';
@@ -38,6 +39,7 @@ export function WorkoutSummary({
   exerciseNames,
   onDone,
 }: WorkoutSummaryProps) {
+  const insets = useSafeAreaInsets();
   const totalSets = workout.exercises.reduce((n, e) => n + e.sets.length, 0);
   const completedSets = workout.exercises.reduce(
     (n, e) => n + e.sets.filter((s) => s.completed).length,
@@ -139,7 +141,10 @@ export function WorkoutSummary({
           </Pressable>
         </View>
       </ScrollView>
-      <View className="px-5 pb-8">
+      <View 
+        className="px-5 pt-2"
+        style={{ paddingBottom: Math.max(32, insets.bottom + 16) }}
+      >
         <Button variant="default" size="lg" onPress={onDone} className="w-full">
           <ButtonText>Done</ButtonText>
         </Button>

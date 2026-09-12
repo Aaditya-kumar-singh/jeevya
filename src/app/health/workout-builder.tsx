@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, Pressable, ScrollView, TextInput, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Plus } from 'lucide-react-native';
 
@@ -212,6 +213,7 @@ function BuilderBody({
   onStart,
   onBack,
 }: BuilderBodyProps) {
+  const insets = useSafeAreaInsets();
   return (
     <View className="flex-1 bg-background">
       <WorkoutHeader
@@ -287,7 +289,10 @@ function BuilderBody({
         </View>
       </ScrollView>
 
-      <View className="border-t border-border bg-background px-5 pb-8 pt-4">
+      <View 
+        className="border-t border-border bg-background px-5 pt-4"
+        style={{ paddingBottom: Math.max(32, insets.bottom + 16) }}
+      >
         <Button
           size="lg"
           variant="default"

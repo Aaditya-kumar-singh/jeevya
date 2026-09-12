@@ -1,6 +1,6 @@
 import { Pressable, ScrollView, View } from 'react-native';
 import { Link } from 'expo-router';
-import { BookOpen, ChevronRight, NotebookPen, Settings } from 'lucide-react-native';
+import { BookOpen, ChevronRight, NotebookPen, Settings, ListChecks } from 'lucide-react-native';
 
 import { Card } from '@/components/ui/card';
 import { Heading } from '@/components/ui/heading';
@@ -9,11 +9,12 @@ import { Text } from '@/components/ui/text';
 const links: {
   label: string;
   value: string;
-  href: '/books' | '/journal' | '/settings';
-  icon: typeof BookOpen;
+  href: '/books' | '/journal' | '/settings' | '/habits';
+  icon: typeof BookOpen | typeof ListChecks;
 }[] = [
   { label: 'Books', value: 'Reading list + progress', href: '/books', icon: BookOpen },
   { label: 'Journal', value: 'Reflect daily', href: '/journal', icon: NotebookPen },
+  { label: 'Habits', value: 'Build better routines', href: '/habits', icon: ListChecks },
   { label: 'Settings', value: 'Profile + app prefs', href: '/settings', icon: Settings },
 ];
 

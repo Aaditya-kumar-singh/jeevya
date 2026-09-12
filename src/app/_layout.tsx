@@ -30,11 +30,30 @@ export default function RootLayout() {
           <Stack.Screen name="health/nutrition" options={{ headerShown: false }} />
           <Stack.Screen name="finance/transactions" options={{ headerShown: false }} />
           <Stack.Screen name="finance/budget" options={{ headerShown: false }} />
+          <Stack.Screen name="finance/add-budget" options={{ headerShown: false }} />
+          <Stack.Screen name="finance/edit-budget/[id]" options={{ headerShown: false }} />
           <Stack.Screen name="finance/goals" options={{ headerShown: false }} />
+          <Stack.Screen name="finance/savings-goals" options={{ headerShown: false }} />
+          <Stack.Screen name="finance/savings-goals/[id]" options={{ headerShown: false }} />
+          <Stack.Screen name="finance/add-savings-goal" options={{ headerShown: false }} />
+          <Stack.Screen name="finance/edit-savings-goal/[id]" options={{ headerShown: false }} />
+          <Stack.Screen name="finance/add-expense" options={{ headerShown: false }} />
+          <Stack.Screen name="finance/[id]" options={{ headerShown: false }} />
+          <Stack.Screen name="finance/add-income" options={{ headerShown: false }} />
+          <Stack.Screen name="finance/add-account" options={{ headerShown: false }} />
+          <Stack.Screen name="finance/transfer" options={{ headerShown: false }} />
+          <Stack.Screen name="finance/accounts" options={{ headerShown: false }} />
+          <Stack.Screen name="finance/accounts/[id]" options={{ headerShown: false }} />
+          <Stack.Screen name="finance/analytics" options={{ headerShown: false }} />
+          <Stack.Screen name="finance/export" options={{ headerShown: false }} />
           <Stack.Screen name="books/index" options={{ headerShown: false }} />
           <Stack.Screen name="books/[id]" options={{ headerShown: false }} />
           <Stack.Screen name="journal/index" options={{ headerShown: false }} />
           <Stack.Screen name="settings/index" options={{ headerShown: false }} />
+          <Stack.Screen name="habits/index" options={{ headerShown: false }} />
+          <Stack.Screen name="habits/new" options={{ headerShown: false }} />
+          <Stack.Screen name="habits/[id]" options={{ headerShown: false }} />
+          <Stack.Screen name="habits/[id]/edit" options={{ headerShown: false }} />
         </Stack>
       </ThemeProvider>
     </SafeAreaProvider>

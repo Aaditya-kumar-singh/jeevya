@@ -8,6 +8,7 @@ import {
   TextInput,
   View,
 } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Check } from 'lucide-react-native';
 
 import { Badge, BadgeText } from '@/components/ui/badge';
@@ -29,6 +30,7 @@ export function ExercisePicker({
   initialSelectedIds = [],
   excludedIds = [],
 }: ExercisePickerProps) {
+  const insets = useSafeAreaInsets();
   const [query, setQuery] = useState('');
   const [bodyPart, setBodyPart] = useState('All');
   const [bodyParts, setBodyParts] = useState<string[]>([]);
@@ -208,7 +210,10 @@ export function ExercisePicker({
           }}
         />
 
-        <View className="px-5 pb-6 pt-2">
+        <View 
+          className="px-5 pt-2"
+          style={{ paddingBottom: Math.max(24, insets.bottom + 12) }}
+        >
           <Button variant="default" size="lg" onPress={() => onClose([...selectedMap.values()])}>
             <ButtonText>Add{selectedCount > 0 ? ` (${selectedCount})` : ''}</ButtonText>
           </Button>

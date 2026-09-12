@@ -7,6 +7,7 @@ import {
   ScrollView,
   View,
 } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { ChevronRight, MoreVertical, Pause, Play, Plus, Trash2, X } from 'lucide-react-native';
 
@@ -292,6 +293,7 @@ function SessionBody({
   onPickerClose,
   excludedIds,
 }: SessionBodyProps) {
+  const insets = useSafeAreaInsets();
   const metaLine = [meta?.body_part, meta?.equipment].filter(Boolean).join(' · ');
 
   return (
@@ -429,7 +431,10 @@ function SessionBody({
         </View>
       </ScrollView>
 
-      <View className="gap-3 border-t border-border bg-background px-5 pb-8 pt-4">
+      <View 
+        className="gap-3 border-t border-border bg-background px-5 pt-4"
+        style={{ paddingBottom: Math.max(32, insets.bottom + 16) }}
+      >
         {firstIncompleteId ? (
           <Button
             size="lg"

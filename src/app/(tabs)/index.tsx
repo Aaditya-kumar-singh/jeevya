@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useState, useEffect } from 'react';
 import { ScrollView, View } from 'react-native';
 import { useFocusEffect } from 'expo-router';
 
@@ -9,12 +9,15 @@ import HomeHeader from '@/components/dashboard/HomeHeader';
 import QuickActions from '@/components/dashboard/QuickActions';
 import TaskPreview from '@/components/dashboard/TaskPreview';
 import TodaysProgress from '@/components/dashboard/TodaysProgress';
+import { HabitPreview } from '@/components/dashboard/HabitPreview';
+import { useHabits } from '@/hooks/useHabits';
 import { dailyPulse } from '@/lib/mockData';
 import { getActiveWorkout } from '@/services/workouts';
 
 export default function HomeScreen() {
   const [workoutHref, setWorkoutHref] = useState('/health/workout-builder');
   const [workoutLabel, setWorkoutLabel] = useState('Workout');
+  const { todayHabits, toggleCompletion } = useHabits();
 
   useFocusEffect(
     useCallback(() => {
@@ -37,6 +40,13 @@ export default function HomeScreen() {
     }, []),
   );
 
+  const handleHabitComplete = useCallback(
+    (habitId: string) => {
+      toggleCompletion(habitId);
+    },
+    [toggleCompletion],
+  );
+
   return (
     <ScrollView className="flex-1 bg-background">
       <View className="gap-4 px-5 pb-8 pt-14">
@@ -49,6 +59,10 @@ export default function HomeScreen() {
         <HealthSnapshot />
         <TaskPreview />
         <FinanceSnapshot />
+        <HabitPreview
+          habits={todayHabits}
+          onComplete={handleHabitComplete}
+        />
         <QuickActions workoutHref={workoutHref} workoutLabel={workoutLabel} />
       </View>
     </ScrollView>
