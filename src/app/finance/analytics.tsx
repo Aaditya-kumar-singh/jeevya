@@ -27,11 +27,14 @@ import {
   Target,
 } from 'lucide-react-native';
 
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Button, ButtonText } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Heading } from '@/components/ui/heading';
 import { Progress, ProgressFilledTrack } from '@/components/ui/progress';
 import { Text } from '@/components/ui/text';
+import { FadeInView } from '@/components/motion/FadeInView';
+import { FloatingBlobsSVG } from '@/components/visuals/FloatingBlobsSVG';
 import { useAnalytics } from '@/hooks/useAnalytics';
 import { useFinance } from '@/hooks/useFinance';
 import {
@@ -847,8 +850,11 @@ function EmptyState() {
 
 export default function AnalyticsScreen() {
   const router = useRouter();
+  const insets = useSafeAreaInsets();
+  const topPadding = Math.max(insets.top + 12, 48);
   const { loading: financeLoading, error: financeError, refresh } = useFinance();
   const analytics = useAnalytics();
+
 
   const {
     periodType,
@@ -921,27 +927,36 @@ export default function AnalyticsScreen() {
   }
 
   return (
-    <ScrollView
-      className="flex-1 bg-background"
-      contentContainerStyle={{ paddingBottom: 32 }}
-      refreshControl={
-        <RefreshControl refreshing={financeLoading} onRefresh={refresh} />
-      }>
-      <View className="gap-4 px-5 pt-14">
-        {/* Header */}
-        <View className="flex-row items-center gap-3">
-          <Button variant="ghost" size="icon" onPress={() => router.back()}>
-            <ArrowLeft size={20} />
-          </Button>
-          <View className="flex-1">
-            <Text size="sm" className="text-muted-foreground">
-              Finance · Analytics
-            </Text>
-            <Heading size="xl" className="mt-1">
-              Reports
-            </Heading>
-          </View>
-        </View>
+    <View className="flex-1 bg-emerald-50/40 dark:bg-slate-950 relative">
+      {/* Ambient background SVG orbs */}
+      <View style={{ position: 'absolute', top: 0, left: 0, right: 0, zIndex: 0 }}>
+        <FloatingBlobsSVG color1="#10B981" color2="#059669" width={450} height={350} />
+      </View>
+
+      <ScrollView
+        className="flex-1"
+        contentContainerStyle={{ paddingBottom: 40 }}
+        refreshControl={
+          <RefreshControl refreshing={financeLoading} onRefresh={refresh} tintColor="#10B981" />
+        }>
+        <View className="gap-4 px-5" style={{ zIndex: 1, paddingTop: topPadding }}>
+          {/* Header */}
+          <FadeInView delay={0}>
+            <View className="flex-row items-center gap-3">
+              <Button variant="ghost" size="icon" onPress={() => router.back()} className="rounded-2xl bg-emerald-500/10">
+                <ArrowLeft size={20} className="text-emerald-600 dark:text-emerald-400" />
+              </Button>
+              <View className="flex-1">
+                <Text size="xs" className="font-semibold text-emerald-500 uppercase tracking-wider">
+                  Finance · Intelligence
+                </Text>
+                <Heading size="xl" className="mt-0.5 font-bold tracking-tight text-foreground">
+                  Analytics & Reports
+                </Heading>
+              </View>
+            </View>
+          </FadeInView>
+
 
         {/* Period controls */}
         <PeriodSelector
@@ -1004,5 +1019,6 @@ export default function AnalyticsScreen() {
         {hasAnyData && <InsightsCard insights={insights} />}
       </View>
     </ScrollView>
+  </View>
   );
 }

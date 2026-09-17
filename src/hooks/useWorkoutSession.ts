@@ -2,6 +2,12 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 
 import {
   addWorkoutSet,
+  addExerciseToWorkout,
+  getPreviousExercisePerformance,
+  getWorkoutSessions,
+  startWorkout,
+  removeWorkoutSet,
+  uncompleteWorkoutSet,
   completeWorkoutSet,
   discardWorkout,
   finishWorkout,
@@ -133,6 +139,20 @@ export function useWorkoutSession(workoutId: string) {
     setRestActive(false);
   }, []);
 
+  const getPreviousPerformance = useCallback(async (exerciseId: string) => getPreviousExercisePerformance(exerciseId, await getWorkoutSessions()), []);
+
+  const addExercise = useCallback(async (input: Parameters<typeof addExerciseToWorkout>[1]) => {
+    const updated = await addExerciseToWorkout(workoutId, input);
+    setWorkout(updated);
+    return updated;
+  }, [workoutId]);
+
+  const start = useCallback(async () => {
+    const updated = await startWorkout(workoutId);
+    setWorkout(updated);
+    return updated;
+  }, [workoutId]);
+
   const completeSet = useCallback(
     async (
       workoutExerciseId: string,
@@ -187,6 +207,22 @@ export function useWorkoutSession(workoutId: string) {
     [workoutId],
   );
 
+  const removeSet = useCallback(async (workoutExerciseId: string, setId: string) => {
+    try {
+      setWorkout(await removeWorkoutSet(workoutId, workoutExerciseId, setId));
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Failed to remove set');
+    }
+  }, [workoutId]);
+
+  const uncompleteSet = useCallback(async (workoutExerciseId: string, setId: string) => {
+    try {
+      setWorkout(await uncompleteWorkoutSet(workoutId, workoutExerciseId, setId));
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Failed to uncomplete set');
+    }
+  }, [workoutId]);
+
   const finish = useCallback(async () => {
     const result = await finishWorkout(workoutId, {
       pausedSeconds: Math.round(accumulatedMsRef.current / 1000),
@@ -236,8 +272,13 @@ export function useWorkoutSession(workoutId: string) {
     completeSet,
     updateSet,
     addSet,
+    removeSet,
+    uncompleteSet,
     finish,
     discard,
+    addExercise,
+    start,
+    getPreviousPerformance,
     newPersonalRecords,
     reload,
   };

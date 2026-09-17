@@ -1,6 +1,6 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { ScrollView, View } from 'react-native';
-import { useFocusEffect } from 'expo-router';
+import { router, useFocusEffect } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import DailyPulse from '@/components/dashboard/DailyPulse';
@@ -17,18 +17,32 @@ import { HabitPreview } from '@/components/dashboard/HabitPreview';
 import { FadeInView } from '@/components/motion/FadeInView';
 import { HeroWave } from '@/components/visuals/HeroWave';
 import { useHabits } from '@/hooks/useHabits';
-import { dailyPulse } from '@/lib/mockData';
+import { useTasks } from '@/hooks/useTasks';
+import type { DailyPulseItem } from '@/services/dailyPulse';
 import { getActiveWorkout } from '@/services/workouts';
+import { useLifeOSIntegration } from '@/hooks/useLifeOSIntegration';
+import { useDailyPlan } from '@/hooks/useDailyPlan';
+import { buildDailyPulse } from '@/services/dailyPulse';
+import type { DailyPlanItem } from '@/types/dailyPlan';
 
 export default function HomeScreen() {
   const [workoutHref, setWorkoutHref] = useState('/health/workout-builder');
   const [workoutLabel, setWorkoutLabel] = useState('Workout');
   const { todayHabits, toggleCompletion } = useHabits();
+  const { complete: completeTask } = useTasks();
+  const { data: lifeOSState, loading: lifeOSLoading, error: lifeOSError, refresh: refreshLifeOS } = useLifeOSIntegration();
+  const { data: dailyPlan, loading: dailyPlanLoading, error: dailyPlanError, refresh: refreshDailyPlan, execute: executeDailyPlanItem } = useDailyPlan();
+  const dailyPulseModel = useMemo(
+    () => (lifeOSState ? buildDailyPulse(lifeOSState) : null),
+    [lifeOSState],
+  );
   const insets = useSafeAreaInsets();
 
   useFocusEffect(
     useCallback(() => {
       let mounted = true;
+      void refreshLifeOS();
+      void refreshDailyPlan();
       getActiveWorkout()
         .then((active) => {
           if (!mounted) return;
@@ -44,7 +58,7 @@ export default function HomeScreen() {
       return () => {
         mounted = false;
       };
-    }, []),
+    }, [refreshDailyPlan, refreshLifeOS]),
   );
 
   const handleHabitComplete = useCallback(
@@ -53,6 +67,28 @@ export default function HomeScreen() {
     },
     [toggleCompletion],
   );
+
+  const handlePulseAction = useCallback(async (item: DailyPulseItem) => {
+    if (!item.actionTargetId) return;
+    if (item.actionType === 'complete_task') {
+      await completeTask(item.actionTargetId);
+      await Promise.all([refreshLifeOS(), refreshDailyPlan()]);
+      return;
+    }
+    if (item.actionType === 'complete_habit') {
+      await toggleCompletion(item.actionTargetId);
+      await Promise.all([refreshLifeOS(), refreshDailyPlan()]);
+    }
+  }, [completeTask, refreshDailyPlan, refreshLifeOS, toggleCompletion]);
+
+  const handleDailyPlanAction = useCallback(async (item: DailyPlanItem) => {
+    if (item.actionType === 'complete_task' || item.actionType === 'complete_habit') {
+      await executeDailyPlanItem(item);
+      await refreshLifeOS();
+      return;
+    }
+    if (item.navigationTarget) router.push(item.navigationTarget as never);
+  }, [executeDailyPlanItem, refreshLifeOS]);
 
   const topPadding = Math.max(insets.top + 12, 48);
 
@@ -78,8 +114,12 @@ export default function HomeScreen() {
 
           <FadeInView delay={120}>
             <DailyPulse
-              score={dailyPulse.lifeScore}
-              change={dailyPulse.scoreChange}
+              model={dailyPulseModel}
+              loading={lifeOSLoading || dailyPlanLoading}
+              error={lifeOSError || dailyPlanError}
+              onAction={handlePulseAction}
+              plan={dailyPlan}
+              onPlanAction={handleDailyPlanAction}
             />
           </FadeInView>
 

@@ -4,10 +4,10 @@
 // input always produces the same output regardless of device timezone.
 
 import {
-  daysInMonth,
   isValidDateString,
   isValidTimeString,
 } from '@/lib/task-filters';
+import { addDays as addCivilDays, daysInMonth, formatCivilDate, parseCivilDate, weekdayOf as canonicalWeekdayOf, shiftMonth } from '@/lib/date';
 import { uid } from '@/lib/uid';
 import { getNowISO, type Task, type TaskRecurrence } from '@/types/tasks';
 
@@ -169,31 +169,17 @@ export function describeRecurrence(rec: TaskRecurrence): string {
 
 // ─── Civil-date arithmetic (raw numbers — no timezone shifts) ─────────────────
 
-function toISO(y: number, m: number, d: number): string {
-  return `${y}-${String(m).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
-}
-
 function parseISO(iso: string): { y: number; m: number; d: number } {
-  const [y, m, d] = iso.split('-').map(Number);
-  return { y, m, d };
+  const parsed = parseCivilDate(iso);
+  if (!parsed) return { y: 0, m: 0, d: 0 };
+  return { y: parsed.year, m: parsed.month, d: parsed.day };
 }
 
 function addDays(iso: string, days: number): string {
-  const { y, m, d } = parseISO(iso);
-  // Build a UTC-noon Date to avoid DST edges, then step day-by-day in civil terms.
-  let date = new Date(Date.UTC(y, m - 1, d, 12));
-  date.setUTCDate(date.getUTCDate() + days);
-  return date.toISOString().slice(0, 10);
+  return addCivilDays(iso, days) ?? iso;
 }
 
-/**
- * Weekday of a YYYY-MM-DD string: 0 = Sunday … 6 = Saturday.
- * Uses UTC noon so the result is stable in every timezone.
- */
-export function weekdayOf(iso: string): number {
-  const { y, m, d } = parseISO(iso);
-  return new Date(Date.UTC(y, m - 1, d, 12)).getUTCDay();
-}
+export const weekdayOf = canonicalWeekdayOf;
 
 /**
  * MONTHLY CLAMP RULE (deterministic, documented):
@@ -205,11 +191,10 @@ export function weekdayOf(iso: string): number {
  */
 function addMonthsClamped(fromISO: string, months: number, anchorDay: number): string {
   const { y, m } = parseISO(fromISO);
-  const total = (y * 12 + (m - 1)) + months;
-  const ny = Math.floor(total / 12);
-  const nm = (total % 12) + 1;
-  const day = Math.min(anchorDay, daysInMonth(ny, nm));
-  return toISO(ny, nm, day);
+  const shifted = shiftMonth(y, m, months);
+  if (!shifted) return fromISO;
+  const day = Math.min(anchorDay, daysInMonth(shifted.year, shifted.month));
+  return formatCivilDate(shifted.year, shifted.month, day) ?? fromISO;
 }
 
 // ─── Next-occurrence calculation ──────────────────────────────────────────────

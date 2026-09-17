@@ -41,8 +41,10 @@ export interface UpdateJournalEntryInput {
  * Get the current full ISO datetime string.
  * (Mirrors the sibling helpers so Journal stays decoupled from other modules.)
  */
+import { nowISO, todayCivilDate } from '@/lib/date';
+
 export function getNowISO(): string {
-  return new Date().toISOString();
+  return nowISO();
 }
 
 /**
@@ -50,7 +52,7 @@ export function getNowISO(): string {
  * LifeOS — consistent with task due dates and goal windows).
  */
 export function getTodayDate(): string {
-  return new Date().toISOString().slice(0, 10);
+  return todayCivilDate();
 }
 
 /**

@@ -4,12 +4,11 @@
 // uses UTC-noon Dates (stable in every timezone).
 
 import {
-  daysInMonth,
   getDueDate,
   getTaskDueStatus,
   isValidDateString,
 } from '@/lib/task-filters';
-import { weekdayOf } from '@/lib/task-recurrence';
+import { daysInMonth, weekdayOf, shiftMonth as shiftCivilMonth, formatCivilDate } from '@/lib/date';
 import { getTodayISO, type Task } from '@/types/tasks';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -51,9 +50,7 @@ export const MONTH_NAMES = [
 
 // ─── Month grid ───────────────────────────────────────────────────────────────
 
-function toISO(y: number, m: number, d: number): string {
-  return `${y}-${String(m).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
-}
+
 
 /**
  * Build the day cells for a month (no padding — callers render leading blanks
@@ -68,7 +65,7 @@ export function getMonthDays(year: number, month: number, today: string = getTod
   if (count <= 0) return [];
   const days: CalendarDay[] = [];
   for (let d = 1; d <= count; d++) {
-    const date = toISO(year, month, d);
+    const date = formatCivilDate(year, month, d)!;
     days.push({
       date,
       day: d,
@@ -86,7 +83,7 @@ export function getFirstWeekday(year: number, month: number): number {
   if (!Number.isInteger(year) || !Number.isInteger(month) || month < 1 || month > 12) {
     return -1;
   }
-  return weekdayOf(toISO(year, month, 1));
+  return weekdayOf(formatCivilDate(year, month, 1)!);
 }
 
 /** Shift a (year, month) pair by `delta` months; handles year boundaries. */
@@ -95,10 +92,7 @@ export function shiftMonth(
   month: number,
   delta: number,
 ): { year: number; month: number } {
-  const total = year * 12 + (month - 1) + delta;
-  const y = Math.floor(total / 12);
-  const m = (total % 12) + 1;
-  return { year: y, month: m };
+  return shiftCivilMonth(year, month, delta) ?? { year, month };
 }
 
 /** "September 2026" — safe fallback for invalid input. */

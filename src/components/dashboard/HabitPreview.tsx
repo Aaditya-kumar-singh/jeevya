@@ -30,7 +30,7 @@ export function HabitPreview({ habits, onComplete }: HabitPreviewProps) {
           <View className="h-7 w-7 items-center justify-center rounded-lg bg-violet-500/15 text-violet-500">
             <Flame size={16} className="text-violet-500" fill="#8B5CF6" />
           </View>
-          <Heading size="sm" className="font-bold">Today's Habits</Heading>
+          <Heading size="sm" className="font-bold">Today&apos;s Habits</Heading>
         </View>
         <View className="rounded-full bg-violet-500/10 px-2.5 py-0.5 border border-violet-500/20">
           <Text size="xs" className="font-bold text-violet-600 dark:text-violet-400">
@@ -77,7 +77,7 @@ export function HabitPreview({ habits, onComplete }: HabitPreviewProps) {
         ))}
 
         {remainingCount > 0 && (
-          <Link href="/(tabs)/tasks" asChild>
+          <Link href="/habits" asChild>
             <Pressable className="py-2 items-center">
               <Text size="xs" className="font-bold text-violet-600 dark:text-violet-400">
                 + {remainingCount} more habits →

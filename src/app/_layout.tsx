@@ -19,6 +19,8 @@ import {
 } from "@expo-google-fonts/outfit";
 
 import { GluestackUIProvider } from "@/components/ui/gluestack-ui-provider";
+import { LifeOSThemeProvider } from "@/lib/themeContext";
+import { AndroidWidgetRefreshBridge } from "@/components/widgets/AndroidWidgetRefreshBridge";
 
 SplashScreen.preventAutoHideAsync();
 
@@ -47,15 +49,30 @@ export default function RootLayout() {
   }
 
   return (
-    <GluestackUIProvider mode="system">
-      <SafeAreaProvider>
-        <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
-          <Stack screenOptions={{ headerShown: false }}>
-            <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+    <LifeOSThemeProvider>
+      <AndroidWidgetRefreshBridge />
+      <GluestackUIProvider mode="system">
+        <SafeAreaProvider>
+          <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
+            <Stack screenOptions={{ headerShown: false }}>
+              <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+              <Stack.Screen name="goals" options={{ headerShown: false }} />
             <Stack.Screen name="health/workout" options={{ headerShown: false }} />
             <Stack.Screen name="health/exercises" options={{ headerShown: false }} />
             <Stack.Screen name="health/sleep" options={{ headerShown: false }} />
             <Stack.Screen name="health/nutrition" options={{ headerShown: false }} />
+            <Stack.Screen name="nutrition/index" options={{ headerShown: false }} />
+            <Stack.Screen name="nutrition/log" options={{ headerShown: false }} />
+            <Stack.Screen name="nutrition/meals" options={{ headerShown: false }} />
+            <Stack.Screen name="nutrition/custom-foods" options={{ headerShown: false }} />
+            <Stack.Screen name="nutrition/custom-food-edit" options={{ headerShown: false }} />
+            <Stack.Screen name="nutrition/recipes" options={{ headerShown: false }} />
+            <Stack.Screen name="nutrition/recipe" options={{ headerShown: false }} />
+            <Stack.Screen name="nutrition/recipe-edit" options={{ headerShown: false }} />
+            <Stack.Screen name="nutrition/targets" options={{ headerShown: false }} />
+            <Stack.Screen name="nutrition/energy" options={{ headerShown: false }} />
+            <Stack.Screen name="nutrition/analytics" options={{ headerShown: false }} />
+            <Stack.Screen name="nutrition/insights" options={{ headerShown: false }} />
             <Stack.Screen name="finance/transactions" options={{ headerShown: false }} />
             <Stack.Screen name="finance/budget" options={{ headerShown: false }} />
             <Stack.Screen name="finance/add-budget" options={{ headerShown: false }} />
@@ -86,6 +103,7 @@ export default function RootLayout() {
           <Stack.Screen name="journal/[id]" options={{ headerShown: false }} />
           <Stack.Screen name="journal/[id]/edit" options={{ headerShown: false }} />
             <Stack.Screen name="settings/index" options={{ headerShown: false }} />
+            <Stack.Screen name="settings/appearance" options={{ headerShown: false }} />
             <Stack.Screen name="habits/index" options={{ headerShown: false }} />
             <Stack.Screen name="habits/new" options={{ headerShown: false }} />
             <Stack.Screen name="habits/[id]" options={{ headerShown: false }} />
@@ -99,5 +117,6 @@ export default function RootLayout() {
         </ThemeProvider>
       </SafeAreaProvider>
     </GluestackUIProvider>
+    </LifeOSThemeProvider>
   );
 }

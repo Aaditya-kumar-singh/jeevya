@@ -30,6 +30,11 @@ import { Progress, ProgressFilledTrack } from '@/components/ui/progress';
 import { Text } from '@/components/ui/text';
 import { useBooks } from '@/hooks/useBooks';
 import { useBookGoals } from '@/hooks/useBookGoals';
+import { FadeInView } from '@/components/motion/FadeInView';
+import { ScalePressable } from '@/components/motion/ScalePressable';
+import { CategoryWave } from '@/components/visuals/CategoryWave';
+import { FloatingBlobsSVG } from '@/components/visuals/FloatingBlobsSVG';
+import { SVGDonutChart } from '@/components/visuals/SVGDonutChart';
 import {
   formatGoalPeriod,
   getGoalProgress,
@@ -525,53 +530,74 @@ export default function BooksScreen() {
   }
 
   return (
-    <ScrollView
-      className="flex-1 bg-background"
-      contentContainerStyle={{ paddingBottom: 100 }}
-      keyboardShouldPersistTaps="handled"
-      refreshControl={
-        <RefreshControl refreshing={refreshing} onRefresh={() => void refresh()} />
-      }
-    >
-      <View className="gap-4 px-5 pb-12" style={{ paddingTop: topPadding }}>
-        <View className="flex-row items-center gap-3">
-          <View className="flex-1">
-            <Text size="sm" className="text-muted-foreground">
-              Growth · Library
-            </Text>
-            <Heading size="xl" className="mt-1">
-              Books
-            </Heading>
-            <Text size="sm" className="mt-1 text-muted-foreground">
-              {overview.reading} currently reading · {books.length} total
-            </Text>
-          </View>
-          <Pressable
-            onPress={() => router.push('/books/analytics' as any)}
-            className="min-h-[44px] min-w-[44px] items-center justify-center rounded-lg bg-muted px-3"
-            accessibilityRole="button"
-            accessibilityLabel="Open reading analytics"
-          >
-            <TrendingUp size={18} className="text-muted-foreground" />
-          </Pressable>
-        </View>
+    <View className="flex-1 bg-amber-50/40 dark:bg-slate-950 relative">
+      {/* Ambient background SVG orbs */}
+      <View style={{ position: 'absolute', top: 0, left: 0, right: 0, zIndex: 0 }}>
+        <FloatingBlobsSVG color1="#F59E0B" color2="#D97706" width={450} height={350} />
+      </View>
 
-        {/* Reading Overview */}
-        {books.length > 0 ? (
-          <Card className="w-full p-4">
-            <Text size="sm" className="mb-3 font-medium text-muted-foreground">
-              Reading Overview
-            </Text>
-            <View className="flex-row gap-2">
-              <OverviewTile value={`${overview.reading}`} label="Reading" />
-              <OverviewTile value={`${overview.waiting}`} label="To Read" />
+      <ScrollView
+        className="flex-1"
+        contentContainerStyle={{ paddingBottom: 100 }}
+        keyboardShouldPersistTaps="handled"
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={() => void refresh()} tintColor="#F59E0B" />
+        }
+      >
+        <View className="gap-4 px-5 pb-12" style={{ zIndex: 1, paddingTop: topPadding }}>
+          <FadeInView delay={0}>
+            <View className="flex-row items-center gap-3">
+              <View className="flex-1">
+                <Text size="xs" className="font-semibold text-amber-500 uppercase tracking-wider">
+                  Knowledge & Mindset Hub
+                </Text>
+                <Heading size="xl" className="mt-1 font-bold tracking-tight text-foreground">
+                  Reading Library
+                </Heading>
+                <Text size="sm" className="mt-1 text-muted-foreground font-medium">
+                  {overview.reading} currently reading · {books.length} total books
+                </Text>
+              </View>
+              <Pressable
+                onPress={() => router.push('/books/analytics' as any)}
+                className="h-12 w-12 items-center justify-center rounded-2xl bg-amber-500/15 border border-amber-500/20 shadow-xs"
+                accessibilityRole="button"
+                accessibilityLabel="Open reading analytics"
+              >
+
+                <BookOpen size={22} className="text-blue-500" />
+              </Pressable>
             </View>
-            <View className="mt-2 flex-row gap-2">
-              <OverviewTile value={`${overview.completed}`} label="Completed" />
-              <OverviewTile value={`${overview.pagesRead}`} label="Pages Read" />
-            </View>
-          </Card>
-        ) : null}
+          </FadeInView>
+
+          {/* Reading Overview */}
+          {books.length > 0 ? (
+            <FadeInView delay={60}>
+              <Card className="w-full p-5 border border-blue-500/25 bg-card shadow-sm rounded-3xl">
+                <View className="flex-row items-center justify-between">
+                  <View className="flex-1 pr-3">
+                    <Text size="xs" className="font-bold text-blue-600 dark:text-blue-400 uppercase tracking-wider mb-2">
+                      Library Overview
+                    </Text>
+                    <View className="flex-row gap-2">
+                      <OverviewTile value={`${overview.reading}`} label="Reading" />
+                      <OverviewTile value={`${overview.waiting}`} label="To Read" />
+                    </View>
+                    <View className="mt-2 flex-row gap-2">
+                      <OverviewTile value={`${overview.completed}`} label="Completed" />
+                      <OverviewTile value={`${overview.pagesRead}`} label="Pages Read" />
+                    </View>
+                  </View>
+                  <SVGDonutChart
+                    percentage={books.length > 0 ? Math.round((overview.completed / books.length) * 100) : 0}
+                    size={90}
+                    color="#3B82F6"
+                    label="Done"
+                  />
+                </View>
+              </Card>
+            </FadeInView>
+          ) : null}
 
         {/* Dashboard sections (dashboard mode only) */}
         {dashboardMode ? (
@@ -802,6 +828,7 @@ export default function BooksScreen() {
           <Plus size={24} className="text-primary-foreground" />
         </Pressable>
       </View>
-    </ScrollView>
+      </ScrollView>
+    </View>
   );
 }

@@ -11,7 +11,7 @@ import { WorkoutExerciseCard } from '@/components/workout/WorkoutExerciseCard';
 import { WorkoutHeader } from '@/components/workout/WorkoutHeader';
 import { WorkoutEmptyState } from '@/components/workout/WorkoutEmptyState';
 import { useWorkout } from '@/hooks/useWorkout';
-import { deleteWorkout } from '@/services/workouts';
+
 import { getExercisesByIds, type Exercise } from '@/services/exercises';
 import type { Workout, WorkoutExercise } from '@/types/workout';
 
@@ -35,6 +35,8 @@ export default function WorkoutBuilderScreen() {
     updateName,
     save,
     start,
+    deleteWorkout,
+    addTemplate,
   } = useWorkout(params.id ?? null);
 
   const [name, setName] = useState('');
@@ -59,7 +61,7 @@ export default function WorkoutBuilderScreen() {
         void deleteWorkout(draft.id);
       }
     },
-    [],
+    [deleteWorkout],
   );
 
   useEffect(() => {
@@ -118,6 +120,22 @@ export default function WorkoutBuilderScreen() {
     [workout, addExercise],
   );
 
+  const saveAsTemplate = useCallback(async () => {
+    if (!workout || !name.trim()) return;
+    await addTemplate({
+      name: name.trim(),
+      exercises: workout.exercises.map((exercise) => ({
+        exerciseId: exercise.exerciseId,
+        sets: Array.from({ length: Math.max(1, exercise.setsTarget) }, (_, index) => ({
+          setNumber: index + 1,
+          targetReps: exercise.repsTarget,
+          targetWeightKg: exercise.weightTarget,
+          restSeconds: exercise.restSeconds,
+        })),
+      })),
+    });
+  }, [workout, name, addTemplate]);
+
   const startWorkoutNow = useCallback(async () => {
     commitName();
     const active = await start();
@@ -171,6 +189,7 @@ export default function WorkoutBuilderScreen() {
       onUpdate={updateExercise}
       onMove={moveExercise}
       onStart={() => void startWorkoutNow()}
+      onSaveTemplate={() => void saveAsTemplate()}
       onBack={() => router.back()}
     />
   );
@@ -192,6 +211,7 @@ interface BuilderBodyProps {
   onUpdate: (id: string, patch: ExercisePatch) => void;
   onMove: (id: string, direction: -1 | 1) => void;
   onStart: () => void;
+  onSaveTemplate: () => void;
   onBack: () => void;
 }
 
@@ -211,6 +231,7 @@ function BuilderBody({
   onUpdate,
   onMove,
   onStart,
+  onSaveTemplate,
   onBack,
 }: BuilderBodyProps) {
   const insets = useSafeAreaInsets();
@@ -265,6 +286,15 @@ function BuilderBody({
             );
           })}
 
+          <Pressable
+            onPress={onSaveTemplate}
+            disabled={saving || workout.exercises.length === 0}
+            accessibilityRole="button"
+            accessibilityLabel="Save workout as template"
+            className="items-center justify-center rounded-2xl border border-border bg-card py-3 active:opacity-70">
+            <Text size="sm" className="font-semibold text-primary">Save as Template</Text>
+          </Pressable>
+
           {workout.exercises.length === 0 ? (
             <WorkoutEmptyState
               title="No exercises yet"
@@ -311,3 +341,4 @@ function BuilderBody({
     </View>
   );
 }
+

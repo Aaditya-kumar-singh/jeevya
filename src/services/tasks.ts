@@ -1,4 +1,6 @@
 import { saveData, loadData } from '@/lib/storage';
+import { updateStorage } from '@/services/storageReliability';
+import { taskRepository } from '@/services/repositories/tasks';
 import { uid } from '@/lib/uid';
 import {
   getNowISO,
@@ -25,11 +27,14 @@ import { sanitizeLabelIds } from '@/lib/task-labels';
 import { isValidDateString } from '@/lib/task-filters';
 import { getTodayISO } from '@/types/tasks';
 
-// ─── Storage Key ──────────────────────────────────────────────────────────────
+// â”€â”€â”€ Storage Key â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
-const TASKS_KEY = 'lifeos:tasks';
+export const TASKS_KEY = 'lifeos:tasks';
+const LEGACY_TASKS_KEY = '@lifeos/tasks/v1';
+const TASKS_MIGRATION_KEY = 'lifeos:tasks:migration:v1';
+let migrationPromise: Promise<void> | null = null;
 
-// ─── Migration / Backward Compatibility ───────────────────────────────────────
+// â”€â”€â”€ Migration / Backward Compatibility â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 /**
  * Normalize a raw record into a fully-typed Task.
@@ -51,9 +56,9 @@ function normalizeTask(raw: Record<string, unknown>): Task {
     // Pre-1E records (and malformed recurrence blobs) become non-recurring.
     recurrence: sanitizeRecurrence(raw.recurrence),
     seriesId: raw.seriesId != null && raw.seriesId !== '' ? String(raw.seriesId) : null,
-    // Pre-1G-A records have no `subtasks` key — normalize to an empty list.
+    // Pre-1G-A records have no `subtasks` key â€” normalize to an empty list.
     subtasks: sanitizeSubtasks(raw.subtasks),
-    // Pre-1G-B records have no `labelIds` key — normalize to an empty list.
+    // Pre-1G-B records have no `labelIds` key â€” normalize to an empty list.
     labelIds: sanitizeLabelIds(raw.labelIds),
   };
 }
@@ -63,19 +68,79 @@ function isValidPriority(value: unknown): value is Task['priority'] {
 }
 
 /**
- * Load all tasks from storage, normalizing any old records.
- * Never throws — returns empty array on error.
+ * Migrate the old task store into the canonical task store.
+ * Canonical records win on duplicate IDs. Legacy storage is left untouched so
+ * a migration failure can never silently destroy the user's old data.
+ * The migration marker is written only after the canonical write succeeds.
+ */
+export async function migrateLegacyTasks(): Promise<void> {
+  if (migrationPromise) return migrationPromise;
+
+  migrationPromise = (async () => {
+    try {
+      const marker = await loadData<{ version?: number } | null>(TASKS_MIGRATION_KEY, null);
+      if (marker?.version === 1) return;
+
+      const legacyRaw = await loadData<unknown>(LEGACY_TASKS_KEY, null);
+      if (!Array.isArray(legacyRaw)) {
+        await saveData(TASKS_MIGRATION_KEY, { version: 1 });
+        return;
+      }
+
+      const canonicalRaw: unknown = await taskRepository.get([]);
+      const canonical = Array.isArray(canonicalRaw)
+        ? canonicalRaw
+            .filter((raw): raw is Record<string, unknown> => !!raw && typeof raw === 'object')
+            .map(normalizeTask)
+            .filter((task) => task.id !== '')
+        : [];
+
+      const canonicalIds = new Set(canonical.map((task) => task.id));
+      const legacyById = new Map<string, Task>();
+      for (const raw of legacyRaw) {
+        if (!raw || typeof raw !== 'object') continue;
+        const task = normalizeTask(raw as Record<string, unknown>);
+        if (task.id !== '' && !canonicalIds.has(task.id) && !legacyById.has(task.id)) {
+          legacyById.set(task.id, task);
+        }
+      }
+      const imported = [...legacyById.values()];
+      if (imported.length > 0) {
+        await taskRepository.set([...imported, ...canonical]);
+      }
+
+      await saveData(TASKS_MIGRATION_KEY, { version: 1 });
+    } catch {
+      // Leave the marker unset so a later load can safely retry.
+    }
+  })();
+
+  try {
+    await migrationPromise;
+  } finally {
+    migrationPromise = null;
+  }
+}
+
+/**
+ * Load all tasks from the canonical store, normalizing any old records.
+ * Legacy migration runs once before the canonical read.
+ * Never throws â€” returns empty array on error.
  */
 async function loadNormalized(): Promise<Task[]> {
   try {
-    const raw = await loadData<Record<string, unknown>[]>(TASKS_KEY, []);
-    return raw.map(normalizeTask).filter((t) => t.id !== '');
+    await migrateLegacyTasks();
+    const raw = await taskRepository.get([]);
+    return raw
+      .filter((item): item is Task => !!item && typeof item === 'object')
+      .map((item) => normalizeTask(item as unknown as Record<string, unknown>))
+      .filter((t) => t.id !== '');
   } catch {
     return [];
   }
 }
 
-// ─── CRUD ─────────────────────────────────────────────────────────────────────
+// â”€â”€â”€ CRUD â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 /**
  * Get all tasks, newest first.
@@ -118,7 +183,6 @@ export async function createTask(input: CreateTaskInput): Promise<Task> {
     throw new Error('Task title is required');
   }
 
-  const tasks = await loadNormalized();
   const now = getNowISO();
 
   const task: Task = {
@@ -141,7 +205,13 @@ export async function createTask(input: CreateTaskInput): Promise<Task> {
     labelIds: sanitizeLabelIds(input.labelIds),
   };
 
-  await saveData(TASKS_KEY, [task, ...tasks]);
+  await updateStorage<Task[]>(TASKS_KEY, [], (current) => {
+    const tasks = current
+      .filter((item): item is Task => !!item && typeof item === 'object')
+      .map((item) => normalizeTask(item as unknown as Record<string, unknown>))
+      .filter((t) => t.id !== '');
+    return [task, ...tasks];
+  });
   return task;
 }
 
@@ -152,59 +222,59 @@ export async function updateTask(
   id: string,
   input: UpdateTaskInput,
 ): Promise<Task | null> {
-  const tasks = await loadNormalized();
-  const index = tasks.findIndex((t) => t.id === id);
+  let updatedResult: Task | null = null;
+  await updateStorage<Task[]>(TASKS_KEY, [], (current) => {
+    const tasks = current
+      .filter((item): item is Task => !!item && typeof item === 'object')
+      .map((item) => normalizeTask(item as unknown as Record<string, unknown>))
+      .filter((t) => t.id !== '');
+    const index = tasks.findIndex((t) => t.id === id);
+    if (index === -1) return tasks;
 
-  if (index === -1) return null;
+    const task = tasks[index];
+    const now = getNowISO();
+    let completedAt = task.completedAt;
+    if (input.completed !== undefined && input.completed !== task.completed) {
+      completedAt = input.completed ? now : null;
+    }
 
-  const task = tasks[index];
-  const now = getNowISO();
+    const updated: Task = {
+      ...task,
+      ...input,
+      completedAt,
+      updatedAt: now,
+      recurrence: 'recurrence' in input ? sanitizeRecurrence(input.recurrence) : task.recurrence,
+      seriesId: 'recurrence' in input
+        ? sanitizeRecurrence(input.recurrence)
+          ? (input.recurrence ? task.seriesId ?? uid('series_') : null)
+          : null
+        : task.seriesId,
+      labelIds: 'labelIds' in input ? sanitizeLabelIds(input.labelIds) : task.labelIds,
+    };
 
-  // If toggling completed, set/clear completedAt
-  let completedAt = task.completedAt;
-  if (input.completed !== undefined && input.completed !== task.completed) {
-    completedAt = input.completed ? now : null;
-  }
-
-  const updated: Task = {
-    ...task,
-    ...input,
-    completedAt,
-    updatedAt: now,
-    // Edits may add/change/remove recurrence. When turning a normal task into
-    // a recurring one, seed its series id. When removing recurrence, the
-    // seriesId is cleared too so stale metadata never lingers.
-    recurrence: 'recurrence' in input ? sanitizeRecurrence(input.recurrence) : task.recurrence,
-    seriesId: 'recurrence' in input
-      ? sanitizeRecurrence(input.recurrence)
-        ? (input.recurrence ? task.seriesId ?? uid('series_') : null)
-        : null
-      : task.seriesId,
-    // Label IDs are always re-sanitized on write (dedupe + drop junk).
-    labelIds: 'labelIds' in input ? sanitizeLabelIds(input.labelIds) : task.labelIds,
-  };
-
-  // Validation
-  if (updated.title !== undefined && !updated.title.trim()) {
-    throw new Error('Task title is required');
-  }
-
-  tasks[index] = updated;
-  await saveData(TASKS_KEY, tasks);
-  return updated;
+    if (!updated.title.trim()) throw new Error('Task title is required');
+    tasks[index] = updated;
+    updatedResult = updated;
+    return tasks;
+  });
+  return updatedResult;
 }
 
 /**
  * Delete a task by ID.
  */
 export async function deleteTask(id: string): Promise<boolean> {
-  const tasks = await loadNormalized();
-  const filtered = tasks.filter((t) => t.id !== id);
-
-  if (filtered.length === tasks.length) return false;
-
-  await saveData(TASKS_KEY, filtered);
-  return true;
+  let deleted = false;
+  await updateStorage<Task[]>(TASKS_KEY, [], (current) => {
+    const tasks = current
+      .filter((item): item is Task => !!item && typeof item === 'object')
+      .map((item) => normalizeTask(item as unknown as Record<string, unknown>))
+      .filter((t) => t.id !== '');
+    const filtered = tasks.filter((t) => t.id !== id);
+    deleted = filtered.length !== tasks.length;
+    return filtered;
+  });
+  return deleted;
 }
 
 /**
@@ -227,12 +297,12 @@ export async function completeTask(
 
   const rec = sanitizeRecurrence(completed.recurrence);
   if (!rec) {
-    // Normal (non-recurring) task — exactly the old behavior.
+    // Normal (non-recurring) task â€” exactly the old behavior.
     return { task: completed, nextOccurrence: null, recurrenceWarning: null };
   }
 
   try {
-    // Uncomplete → re-complete is idempotent: the completed flag simply flips
+    // Uncomplete â†’ re-complete is idempotent: the completed flag simply flips
     // back on, and the duplicate guard below prevents a second occurrence.
     const tasks = await loadNormalized();
 
@@ -249,7 +319,7 @@ export async function completeTask(
 
     const nextDue = calculateNextOccurrence(rec, from);
     if (!nextDue) {
-      // Series ended (end date reached) — completion stands, no new occurrence.
+      // Series ended (end date reached) â€” completion stands, no new occurrence.
       return { task: completed, nextOccurrence: null, recurrenceWarning: null };
     }
 
@@ -271,10 +341,10 @@ export async function completeTask(
     }
 
     const withSeries: Task = { ...next, seriesId };
-    await saveData(TASKS_KEY, [withSeries, ...tasks]);
+    await taskRepository.set([withSeries, ...tasks]);
     return { task: completed, nextOccurrence: withSeries, recurrenceWarning: null };
   } catch (e) {
-    // Generation failed: the completion is already persisted — surface why.
+    // Generation failed: the completion is already persisted â€” surface why.
     return {
       task: completed,
       nextOccurrence: null,
@@ -305,9 +375,9 @@ export async function restoreTask(id: string): Promise<Task | null> {
   return updateTask(id, { archived: false });
 }
 
-// ─── Subtasks (Phase 1G-A) ────────────────────────────────────────────────────
+// â”€â”€â”€ Subtasks (Phase 1G-A) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 // Subtasks are owned by their parent task and persisted inline in the same
-// AsyncStorage record — no new storage keys, no new architecture.
+// AsyncStorage record â€” no new storage keys, no new architecture.
 
 async function persistSubtaskList(
   taskId: string,
@@ -318,7 +388,7 @@ async function persistSubtaskList(
   if (index === -1) return null;
   const updated: Task = { ...tasks[index], subtasks: next, updatedAt: getNowISO() };
   tasks[index] = updated;
-  await saveData(TASKS_KEY, tasks);
+  await taskRepository.set(tasks);
   return updated;
 }
 
@@ -343,7 +413,7 @@ export async function addSubtask(
 
 /**
  * Rename and/or complete/uncomplete a subtask. Parent completion is never
- * touched here — it stays fully independent. Returns the updated parent,
+ * touched here â€” it stays fully independent. Returns the updated parent,
  * or null when parent/subtask is missing. Throws on blank titles.
  */
 export async function updateSubtask(
@@ -385,3 +455,7 @@ export async function deleteSubtask(
   if (!parent.subtasks.some((s) => s.id === subtaskId)) return null;
   return persistSubtaskList(taskId, removeSubtask(parent.subtasks, subtaskId));
 }
+
+
+
+

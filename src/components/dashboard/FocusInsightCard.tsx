@@ -48,7 +48,7 @@ export function FocusInsightCard() {
 
         <Pressable
           onPress={nextInsight}
-          className="h-8 w-8 items-center justify-center rounded-full bg-muted/60 active:scale-95"
+          className="h-8 w-8 items-center justify-center rounded-full bg-muted/60 active:opacity-80"
           accessibilityLabel="Next insight"
         >
           <RefreshCw size={14} className="text-muted-foreground" />

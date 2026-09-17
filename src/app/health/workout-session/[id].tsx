@@ -25,7 +25,6 @@ import { WorkoutSetRow } from '@/components/workout/WorkoutSetRow';
 import { WorkoutSummary } from '@/components/workout/WorkoutSummary';
 import { useWorkoutSession } from '@/hooks/useWorkoutSession';
 import { getExercisesByIds, type Exercise } from '@/services/exercises';
-import { addExerciseToWorkout, getPreviousExercisePerformance, startWorkout } from '@/services/workouts';
 import type { WorkoutSet } from '@/types/workout';
 
 function formatClock(totalSeconds: number): string {
@@ -44,7 +43,7 @@ export default function WorkoutSessionScreen() {
     workout, loading, error, completing, paused, pause, resume, elapsedSeconds,
     currentExercise, currentIndex, setCurrentIndex, exercises, totalSets, completedSets,
     restRemaining, restComplete, restActive, addRestTime, skipRest, completeSet,
-    updateSet, addSet, finish, discard, newPersonalRecords,
+    updateSet, addSet, removeSet, uncompleteSet, finish, discard, addExercise, start, getPreviousPerformance, newPersonalRecords,
   } = useWorkoutSession(id);
 
   const [metas, setMetas] = useState<Map<string, Exercise>>(new Map());
@@ -72,13 +71,13 @@ export default function WorkoutSessionScreen() {
   useEffect(() => {
     if (!currentExerciseId) return;
     let active = true;
-    getPreviousExercisePerformance(currentExerciseId).then((sets) => {
+    getPreviousPerformance(currentExerciseId).then((sets) => {
       if (active) setPrevSets(sets);
     });
     return () => {
       active = false;
     };
-  }, [currentExerciseId]);
+  }, [currentExerciseId, getPreviousPerformance]);
 
   const meta = currentExercise ? metas.get(currentExercise.exerciseId) : undefined;
   const allCurrentDone = currentExercise
@@ -129,7 +128,7 @@ export default function WorkoutSessionScreen() {
       if (!workout) return;
       for (const exercise of selected) {
         if (workout.exercises.some((e) => e.exerciseId === exercise.id)) continue;
-        await addExerciseToWorkout(workout.id, {
+        await addExercise({
           exerciseId: exercise.id,
           setsTarget: 3,
           repsTarget: 10,
@@ -137,9 +136,9 @@ export default function WorkoutSessionScreen() {
           restSeconds: 90,
         });
       }
-      await startWorkout(workout.id);
+      await start();
     },
-    [workout],
+    [workout, addExercise, start],
   );
 
     const exerciseNames = useMemo(
@@ -204,6 +203,12 @@ export default function WorkoutSessionScreen() {
       onCompleteSet={(setId) =>
         currentExercise ? void completeSet(currentExercise.id, setId) : undefined
       }
+      onUncompleteSet={(setId) =>
+        currentExercise ? void uncompleteSet(currentExercise.id, setId) : undefined
+      }
+      onRemoveSet={(setId) =>
+        currentExercise ? void removeSet(currentExercise.id, setId) : undefined
+      }
       onAddSet={() => (currentExercise ? void addSet(currentExercise.id) : undefined)}
       restActive={restActive && !paused}
       restRemaining={restRemaining}
@@ -241,6 +246,8 @@ interface SessionBodyProps {
   onNextExercise: () => void;
   onUpdateSet: (setId: string, patch: Partial<WorkoutSet>) => void;
   onCompleteSet: (setId: string) => void;
+  onUncompleteSet: (setId: string) => void;
+  onRemoveSet: (setId: string) => void;
   onAddSet: () => void;
   restActive: boolean;
   restRemaining: number;
@@ -276,6 +283,8 @@ function SessionBody({
   onNextExercise,
   onUpdateSet,
   onCompleteSet,
+  onUncompleteSet,
+  onRemoveSet,
   onAddSet,
   restActive,
   restRemaining,
@@ -381,7 +390,11 @@ function SessionBody({
                   key={set.id}
                   set={set}
                   defaultWeight={defaultWeight}
-                  onUpdate={(patch) => onUpdateSet(set.id, patch)}
+                  onUpdate={(patch) => {
+                    if (patch.completed === false) onUncompleteSet(set.id);
+                    else onUpdateSet(set.id, patch);
+                  }}
+                  onRemove={() => onRemoveSet(set.id)}
                 />
               ))}
               <Pressable

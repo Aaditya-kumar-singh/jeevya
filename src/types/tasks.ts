@@ -118,15 +118,17 @@ export interface UpdateLabelInput {
 /**
  * Get today's date as ISO string (YYYY-MM-DD).
  */
+import { nowISO, todayCivilDate } from '@/lib/date';
+
 export function getTodayISO(): string {
-  return new Date().toISOString().split('T')[0];
+  return todayCivilDate();
 }
 
 /**
  * Get the current full ISO datetime string.
  */
 export function getNowISO(): string {
-  return new Date().toISOString();
+  return nowISO();
 }
 
 /**

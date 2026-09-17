@@ -1,16 +1,22 @@
 import { useCallback, useEffect, useState } from 'react';
 import { ScrollView, View, RefreshControl, Pressable, Alert } from 'react-native';
 import { useRouter, Link } from 'expo-router';
-import { Plus, ChevronRight } from 'lucide-react-native';
+import { Plus, ChevronRight, ListChecks, Sparkles, Flame } from 'lucide-react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useHabits } from '@/hooks/useHabits';
 import { HabitCard, HabitProgress } from '@/components/habit';
 import { Card } from '@/components/ui/card';
 import { Heading } from '@/components/ui/heading';
 import { Text, Button, ButtonText } from '@/components/ui';
-import { useEffect as reactEffect } from 'react';
+import { FadeInView } from '@/components/motion/FadeInView';
+import { ScalePressable } from '@/components/motion/ScalePressable';
+import { FloatingBlobsSVG } from '@/components/visuals/FloatingBlobsSVG';
 
 export default function HabitsScreen() {
   const router = useRouter();
+  const insets = useSafeAreaInsets();
+  const topPadding = Math.max(insets.top + 12, 48);
+
   const {
     habits,
     todayHabits,
@@ -67,94 +73,118 @@ export default function HabitsScreen() {
 
   if (loading) {
     return (
-      <View className="flex-1 bg-background items-center justify-center">
-        <Text size="sm" className="text-muted-foreground">Loading habits...</Text>
+      <View className="flex-1 bg-indigo-50/40 dark:bg-slate-950 items-center justify-center">
+        <Text size="sm" className="text-muted-foreground font-medium">Loading habits...</Text>
       </View>
     );
   }
 
   return (
-    <ScrollView
-      className="flex-1 bg-background"
-      contentContainerStyle={{ gap: 16, paddingBottom: 24 }}
-      refreshControl={
-        <RefreshControl
-          refreshing={refreshing}
-          onRefresh={handleRefresh}
-          tintColor="#6B7280"
-        />
-      }
-    >
-      <View className="px-5 pt-14">
-        {/* Header */}
-        <View>
-          <Text size="sm" className="text-muted-foreground">Habits</Text>
-          <Heading size="xl" className="mt-1">Today's Habits</Heading>
-        </View>
+    <View className="flex-1 bg-indigo-50/40 dark:bg-slate-950 relative">
+      {/* Ambient background SVG orbs */}
+      <View style={{ position: 'absolute', top: 0, left: 0, right: 0, zIndex: 0 }}>
+        <FloatingBlobsSVG color1="#6366F1" color2="#8B5CF6" width={450} height={350} />
+      </View>
 
-        {/* Progress Card */}
-        {totalToday > 0 && (
-          <HabitProgress
-            completed={completedToday}
-            total={totalToday}
-            title="Today's Progress"
+      <ScrollView
+        className="flex-1"
+        contentContainerStyle={{ gap: 16, paddingBottom: 40 }}
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={handleRefresh}
+            tintColor="#6366F1"
           />
-        )}
-
-        {/* Habits List */}
-        <View className="gap-3">
-          {todayHabits.length === 0 ? (
-            <Card className="w-full p-6">
-              <View className="items-center gap-3">
-                <Text size="lg" className="text-muted-foreground/50">📋</Text>
-                <View>
-                  <Text size="md" className="text-center">No habits scheduled for today</Text>
-                  <Text size="sm" className="text-muted-foreground text-center mt-1">
-                    Add a daily habit to see it here every day
-                  </Text>
-                </View>
+        }
+      >
+        <View className="px-5 gap-4" style={{ zIndex: 1, paddingTop: topPadding }}>
+          {/* Header */}
+          <FadeInView delay={0}>
+            <View className="flex-row items-center justify-between">
+              <View>
+                <Text size="xs" className="font-semibold text-indigo-500 uppercase tracking-wider">
+                  Consistency & Routines
+                </Text>
+                <Heading size="xl" className="mt-1 font-bold tracking-tight text-foreground">
+                  Today's Habits
+                </Heading>
+                <Text size="sm" className="mt-1 text-muted-foreground font-medium">
+                  {completedToday} of {totalToday} completed today ({progressPercent}%)
+                </Text>
               </View>
-            </Card>
-          ) : (
-            todayHabits.map((habit) => {
-              const stats = habitStats.get(habit.id);
-              return (
-                <HabitCard
-                  key={habit.id}
-                  habit={habit}
-                  onComplete={() => handleToggle(habit.id)}
-                  showStreak={true}
-                  currentStreak={stats?.currentStreak ?? 0}
-                  onPress={() => handleViewHabit(habit.id)}
-                />
-              );
-            })
+              <View className="h-12 w-12 items-center justify-center rounded-2xl bg-indigo-500/15 border border-indigo-500/20 shadow-xs">
+                <ListChecks size={24} className="text-indigo-500" />
+              </View>
+            </View>
+          </FadeInView>
+
+          {/* Progress Card */}
+          {totalToday > 0 && (
+            <FadeInView delay={40}>
+              <HabitProgress
+                completed={completedToday}
+                total={totalToday}
+                title="Today's Progress"
+              />
+            </FadeInView>
           )}
-        </View>
 
-        {/* Error state */}
-        {error && (
-          <Card className="w-full p-4">
-            <Text size="sm" className="text-destructive">{error}</Text>
-            <Button onPress={handleRefresh} variant="outline" className="mt-2">
-              <ButtonText>Retry</ButtonText>
-            </Button>
-          </Card>
-        )}
-      </View>
-
-      {/* Add Habit Button */}
-      <View className="px-5 pb-6">
-        <Pressable
-          onPress={() => router.push('/habits/new' as any)}
-          className="w-full rounded-xl border-2 border-dashed border-border bg-card/50 p-4 mt-2"
-        >
-          <View className="flex-row items-center justify-center gap-2">
-            <Plus size={20} />
-            <Text size="md" className="font-medium">Add Habit</Text>
+          {/* Habits List */}
+          <View className="gap-3">
+            {todayHabits.length === 0 ? (
+              <FadeInView delay={60}>
+                <Card className="w-full p-6 border border-border/60 bg-card/90 dark:bg-card/70 rounded-3xl backdrop-blur-md">
+                  <View className="items-center gap-3">
+                    <Text size="lg" className="text-muted-foreground/50">📋</Text>
+                    <View>
+                      <Text size="md" className="text-center font-bold">No habits scheduled for today</Text>
+                      <Text size="sm" className="text-muted-foreground text-center mt-1">
+                        Add a daily habit to see it here every day
+                      </Text>
+                    </View>
+                  </View>
+                </Card>
+              </FadeInView>
+            ) : (
+              todayHabits.map((habit, index) => {
+                const stats = habitStats.get(habit.id);
+                return (
+                  <FadeInView key={habit.id} delay={60 + index * 40}>
+                    <HabitCard
+                      habit={habit}
+                      onComplete={() => handleToggle(habit.id)}
+                      showStreak={true}
+                      currentStreak={stats?.currentStreak ?? 0}
+                      onPress={() => handleViewHabit(habit.id)}
+                    />
+                  </FadeInView>
+                );
+              })
+            )}
           </View>
-        </Pressable>
-      </View>
-    </ScrollView>
+
+          {/* Error state */}
+          {error && (
+            <Card className="w-full p-4 border border-destructive/30 bg-destructive/10 rounded-2xl">
+              <Text size="sm" className="text-destructive font-semibold">{error}</Text>
+              <Button onPress={handleRefresh} variant="outline" className="mt-2">
+                <ButtonText>Retry</ButtonText>
+              </Button>
+            </Card>
+          )}
+
+          {/* Add Habit Button */}
+          <FadeInView delay={200}>
+            <ScalePressable onPress={() => router.push('/habits/new' as any)}>
+              <View className="w-full rounded-3xl border-2 border-dashed border-indigo-500/30 bg-indigo-500/15 p-4 items-center justify-center flex-row gap-2 mt-2">
+                <Plus size={20} className="text-indigo-600 dark:text-indigo-400" />
+                <Text size="md" className="font-bold text-indigo-600 dark:text-indigo-400">Add New Habit</Text>
+              </View>
+            </ScalePressable>
+          </FadeInView>
+        </View>
+      </ScrollView>
+    </View>
   );
 }
+

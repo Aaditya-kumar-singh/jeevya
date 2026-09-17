@@ -156,7 +156,6 @@ export interface Task {
   createdAt: string;
 }
 
-export const TASKS_STORAGE_KEY = '@lifeos/tasks/v1';
 
 export const seedTasks: Task[] = detailedTasks.map((t) => ({
   id: t.id,

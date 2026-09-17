@@ -1,4 +1,5 @@
-import { saveData, loadData, removeData } from '@/lib/storage';
+import { saveData, loadData } from '@/lib/storage';
+import { updateStorage } from '@/services/storageReliability';
 import { uid } from '@/lib/uid';
 import type { Habit, HabitLog, HabitFrequency, Weekday } from '@/types/habit';
 import { getISODateString } from '@/types/habit';
@@ -52,8 +53,6 @@ export async function getHabitById(id: string): Promise<Habit | null> {
 }
 
 export async function createHabit(input: CreateHabitInput): Promise<Habit> {
-  const habits = await getHabits();
-
   const now = getISODateString();
   const habit: Habit = {
     id: uid('habit_'),
@@ -85,7 +84,7 @@ export async function createHabit(input: CreateHabitInput): Promise<Habit> {
     throw new Error('Please select at least one day for weekly/custom habits');
   }
 
-  await saveData(HABITS_KEY, [habit, ...habits]);
+  await updateStorage<Habit[]>(HABITS_KEY, [], (current) => [habit, ...current]);
   return habit;
 }
 
@@ -93,10 +92,11 @@ export async function updateHabit(
   id: string,
   input: UpdateHabitInput,
 ): Promise<Habit | null> {
-  const habits = await getHabits();
+  let updatedResult: Habit | null = null;
+  await updateStorage<Habit[]>(HABITS_KEY, [], (habits) => {
   const index = habits.findIndex((h) => h.id === id);
 
-  if (index === -1) return null;
+  if (index === -1) return habits;
 
   const habit = habits[index];
   const now = getISODateString();
@@ -126,9 +126,11 @@ export async function updateHabit(
   }
 
   habits[index] = updated;
-  await saveData(HABITS_KEY, habits);
+  updatedResult = updated;
+  return habits;
+  });
 
-  return updated;
+  return updatedResult;
 }
 
 export async function deleteHabit(id: string): Promise<boolean> {
@@ -179,43 +181,51 @@ export async function setHabitCompletion(
   completed: boolean,
   value?: number | null,
 ): Promise<HabitLog> {
-  const logs = await loadData<HabitLog[]>(HABIT_LOGS_KEY, []);
-  const now = getISODateString();
-
-  const existingIndex = logs.findIndex(
-    (log) => log.habitId === habitId && log.date === date,
-  );
-
-  const log: HabitLog = {
-    id: existingIndex >= 0 ? logs[existingIndex].id : uid('log_'),
-    habitId,
-    date,
-    completed,
-    value: value ?? null,
-    createdAt: existingIndex >= 0 ? logs[existingIndex].createdAt : now,
-    updatedAt: now,
-  };
-
-  if (existingIndex >= 0) {
-    logs[existingIndex] = log;
-  } else {
-    logs.push(log);
-  }
-
-  await saveData(HABIT_LOGS_KEY, logs);
-  return log;
+  let result!: HabitLog;
+  await updateStorage<HabitLog[]>(HABIT_LOGS_KEY, [], (logs) => {
+    const now = getISODateString();
+    const existingIndex = logs.findIndex((log) => log.habitId === habitId && log.date === date);
+    const log: HabitLog = {
+      id: existingIndex >= 0 ? logs[existingIndex].id : uid('log_'),
+      habitId,
+      date,
+      completed,
+      value: value ?? null,
+      createdAt: existingIndex >= 0 ? logs[existingIndex].createdAt : now,
+      updatedAt: now,
+    };
+    if (existingIndex >= 0) logs[existingIndex] = log;
+    else logs.push(log);
+    result = log;
+    return logs;
+  });
+  return result;
 }
 
 export async function toggleHabitCompletion(
   habitId: string,
   date: string,
 ): Promise<HabitLog> {
-  const existing = await getHabitLog(habitId, date);
-  return setHabitCompletion(
-    habitId,
-    date,
-    existing ? !existing.completed : true,
-  );
+  let result!: HabitLog;
+  await updateStorage<HabitLog[]>(HABIT_LOGS_KEY, [], (logs) => {
+    const existingIndex = logs.findIndex((log) => log.habitId === habitId && log.date === date);
+    const now = getISODateString();
+    const existing = existingIndex >= 0 ? logs[existingIndex] : null;
+    const log: HabitLog = {
+      id: existing?.id ?? uid('log_'),
+      habitId,
+      date,
+      completed: existing ? !existing.completed : true,
+      value: existing?.value ?? null,
+      createdAt: existing?.createdAt ?? now,
+      updatedAt: now,
+    };
+    if (existingIndex >= 0) logs[existingIndex] = log;
+    else logs.push(log);
+    result = log;
+    return logs;
+  });
+  return result;
 }
 
 // ─── Today's Habits ───────────────────────────────────────────────────────────

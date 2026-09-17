@@ -6,40 +6,19 @@
 // contract; service ordering/storage is never touched.
 
 import type { JournalEntry } from '@/types/journal';
+import {
+  addDays,
+  daysInMonth,
+  isValidCivilDate,
+  shiftMonth as shiftCivilMonth,
+  todayCivilDate,
+  weekdayOf as canonicalWeekdayOf,
+} from '@/lib/date';
 
-// ─── Civil Date Core ──────────────────────────────────────────────────────────
-
-const DAY_RE = /^\d{4}-\d{2}-\d{2}$/;
-
-function isLeapYear(year: number): boolean {
-  return (year % 4 === 0 && year % 100 !== 0) || year % 400 === 0;
-}
-
-function daysInMonth(year: number, month: number): number {
-  return (
-    [31, isLeapYear(year) ? 29 : 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31][
-      month - 1
-    ] ?? 0
-  );
-}
-
-/** True for well-formed, real calendar YYYY-MM-DD strings. */
-export function isValidDay(value: unknown): value is string {
-  if (typeof value !== 'string' || !DAY_RE.test(value)) return false;
-  const [y, m, d] = value.split('-').map(Number);
-  return m >= 1 && m <= 12 && d >= 1 && d <= daysInMonth(y, m);
-}
-
-/** Weekday of a YYYY-MM-DD: 0 = Sunday … 6 = Saturday (UTC-noon, stable). */
-export function weekdayOf(iso: string): number {
-  const [y, m, d] = iso.split('-').map(Number);
-  return new Date(Date.UTC(y, m - 1, d, 12)).getUTCDay();
-}
-
-/** Today's date as YYYY-MM-DD (UTC date-part, LifeOS convention). */
-export function todayDay(): string {
-  return new Date().toISOString().slice(0, 10);
-}
+// Compatibility wrappers retained for existing Journal consumers.
+export const isValidDay = isValidCivilDate;
+export const weekdayOf = canonicalWeekdayOf;
+export function todayDay(): string { return todayCivilDate(); }
 
 // ─── Month Grid ───────────────────────────────────────────────────────────────
 
@@ -62,7 +41,7 @@ const MONTH_NAMES = [
 ];
 
 function toISO(y: number, m: number, d: number): string {
-  return `${y}-${String(m).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+  return `${String(y).padStart(4, '0')}-${String(m).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
 }
 
 /**
@@ -109,8 +88,7 @@ export function shiftMonth(
   month: number,
   delta: number,
 ): { year: number; month: number } {
-  const total = year * 12 + (month - 1) + delta;
-  return { year: Math.floor(total / 12), month: (total % 12) + 1 };
+  return shiftCivilMonth(year, month, delta) ?? { year, month };
 }
 
 /** "September 2026" — safe fallback for invalid input. */

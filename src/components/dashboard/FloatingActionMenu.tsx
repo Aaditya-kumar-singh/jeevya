@@ -97,7 +97,7 @@ export function FloatingActionMenu() {
       {/* Main trigger button */}
       <Pressable
         onPress={toggleMenu}
-        className="h-14 w-14 items-center justify-center rounded-2xl bg-indigo-600 shadow-xl shadow-indigo-600/40 active:scale-95"
+        className="h-14 w-14 items-center justify-center rounded-2xl bg-indigo-600 shadow-xl shadow-indigo-600/40 active:opacity-80"
         accessibilityLabel="Quick action menu"
       >
         <Animated.View style={fabStyle}>

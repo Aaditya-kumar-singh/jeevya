@@ -27,13 +27,35 @@
     "plugins": [
       "expo-router",
       [
+        "react-native-android-widget",
+        {
+          "widgets": [
+            {
+              "name": "LifeOSWidget",
+              "label": "LifeOS",
+              "description": "Your configured LifeOS metrics at a glance.",
+              "minWidth": "110dp",
+              "minHeight": "70dp",
+              "targetCellWidth": 2,
+              "targetCellHeight": 2,
+              "maxResizeWidth": "330dp",
+              "maxResizeHeight": "330dp",
+              "resizeMode": "horizontal|vertical",
+              "widgetFeatures": "reconfigurable",
+              "updatePeriodMillis": 1800000
+            }
+          ]
+        }
+      ],
+      [
         "expo-splash-screen",
         {
           "backgroundColor": "#208AEF",
           "image": "./assets/images/splash-icon.png",
           "imageWidth": 76
         }
-      ]
+      ],
+      "expo-sharing"
     ],
     "experiments": {
       "typedRoutes": true,

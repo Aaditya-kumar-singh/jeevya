@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Pressable, TextInput, View } from 'react-native';
-import { Check } from 'lucide-react-native';
+import { Check, Trash2 } from 'lucide-react-native';
 
 import { Text } from '@/components/ui/text';
 import type { WorkoutSet } from '@/types/workout';
@@ -9,9 +9,10 @@ interface WorkoutSetRowProps {
   set: WorkoutSet;
   defaultWeight?: number | null;
   onUpdate: (patch: Partial<WorkoutSet>) => void;
+  onRemove?: () => void;
 }
 
-export function WorkoutSetRow({ set, defaultWeight, onUpdate }: WorkoutSetRowProps) {
+export function WorkoutSetRow({ set, defaultWeight, onUpdate, onRemove }: WorkoutSetRowProps) {
   const [weight, setWeight] = useState('');
   const [reps, setReps] = useState('');
 
@@ -62,6 +63,11 @@ export function WorkoutSetRow({ set, defaultWeight, onUpdate }: WorkoutSetRowPro
         placeholderTextColor="#9CA3AF"
         className="h-12 w-16 rounded-xl border border-border bg-background px-3 text-center text-lg font-semibold text-foreground"
       />
+      {onRemove ? (
+        <Pressable onPress={onRemove} accessibilityRole="button" accessibilityLabel="Remove set" hitSlop={6} className="h-12 w-8 items-center justify-center">
+          <Trash2 size={16} color="#DC2626" />
+        </Pressable>
+      ) : null}
       <Pressable
         onPress={() => onUpdate({ completed: !set.completed })}
         accessibilityRole="checkbox"

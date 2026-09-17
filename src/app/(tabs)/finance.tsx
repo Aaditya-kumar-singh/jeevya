@@ -32,6 +32,10 @@ import { Text } from '@/components/ui/text';
 import { useFinance } from '@/hooks/useFinance';
 import { FadeInView } from '@/components/motion/FadeInView';
 import { ScalePressable } from '@/components/motion/ScalePressable';
+import { CategoryWave } from '@/components/visuals/CategoryWave';
+import { FinanceVaultGraphic } from '@/components/visuals/FinanceVaultGraphic';
+import { FloatingBlobsSVG } from '@/components/visuals/FloatingBlobsSVG';
+import { VirtualAccountCard } from '@/components/finance/VirtualAccountCard';
 import type { FinanceTransaction } from '@/types/finance';
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -595,50 +599,95 @@ export default function FinanceScreen() {
   }
 
   return (
-    <ScrollView
-      className="flex-1 bg-background"
-      contentContainerStyle={{ paddingBottom: 32 }}
-      refreshControl={<RefreshControl refreshing={refreshing} onRefresh={refresh} />}>
-      <View className="gap-4 px-5 pb-12" style={{ paddingTop: topPadding }}>
-        {/* Header */}
-        <View>
-          <Text size="sm" className="text-muted-foreground">
-            Finance
-          </Text>
-          <Heading size="xl" className="mt-1">
-            Dashboard
-          </Heading>
-          <Text size="sm" className="mt-1 text-muted-foreground">
-            {getCurrentMonth()}
-          </Text>
-        </View>
-
-        {/* Balance Summary */}
-        <BalanceSummary
-          totalBalance={totalBalance}
-          monthlyIncome={monthlyIncome}
-          monthlyExpenses={monthlyExpenses}
-          net={net}
-        />
-
-        {/* Accounts Preview */}
-        <AccountsPreview accounts={accounts} />
-
-        {/* Spending by Category */}
-        <SpendingByCategory spending={spendingByCategory} />
-
-        {/* Budget Preview */}
-        <BudgetPreview budgets={monthBudgets} spending={spendingMap} categoryMap={categoryMap} />
-
-        {/* Savings Goals Preview */}
-        <SavingsGoalsPreview goals={savingsGoals} />
-
-        {/* Recent Transactions */}
-        <RecentTransactions transactions={recentTransactions} categories={categoryMap} />
-
-        {/* Quick Actions */}
-        <QuickActions />
+    <View className="flex-1 bg-emerald-50/40 dark:bg-slate-950 relative">
+      {/* Ambient background orbs */}
+      <View style={{ position: 'absolute', top: 0, left: 0, right: 0, zIndex: 0 }}>
+        <FloatingBlobsSVG color1="#10B981" color2="#F59E0B" width={450} height={350} />
       </View>
-    </ScrollView>
+
+      <ScrollView
+        className="flex-1"
+        contentContainerStyle={{ paddingBottom: 32 }}
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={refresh} />}>
+
+        <View className="gap-4 px-5 pb-12" style={{ zIndex: 1, paddingTop: topPadding }}>
+          {/* Header */}
+          <FadeInView delay={0}>
+            <View className="flex-row items-center justify-between">
+              <View>
+                <Text size="xs" className="font-semibold text-emerald-500 uppercase tracking-wider">
+                  Wealth & Budget Hub
+                </Text>
+                <Heading size="xl" className="mt-1 font-bold tracking-tight text-foreground">
+                  Financial Control
+                </Heading>
+                <Text size="sm" className="mt-1 text-muted-foreground font-medium">
+                  {getCurrentMonth()} Overview
+                </Text>
+              </View>
+              <View className="h-12 w-12 items-center justify-center rounded-2xl bg-emerald-500/15 border border-emerald-500/20 shadow-xs">
+                <Landmark size={24} className="text-emerald-500" />
+              </View>
+            </View>
+          </FadeInView>
+
+          {/* Intricate Vault Shield SVG Graphic */}
+          <FadeInView delay={40}>
+            <View className="items-center my-1">
+              <FinanceVaultGraphic width={350} height={130} />
+            </View>
+          </FadeInView>
+
+          {/* Platinum Virtual Account Card */}
+          <FadeInView delay={80}>
+            <VirtualAccountCard
+              totalBalance={totalBalance}
+              monthlyIncome={monthlyIncome}
+              monthlyExpenses={monthlyExpenses}
+            />
+          </FadeInView>
+
+          {/* Balance Summary */}
+          <FadeInView delay={120}>
+            <BalanceSummary
+              totalBalance={totalBalance}
+              monthlyIncome={monthlyIncome}
+              monthlyExpenses={monthlyExpenses}
+              net={net}
+            />
+          </FadeInView>
+
+          {/* Accounts Preview */}
+          <FadeInView delay={180}>
+            <AccountsPreview accounts={accounts} />
+          </FadeInView>
+
+          {/* Spending by Category */}
+          <FadeInView delay={240}>
+            <SpendingByCategory spending={spendingByCategory} />
+          </FadeInView>
+
+          {/* Budget Preview */}
+          <FadeInView delay={300}>
+            <BudgetPreview budgets={monthBudgets} spending={spendingMap} categoryMap={categoryMap} />
+          </FadeInView>
+
+          {/* Savings Goals Preview */}
+          <FadeInView delay={360}>
+            <SavingsGoalsPreview goals={savingsGoals} />
+          </FadeInView>
+
+          {/* Recent Transactions */}
+          <FadeInView delay={420}>
+            <RecentTransactions transactions={recentTransactions} categories={categoryMap} />
+          </FadeInView>
+
+          {/* Quick Actions */}
+          <FadeInView delay={480}>
+            <QuickActions />
+          </FadeInView>
+        </View>
+      </ScrollView>
+    </View>
   );
 }

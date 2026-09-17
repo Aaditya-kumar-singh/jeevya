@@ -26,12 +26,16 @@ import { useJournal } from '@/hooks/useJournal';
 import { FadeInView } from '@/components/motion/FadeInView';
 import { ScalePressable } from '@/components/motion/ScalePressable';
 import { EmptyStateIllustration } from '@/components/visuals/EmptyStateIllustration';
+import { CategoryWave } from '@/components/visuals/CategoryWave';
+import { FloatingBlobsSVG } from '@/components/visuals/FloatingBlobsSVG';
+import { NotebookPen } from 'lucide-react-native';
 import {
   JOURNAL_MOOD_LABELS,
   JOURNAL_MOODS,
   type JournalEntry,
   type JournalMood,
 } from '@/types/journal';
+
 
 // ─── Filters ──────────────────────────────────────────────────────────────────
 
@@ -241,36 +245,40 @@ export default function JournalScreen() {
   }
 
   return (
-    <ScrollView
-      className="flex-1 bg-background"
-      contentContainerStyle={{ paddingBottom: 100 }}
-      keyboardShouldPersistTaps="handled"
-      refreshControl={
-        <RefreshControl refreshing={refreshing} onRefresh={() => void refresh()} />
-      }
-    >
-      <View className="gap-4 px-5 pb-12" style={{ paddingTop: topPadding }}>
-        <View className="flex-row items-center gap-3">
-          <View className="flex-1">
-            <Text size="sm" className="text-muted-foreground">
-              Growth · Reflection
-            </Text>
-            <Heading size="xl" className="mt-1">
-              Journal
-            </Heading>
-            <Text size="sm" className="mt-1 text-muted-foreground">
-              {entries.length} {entries.length === 1 ? 'entry' : 'entries'}
-            </Text>
-          </View>
-          <Pressable
-            onPress={() => router.push('/journal/calendar' as any)}
-            className="min-h-[44px] min-w-[44px] items-center justify-center rounded-lg bg-muted px-3"
-            accessibilityRole="button"
-            accessibilityLabel="Open journal calendar"
-          >
-            <Calendar size={18} className="text-muted-foreground" />
-          </Pressable>
-        </View>
+    <View className="flex-1 bg-emerald-50/40 dark:bg-slate-950 relative">
+      {/* Ambient background SVG orbs */}
+      <View style={{ position: 'absolute', top: 0, left: 0, right: 0, zIndex: 0 }}>
+        <FloatingBlobsSVG color1="#10B981" color2="#0D9488" width={450} height={350} />
+      </View>
+
+      <ScrollView
+        className="flex-1"
+        contentContainerStyle={{ paddingBottom: 100 }}
+        keyboardShouldPersistTaps="handled"
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={() => void refresh()} tintColor="#10B981" />
+        }
+      >
+        <View className="gap-4 px-5 pb-12" style={{ zIndex: 1, paddingTop: topPadding }}>
+          <FadeInView delay={0}>
+            <View className="flex-row items-center justify-between">
+              <View>
+                <Text size="xs" className="font-semibold text-emerald-500 uppercase tracking-wider">
+                  Mindset & Daily Reflection
+                </Text>
+                <Heading size="xl" className="mt-1 font-bold tracking-tight text-foreground">
+                  Daily Journal
+                </Heading>
+                <Text size="sm" className="mt-1 text-muted-foreground font-medium">
+                  {entries.length} {entries.length === 1 ? 'reflection entry' : 'reflection entries'}
+                </Text>
+              </View>
+              <View className="h-12 w-12 items-center justify-center rounded-2xl bg-emerald-500/15 border border-emerald-500/20 shadow-xs">
+                <NotebookPen size={24} className="text-emerald-500" />
+              </View>
+            </View>
+          </FadeInView>
+
 
         {/* Search */}
         <Input className="bg-card">
@@ -409,5 +417,6 @@ export default function JournalScreen() {
         </Pressable>
       </View>
     </ScrollView>
+  </View>
   );
 }
