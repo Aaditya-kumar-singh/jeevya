@@ -86,7 +86,7 @@ export const WIDGET_ACTIONS: Record<WidgetModule, WidgetAction> = {
   books: { label: 'Open Books', navigationTarget: '/books' },
   goals: { label: 'Open Goals', navigationTarget: '/goals' },
   daily_pulse: { label: 'Open Daily Pulse', navigationTarget: '/' },
-  daily_plan: { label: 'Open Daily Plan', navigationTarget: '/daily-plan' },
+  daily_plan: { label: 'Open Daily Plan', navigationTarget: '/' },
   life_intelligence: { label: 'Open Life Intelligence', navigationTarget: '/insights' },
 };
 

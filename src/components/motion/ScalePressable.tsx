@@ -43,19 +43,19 @@ export function ScalePressable({
   }));
 
   const handlePressIn = () => {
-    scale.value = withSpring(scaleTarget, {
+    scale.set(withSpring(scaleTarget, {
       damping: 15,
       stiffness: 300,
       mass: 0.6,
-    });
+    }));
   };
 
   const handlePressOut = () => {
-    scale.value = withSpring(1, {
+    scale.set(withSpring(1, {
       damping: 12,
       stiffness: 250,
       mass: 0.6,
-    });
+    }));
   };
 
   return (

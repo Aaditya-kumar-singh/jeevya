@@ -4,8 +4,8 @@
  * Uses the LifeOS secondary color (indigo-50/indigo-950).
  */
 import React from 'react';
-import { View } from 'react-native';
-import { useColorScheme } from 'react-native';
+import { View , useColorScheme } from 'react-native';
+
 import Svg, { Ellipse, Path } from 'react-native-svg';
 import { Text } from '@/components/ui/text';
 import { Heading } from '@/components/ui/heading';

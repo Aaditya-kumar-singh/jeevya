@@ -156,7 +156,7 @@ const assert = (condition, message) => { if (!condition) throw new Error(message
   });
 
   await check('existing authentication routes remain valid', async () => {
-    assert(settingsSource.includes("'/auth/sign-in'"), 'sign-in route missing');
+    assert(settingsSource.includes("signIn('/settings')"), 'sign-in route action missing');
     assert(settingsSource.includes("createAccount('/settings')"), 'sign-up route action missing');
     assert(fs.existsSync('src/app/auth/sign-in.tsx'), 'sign-in route file missing');
     assert(fs.existsSync('src/app/auth/sign-up.tsx'), 'sign-up route file missing');

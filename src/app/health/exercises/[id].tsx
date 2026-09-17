@@ -97,13 +97,6 @@ export default function ExerciseDetailScreen() {
       : `https://raw.githubusercontent.com/hasaneyldrm/exercises-dataset/main/${mediaUri}`;
   }
 
-  console.log('DEBUG [id].tsx:', {
-    exerciseId: activeExercise.id,
-    mediaLocalUri,
-    mediaUri,
-    finalMediaUrl
-  });
-
   return (
     <ScrollView className="flex-1 bg-background">
       <View className="gap-4 px-5 pb-10 pt-14">

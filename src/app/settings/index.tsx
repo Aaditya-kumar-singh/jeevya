@@ -46,7 +46,7 @@ export default function SettingsScreen() {
     if (accountSettingsAccess.allowed && authState === 'authenticated') return;
     attempt(
       'accountSettings',
-      () => router.push('/auth/sign-in' as never),
+      () => signIn('/settings'),
       {
         title: 'Account required',
         explanation: 'Create a free LifeOS account to manage your account settings.',

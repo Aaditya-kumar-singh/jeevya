@@ -10,7 +10,7 @@ import type {
 import type { RawHealthConnectRecord } from './types';
 import { mapHCExerciseType, mapHCIntensity } from './types';
 
-/* eslint-disable @typescript-eslint/no-var-requires */
+ 
 let HC: typeof import('react-native-health-connect') | null = null;
 
 try {

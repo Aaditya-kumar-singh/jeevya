@@ -54,6 +54,16 @@ export default function TransactionDetailScreen() {
     [transactions, id],
   );
 
+  // Transfer-specific names must be declared before any conditional return so hook order is stable.
+  const fromAccountName = useMemo(
+    () => accounts.find((a) => a.id === transaction?.fromAccountId)?.name || 'Unknown',
+    [accounts, transaction],
+  );
+  const toAccountName = useMemo(
+    () => accounts.find((a) => a.id === transaction?.toAccountId)?.name || 'Unknown',
+    [accounts, transaction],
+  );
+
   // Edit state
   const [editing, setEditing] = useState(false);
   const [title, setTitle] = useState('');
@@ -213,16 +223,6 @@ export default function TransactionDetailScreen() {
 
   const isTransfer = transaction.type === 'transfer';
   const isIncome = transaction.type === 'income';
-
-  // Transfer-specific names
-  const fromAccountName = useMemo(
-    () => accounts.find((a) => a.id === transaction?.fromAccountId)?.name || 'Unknown',
-    [accounts, transaction],
-  );
-  const toAccountName = useMemo(
-    () => accounts.find((a) => a.id === transaction?.toAccountId)?.name || 'Unknown',
-    [accounts, transaction],
-  );
 
   // ─── View Mode ────────────────────────────────────────────────────────────
 

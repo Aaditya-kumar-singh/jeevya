@@ -119,14 +119,14 @@ export function AnimatedThemeBackground({
   return (
     <View
       style={[
-        StyleSheet.absoluteFillObject,
+        StyleSheet.absoluteFill,
         {
           overflow: 'hidden',
           backgroundColor: colors.background,
         },
       ]}
       pointerEvents="none">
-      <Animated.View style={[StyleSheet.absoluteFillObject, animatedStyle]}>
+      <Animated.View style={[StyleSheet.absoluteFill, animatedStyle]}>
         <Svg width={width} height={height} viewBox={`0 0 ${width} ${height}`}>
           <Defs>
             <RadialGradient

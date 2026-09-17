@@ -1,5 +1,12 @@
 // ─── Task Types ───────────────────────────────────────────────────────────────
 
+// ─── Helpers ──────────────────────────────────────────────────────────────────
+
+/**
+ * Get today's date as ISO string (YYYY-MM-DD).
+ */
+import { nowISO, todayCivilDate } from '@/lib/date';
+
 export type TaskPriority = 'low' | 'medium' | 'high';
 
 // ─── Recurrence (Phase 1E) ────────────────────────────────────────────────────
@@ -112,13 +119,6 @@ export interface CreateLabelInput {
 export interface UpdateLabelInput {
   name?: string;
 }
-
-// ─── Helpers ──────────────────────────────────────────────────────────────────
-
-/**
- * Get today's date as ISO string (YYYY-MM-DD).
- */
-import { nowISO, todayCivilDate } from '@/lib/date';
 
 export function getTodayISO(): string {
   return todayCivilDate();

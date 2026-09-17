@@ -6,7 +6,7 @@ import {
   completeWorkout, cancelWorkout, deleteWorkout, addWorkoutSet, updateWorkoutSet, removeWorkoutSet,
   completeWorkoutSet, uncompleteWorkoutSet, getPreviousExercisePerformance as getPreviousPerformance,
 } from '@/services/workouts';
-import type { Workout, WorkoutExerciseConfig, WorkoutSession, WorkoutTemplate, WorkoutTemplateExerciseInput, WorkoutTemplateSetInput, CreateWorkoutTemplateInput, UpdateWorkoutTemplateInput } from '@/types/workout';
+import type { Workout, WorkoutExerciseConfig, WorkoutSession, WorkoutTemplate, WorkoutTemplateExerciseInput, WorkoutTemplateSetInput, CreateWorkoutTemplateInput, UpdateWorkoutTemplateInput , CreateWorkoutProgramInput, UpdateWorkoutProgramInput, WorkoutHistoryFilter, WorkoutProgramScheduleInput } from '@/types/workout';
 import {
   addTemplateExercise as addTemplateExerciseService,
   addTemplateSet as addTemplateSetService,
@@ -21,13 +21,15 @@ import {
   searchWorkoutTemplates,
   startWorkoutFromTemplate as startWorkoutFromTemplateService,
   toggleWorkoutTemplateFavorite,
-} from '@/services/workoutTemplates';
-import {
+
   activateProgram, addScheduleEntry, createProgram, deactivateProgram, deleteProgram, duplicateProgram as duplicateProgramService,
   getActiveProgram, getProgram, getScheduledTemplatesForDate, listPrograms, removeScheduleEntry,
   reorderScheduleEntries, updateProgram, updateScheduleEntry,
-} from '@/services/workoutTemplates';
-import type { CreateWorkoutProgramInput, UpdateWorkoutProgramInput, WorkoutHistoryFilter, WorkoutProgramScheduleInput } from '@/types/workout';
+  updateTemplateExercise as updateTemplateExerciseService,
+  updateTemplateSet as updateTemplateSetService,
+  updateWorkoutTemplate} from '@/services/workoutTemplates';
+
+
 import {
   getAllExercisePRs,
   getExercisePRs,
@@ -47,11 +49,7 @@ import {
   getCompletedWorkoutCount,
   getWorkoutHistoryDateRange,
 } from '@/services/workoutHistory';
-import {
-  updateTemplateExercise as updateTemplateExerciseService,
-  updateTemplateSet as updateTemplateSetService,
-  updateWorkoutTemplate,
-} from '@/services/workoutTemplates';
+
 
 export function useWorkout(workoutId?: string | null) {
   const [workout, setWorkout] = useState<Workout | null>(null);

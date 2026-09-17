@@ -67,6 +67,8 @@ export async function widgetTaskHandler(props: WidgetTaskHandlerProps): Promise<
       break;
 
     case 'WIDGET_CLICK':
+      // OPEN_APP and OPEN_URI actions are handled natively by the widget provider.
+      // Custom actions can be handled here later without duplicating native routing.
       break;
 
     default:

@@ -27,7 +27,7 @@ export default function SignInScreen() {
     setBusy(false);
     if (!result.ok) setError(result.error);
     else if (returnTo) router.replace(returnTo as never);
-    else setMessage(result.message ?? null);
+    else router.replace('/(tabs)' as never);
   };
 
   const handleSignOut = async () => {

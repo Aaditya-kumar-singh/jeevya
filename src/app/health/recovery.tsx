@@ -1,4 +1,4 @@
-﻿import {ScrollView,View,Pressable} from 'react-native';
+import {ScrollView,View,Pressable} from 'react-native';
 import {Activity, MoonStar, ShieldCheck} from 'lucide-react-native';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import {Card} from '@/components/ui/card'; import {Heading} from '@/components/ui/heading'; import {Text} from '@/components/ui/text'; import {FadeInView} from '@/components/motion/FadeInView'; import {FloatingBlobsSVG} from '@/components/visuals/FloatingBlobsSVG'; import {useRecovery} from '@/hooks/useRecovery';

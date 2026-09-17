@@ -1,8 +1,8 @@
-﻿import { loadData } from '@/lib/storage';
+import { loadData } from '@/lib/storage';
 import { addDays, isValidCivilDate, todayCivilDate } from '@/lib/date';
-const isValidDay = isValidCivilDate;
 import { getWorkoutHistory } from '@/services/workoutHistory';
 import { listSleepEntries, type SleepEntry } from '@/services/sleep';
+const isValidDay = isValidCivilDate;
 
 export type ReadinessLevel = 'low' | 'moderate' | 'good' | 'excellent';
 export interface RecoveryMetric { date:string; sleepScore:number|null; trainingLoadScore:number; consistencyScore:number|null; readinessScore:number|null; available:boolean; missingData:string[]; }

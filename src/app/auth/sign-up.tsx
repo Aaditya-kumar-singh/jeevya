@@ -28,9 +28,8 @@ export default function SignUpScreen() {
     if (!result.ok) setError(result.error);
     else if (result.confirmationRequired) {
       setMessage(result.message ?? 'Check your email to confirm your account.');
-      if (returnTo) router.replace(`/auth/sign-in?returnTo=${encodeURIComponent(returnTo)}` as never);
     } else if (returnTo) router.replace(returnTo as never);
-    else router.replace('/auth/sign-in' as never);
+    else router.replace('/(tabs)' as never);
   };
 
   return (

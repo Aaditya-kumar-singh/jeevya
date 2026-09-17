@@ -106,7 +106,7 @@ export default function HabitsScreen() {
                   Consistency & Routines
                 </Text>
                 <Heading size="xl" className="mt-1 font-bold tracking-tight text-foreground">
-                  Today's Habits
+                  Today&apos;s Habits
                 </Heading>
                 <Text size="sm" className="mt-1 text-muted-foreground font-medium">
                   {completedToday} of {totalToday} completed today ({progressPercent}%)

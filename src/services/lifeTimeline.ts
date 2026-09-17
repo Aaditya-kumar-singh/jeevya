@@ -70,6 +70,8 @@ function taskEvents(task: Task): LifeTimelineEvent[] {
   const events: LifeTimelineEvent[] = [];
   const created = eventTimestamp(task.createdAt);
   if (created) events.push(makeEvent(`tasks:${task.id}:created`, 'tasks', 'created', `Task created: ${task.title || 'Untitled task'}`, task.id, created, { description: task.description || undefined, status: task.completed ? 'completed' : 'open', route: `/tasks/${task.id}` }));
+  const due = eventTimestampForDate(task.createdAt, task.dueDate);
+  if (due && task.dueDate) events.push(makeEvent(`tasks:${task.id}:due:${task.dueDate}`, 'tasks', 'milestone', `Task due: ${task.title || 'Untitled task'}`, task.id, due, { status: task.completed ? 'completed' : 'due', route: `/tasks/${task.id}`, metadata: { dueDate: task.dueDate } }));
   const completed = eventTimestamp(task.completedAt);
   if (task.completed && completed) events.push(makeEvent(`tasks:${task.id}:completed:${completed.timestamp}`, 'tasks', 'completed', `Task completed: ${task.title || 'Untitled task'}`, task.id, completed, { status: 'completed', route: `/tasks/${task.id}` }));
   const updated = eventTimestamp(task.updatedAt);

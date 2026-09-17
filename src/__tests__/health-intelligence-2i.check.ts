@@ -1,5 +1,4 @@
 // @ts-nocheck
-require('./mock-setup');
 import { loadData, saveData } from '@/lib/storage';
 import { todayDay } from '@/lib/journal-calendar';
 import { SLEEP_KEY, listSleepEntries } from '@/services/sleep';
@@ -14,6 +13,7 @@ import {
   getTopHealthInsights,
   getHealthInsightEvidence,
 } from '@/services/healthIntelligence';
+require('./mock-setup');
 
 const TODAY = todayDay();
 let passed = 0;

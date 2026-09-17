@@ -2,6 +2,14 @@
 // Local-first model. Records are plain JSON objects (no class instances) so the
 // shape stays compatible with a future Supabase table row.
 
+// ─── Helpers ──────────────────────────────────────────────────────────────────
+
+/**
+ * Get the current full ISO datetime string.
+ * (Mirrors the sibling helpers so Journal stays decoupled from other modules.)
+ */
+import { nowISO, todayCivilDate } from '@/lib/date';
+
 export type JournalMood = 'great' | 'good' | 'okay' | 'bad' | 'awful';
 
 export const JOURNAL_MOODS: JournalMood[] = ['great', 'good', 'okay', 'bad', 'awful'];
@@ -34,14 +42,6 @@ export interface UpdateJournalEntryInput {
   mood?: JournalMood | null;
   tags?: string[];
 }
-
-// ─── Helpers ──────────────────────────────────────────────────────────────────
-
-/**
- * Get the current full ISO datetime string.
- * (Mirrors the sibling helpers so Journal stays decoupled from other modules.)
- */
-import { nowISO, todayCivilDate } from '@/lib/date';
 
 export function getNowISO(): string {
   return nowISO();

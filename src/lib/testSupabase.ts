@@ -6,8 +6,5 @@ export async function testSupabaseConnection() {
     .select('id, name')
     .limit(1);
 
-  console.log('Supabase exercises:', data);
-  console.log('Supabase error:', error);
-
   return { data, error };
 }

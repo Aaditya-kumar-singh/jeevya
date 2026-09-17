@@ -95,7 +95,7 @@ function ProgressControls({
   useEffect(() => {
     setPageInput(String(book.currentPage));
     setPageError(null);
-  }, [book.id, book.currentPage]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [book.id, book.currentPage]);  
 
   const maxPage = book.totalPages;
   const clamp = (n: number) =>

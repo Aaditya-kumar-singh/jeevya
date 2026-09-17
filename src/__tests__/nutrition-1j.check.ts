@@ -28,7 +28,7 @@ import { getTodayDate } from '@/types/nutrition';
   readRecords: async () => [],
 };
 
-/* eslint-disable @typescript-eslint/no-var-requires */
+ 
 let HC: typeof import('react-native-health-connect') | null = null;
 try {
   HC = require('react-native-health-connect');

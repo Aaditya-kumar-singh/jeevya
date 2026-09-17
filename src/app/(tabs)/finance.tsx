@@ -2,11 +2,6 @@ import { useMemo } from 'react';
 import { ActivityIndicator, Pressable, RefreshControl, ScrollView, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Link, type Href } from 'expo-router';
-
-// Extended route type for new finance routes
-const ACCOUNTS_HREF = '/finance/accounts' as Href;
-const TRANSFER_HREF = '/finance/transfer' as Href;
-const SAVINGS_GOALS_HREF = '/finance/savings-goals' as Href;
 import {
   ArrowDownLeft,
   ArrowRightLeft,
@@ -37,6 +32,11 @@ import { FinanceVaultGraphic } from '@/components/visuals/FinanceVaultGraphic';
 import { FloatingBlobsSVG } from '@/components/visuals/FloatingBlobsSVG';
 import { VirtualAccountCard } from '@/components/finance/VirtualAccountCard';
 import type { FinanceTransaction } from '@/types/finance';
+
+// Extended route type for new finance routes
+const ACCOUNTS_HREF = '/finance/accounts' as Href;
+const TRANSFER_HREF = '/finance/transfer' as Href;
+const SAVINGS_GOALS_HREF = '/finance/savings-goals' as Href;
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 

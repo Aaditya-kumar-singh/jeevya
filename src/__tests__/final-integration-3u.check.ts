@@ -94,7 +94,7 @@ check('navigation projections preserve record IDs in their destinations', () => 
 });
 
 check('3T.13 regression suite is present', () => {
-  assert(fs.existsSync(path.join(root, 'src/__tests__/nutrition-3t13.test.ts')), '3T.13 suite missing');
+  assert(fs.existsSync(path.join(root, 'src/__tests__/nutrition-3t13.check.ts')), '3T.13 suite missing');
 });
 
 console.log(`LIFEOS 3U FINAL INTEGRATION QA: ${passed} passed, 0 failed`);

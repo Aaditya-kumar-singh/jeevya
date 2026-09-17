@@ -64,19 +64,19 @@ export function DonutChart({
   const cy = size / 2;
   const circumference = 2 * Math.PI * radius;
 
-  // Build arcs
-  let accumulatedOffset = 0;
+  // Build arcs without mutating a render-scoped accumulator.
   const arcs = data.map((item, index) => {
     const fraction = item.value / total;
     const dashLength = fraction * circumference;
     const gapLength = circumference - dashLength;
-    const offset = -accumulatedOffset;
-    accumulatedOffset += dashLength;
+    const offset = -data
+      .slice(0, index)
+      .reduce((sum, previous) => sum + (previous.value / total) * circumference, 0);
 
     return {
       color: item.color || COLORS[index % COLORS.length],
       dashArray: `${dashLength} ${gapLength}`,
-      rotation: -90, // start at top
+      rotation: -90,
       offset,
       label: item.label,
       fraction,

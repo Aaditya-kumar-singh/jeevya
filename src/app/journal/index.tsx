@@ -14,7 +14,7 @@ import {
   Plus,
   Search,
   X,
-} from 'lucide-react-native';
+ NotebookPen } from 'lucide-react-native';
 
 import { Badge, BadgeText } from '@/components/ui/badge';
 import { Button, ButtonText } from '@/components/ui/button';
@@ -28,7 +28,7 @@ import { ScalePressable } from '@/components/motion/ScalePressable';
 import { EmptyStateIllustration } from '@/components/visuals/EmptyStateIllustration';
 import { CategoryWave } from '@/components/visuals/CategoryWave';
 import { FloatingBlobsSVG } from '@/components/visuals/FloatingBlobsSVG';
-import { NotebookPen } from 'lucide-react-native';
+
 import {
   JOURNAL_MOOD_LABELS,
   JOURNAL_MOODS,

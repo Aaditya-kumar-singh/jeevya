@@ -30,7 +30,7 @@ export default function WorkoutScreen() {
     .filter((e): e is NonNullable<typeof e> => Boolean(e));
   const [done, setDone] = useState<Record<string, boolean>>({});
   const [activeWorkout, setActiveWorkout] = useState<Workout | null>(null);
-  const [scheduled, setScheduled] = useState<Array<{ schedule: { id: string; templateId: string }; template: { id: string; name: string } | null }>>([]);
+  const [scheduled, setScheduled] = useState<{ schedule: { id: string; templateId: string }; template: { id: string; name: string } | null }[]>([]);
 
   useEffect(() => {
     let mounted = true;

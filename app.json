@@ -8,7 +8,9 @@
     "scheme": "personalityimprovement",
     "userInterfaceStyle": "automatic",
     "ios": {
-      "icon": "./assets/expo.icon"
+      "icon": "./assets/expo.icon",
+      "bundleIdentifier": "com.aaditya001.personalityimprovementapp",
+      "supportsTablet": true
     },
     "android": {
       "adaptiveIcon": {
@@ -18,7 +20,13 @@
         "monochromeImage": "./assets/images/android-icon-monochrome.png"
       },
       "predictiveBackGestureEnabled": false,
-      "package": "com.aaditya001.personalityimprovementapp"
+      "package": "com.aaditya001.personalityimprovementapp",
+      "allowBackup": false,
+      "blockedPermissions": [
+        "android.permission.SYSTEM_ALERT_WINDOW",
+        "android.permission.READ_EXTERNAL_STORAGE",
+        "android.permission.WRITE_EXTERNAL_STORAGE"
+      ]
     },
     "web": {
       "output": "static",
@@ -60,6 +68,13 @@
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
-    }
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "2b38de30-3dd6-4e15-b68b-16ed28f3f179"
+      }
+    },
+    "owner": "aaditya001"
   }
 }

@@ -1,6 +1,6 @@
-﻿// @ts-nocheck
-require('./mock-setup');
+// @ts-nocheck
 import {saveData,loadData} from '@/lib/storage'; import {listSleepEntries,SLEEP_KEY} from '@/services/sleep'; import {calculateSleepScore,calculateTrainingLoadScore,calculateConsistencyScore,calculateReadinessScore,getReadinessLevel,getRecoveryForDate,getRecoveryForDateRange} from '@/services/recovery';
+require('./mock-setup');
 const WK='lifeos:workouts:sessions'; let n=0,fail=0; const assert=(x,m)=>{n++;if(!x){fail++;throw Error(m)}}; const rawSleep=(date,dur)=>({id:`s${date}`,date,sleepStart:`${date}T22:00:00.000Z`,sleepEnd:new Date(Date.parse(`${date}T22:00:00.000Z`)+dur*60000).toISOString(),durationMinutes:dur,quality:'good',createdAt:`${date}T08:00:00.000Z`,updatedAt:`${date}T08:00:00.000Z`}); const rawWorkout=(id,date,seconds,status='completed')=>({id,name:id,status,createdAt:`${date}T18:00:00.000Z`,startedAt:`${date}T18:00:00.000Z`,completedAt:status==='completed'?`${date}T19:00:00.000Z`:null,durationSeconds:seconds,exercises:[]});
 async function check(m,f){try{await f();console.log('PASS',++n,m)}catch(e){console.error('FAIL',m,e.message)}}
 (async()=>{await saveData(SLEEP_KEY,[]);await saveData(WK,[]);
