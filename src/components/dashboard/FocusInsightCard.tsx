@@ -21,7 +21,7 @@ const INSIGHTS = [
   },
   {
     quote: "Focus is a muscle. The more you protect your attention, the stronger it grows.",
-    author: "LifeOS Focus AI",
+    author: "Jeevya Focus AI",
     tag: "Deep Work",
   },
 ];

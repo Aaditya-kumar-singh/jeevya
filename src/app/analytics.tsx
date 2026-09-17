@@ -69,8 +69,8 @@ export default function AnalyticsScreen() {
             <ArrowLeft size={20} />
           </Button>
           <View className="flex-1">
-            <Text size="sm" className="text-muted-foreground">LifeOS · Insights</Text>
-            <Heading size="xl" className="mt-1">LifeOS Analytics</Heading>
+            <Text size="sm" className="text-muted-foreground">Jeevya · Insights</Text>
+            <Heading size="xl" className="mt-1">Jeevya Analytics</Heading>
             <Text size="sm" className="mt-1 text-muted-foreground">One read-only view across your daily systems</Text>
           </View>
           <BarChart3 size={24} className="text-primary" />
@@ -162,7 +162,7 @@ export default function AnalyticsScreen() {
           <Card className="items-center p-6">
             <BarChart3 size={28} className="text-muted-foreground" />
             <Heading size="md" className="mt-3">No analytics available</Heading>
-            <Text size="sm" className="mt-1 text-center text-muted-foreground">Start using LifeOS modules and cross-module activity will appear here.</Text>
+            <Text size="sm" className="mt-1 text-center text-muted-foreground">Start using Jeevya modules and cross-module activity will appear here.</Text>
           </Card>
         )}
       </View>

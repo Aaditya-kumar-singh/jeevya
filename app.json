@@ -1,20 +1,20 @@
 {
   "expo": {
-    "name": "Personality Improvement",
+    "name": "Jeevya",
     "slug": "personality-improvement-app",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "personalityimprovement",
+    "scheme": "jeevya",
     "userInterfaceStyle": "automatic",
     "ios": {
-      "icon": "./assets/expo.icon",
+      "icon": "./assets/images/icon.png",
       "bundleIdentifier": "com.aaditya001.personalityimprovementapp",
       "supportsTablet": true
     },
     "android": {
       "adaptiveIcon": {
-        "backgroundColor": "#E6F4FE",
+        "backgroundColor": "#F8FAF5",
         "foregroundImage": "./assets/images/android-icon-foreground.png",
         "backgroundImage": "./assets/images/android-icon-background.png",
         "monochromeImage": "./assets/images/android-icon-monochrome.png"
@@ -40,8 +40,8 @@
           "widgets": [
             {
               "name": "LifeOSWidget",
-              "label": "LifeOS",
-              "description": "Your configured LifeOS metrics at a glance.",
+              "label": "Jeevya",
+              "description": "Your Jeevya life metrics at a glance.",
               "minWidth": "110dp",
               "minHeight": "70dp",
               "targetCellWidth": 2,
@@ -58,7 +58,7 @@
       [
         "expo-splash-screen",
         {
-          "backgroundColor": "#208AEF",
+          "backgroundColor": "#F8FAF5",
           "image": "./assets/images/splash-icon.png",
           "imageWidth": 76
         }

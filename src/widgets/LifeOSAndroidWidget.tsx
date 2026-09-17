@@ -122,7 +122,7 @@ function renderWidget(snapshot: WidgetSnapshot, width: number, height: number, d
         borderBottomColor: border,
       }}
       clickAction="OPEN_URI"
-      clickActionData={{ uri: `personalityimprovement://${module.action.navigationTarget}` }}
+      clickActionData={{ uri: `jeevya://${module.action.navigationTarget}` }}
       accessibilityLabel={module.action.label}
     >
       <TextWidget

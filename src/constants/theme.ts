@@ -1,6 +1,6 @@
 /**
  * LifeOS Theme System
- * Defines 10 themes spanning Classic, Simple, Advanced, and Animated aesthetics.
+ * Defines 11 themes spanning Classic, Simple, Advanced, and Animated aesthetics, including the Jeevya Nature brand theme.
  */
 
 import '@/global.css';
@@ -66,6 +66,7 @@ export type ThemeMode = 'light' | 'dark';
 export type AnimationType = 'pulse' | 'aurora' | 'nebula' | 'none';
 
 export type ThemeId =
+  | 'jeevya-nature'
   | 'classic-light'
   | 'midnight-cyber'
   | 'nordic-frost'
@@ -121,8 +122,44 @@ export interface ThemeDefinition {
 
 export const THEMES: ThemeDefinition[] = [
   {
+    id: 'jeevya-nature',
+    name: 'Jeevya Nature',
+    tagline: 'Calm greens, warm sunlight, and a softer path to daily growth',
+    category: 'classic',
+    mode: 'light',
+    isAnimated: false,
+    animationType: 'none',
+    accentBadge: 'Jeevya Default',
+    previewCardBg: '#FFFFFF',
+    colors: {
+      background: '#F8FAF5',
+      backgroundElement: '#EEF5E9',
+      backgroundSelected: '#E0EBDD',
+      card: '#FFFFFF',
+      cardBorder: '#DCE8D7',
+      text: '#103C2B',
+      textSecondary: '#66796F',
+      primary: '#0F6B3A',
+      primaryForeground: '#FFFFFF',
+      secondary: '#DDEFE2',
+      secondaryForeground: '#0B5A30',
+      accent: '#F5A623',
+      accentGlow: 'rgba(245, 166, 35, 0.24)',
+      border: '#DCE8D7',
+      success: '#2E8B57',
+      warning: '#F5A623',
+      danger: '#D95D5D',
+      info: '#4CA7D8',
+      health: '#42B883',
+      finance: '#E7A928',
+      productivity: '#4CA7D8',
+      growth: '#69A84F',
+      gradient: ['#0F6B3A', '#2E8B57', '#F5A623'],
+    },
+  },
+  {
     id: 'classic-light',
-    name: 'LifeOS Classic',
+    name: 'Jeevya Classic',
     tagline: 'Clean indigo-violet and sky balanced for daily focus',
     category: 'classic',
     mode: 'light',
@@ -482,7 +519,7 @@ export const THEMES: ThemeDefinition[] = [
   },
 ];
 
-export const DEFAULT_THEME_ID: ThemeId = 'classic-light';
+export const DEFAULT_THEME_ID: ThemeId = 'jeevya-nature';
 
 export function getThemeById(id: string): ThemeDefinition {
   return THEMES.find((t) => t.id === id) ?? THEMES[0];

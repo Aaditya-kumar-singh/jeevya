@@ -49,7 +49,7 @@ export default function SettingsScreen() {
       () => signIn('/settings'),
       {
         title: 'Account required',
-        explanation: 'Create a free LifeOS account to manage your account settings.',
+        explanation: 'Create a free Jeevya account to manage your account settings.',
       },
     );
   };
@@ -68,7 +68,7 @@ export default function SettingsScreen() {
       () => { void sync(); },
       {
         title: 'Account required',
-        explanation: 'Create a free LifeOS account to synchronize your LifeOS data across your account.',
+        explanation: 'Create a free Jeevya account to synchronize your Jeevya data across your account.',
       },
     );
   };

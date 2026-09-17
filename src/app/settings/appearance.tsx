@@ -71,7 +71,7 @@ export default function AppearanceScreen() {
               <View className="flex-row items-center gap-2">
                 <Badge variant="outline" className="border-primary/40 bg-primary/10 px-3 py-1 rounded-full">
                   <Palette size={12} className="text-primary mr-1" />
-                  <BadgeText className="text-primary font-bold text-xs">10 Themes</BadgeText>
+                  <BadgeText className="text-primary font-bold text-xs">{THEMES.length} Themes</BadgeText>
                 </Badge>
               </View>
             </View>

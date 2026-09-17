@@ -1,6 +1,5 @@
 import "@/global.css";
 import { useEffect } from "react";
-import { useColorScheme } from "react-native";
 import { DarkTheme, DefaultTheme, ThemeProvider, Stack } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import { SafeAreaProvider } from "react-native-safe-area-context";
@@ -20,13 +19,12 @@ import {
 
 import { GluestackUIProvider } from "@/components/ui/gluestack-ui-provider";
 import { LifeOSThemeProvider } from "@/lib/themeContext";
+import { useTheme } from "@/hooks/use-theme";
 import { AndroidWidgetRefreshBridge } from "@/components/widgets/AndroidWidgetRefreshBridge";
 
 SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
-  const colorScheme = useColorScheme();
-
   const [fontsLoaded, fontError] = useFonts({
     PlusJakartaSans_400Regular,
     PlusJakartaSans_500Medium,
@@ -50,13 +48,23 @@ export default function RootLayout() {
 
   return (
     <LifeOSThemeProvider>
+      <ThemeShell />
+    </LifeOSThemeProvider>
+  );
+}
+
+function ThemeShell() {
+  const { isDark } = useTheme();
+  const navigationTheme = isDark ? DarkTheme : DefaultTheme;
+
+  return (
+    <GluestackUIProvider mode={isDark ? 'dark' : 'light'}>
       <AndroidWidgetRefreshBridge />
-      <GluestackUIProvider mode="system">
-        <SafeAreaProvider>
-          <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
-            <Stack screenOptions={{ headerShown: false }}>
-              <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-              <Stack.Screen name="goals" options={{ headerShown: false }} />
+      <SafeAreaProvider>
+        <ThemeProvider value={navigationTheme}>
+          <Stack screenOptions={{ headerShown: false }}>
+            <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+            <Stack.Screen name="goals" options={{ headerShown: false }} />
             <Stack.Screen name="health/workout" options={{ headerShown: false }} />
             <Stack.Screen name="health/exercises" options={{ headerShown: false }} />
             <Stack.Screen name="health/sleep" options={{ headerShown: false }} />
@@ -98,10 +106,10 @@ export default function RootLayout() {
             <Stack.Screen name="books/[id]" options={{ headerShown: false }} />
             <Stack.Screen name="books/[id]/edit" options={{ headerShown: false }} />
             <Stack.Screen name="journal/index" options={{ headerShown: false }} />
-          <Stack.Screen name="journal/new" options={{ headerShown: false }} />
-          <Stack.Screen name="journal/calendar" options={{ headerShown: false }} />
-          <Stack.Screen name="journal/[id]" options={{ headerShown: false }} />
-          <Stack.Screen name="journal/[id]/edit" options={{ headerShown: false }} />
+            <Stack.Screen name="journal/new" options={{ headerShown: false }} />
+            <Stack.Screen name="journal/calendar" options={{ headerShown: false }} />
+            <Stack.Screen name="journal/[id]" options={{ headerShown: false }} />
+            <Stack.Screen name="journal/[id]/edit" options={{ headerShown: false }} />
             <Stack.Screen name="settings/index" options={{ headerShown: false }} />
             <Stack.Screen name="settings/appearance" options={{ headerShown: false }} />
             <Stack.Screen name="habits/index" options={{ headerShown: false }} />
@@ -117,6 +125,5 @@ export default function RootLayout() {
         </ThemeProvider>
       </SafeAreaProvider>
     </GluestackUIProvider>
-    </LifeOSThemeProvider>
   );
 }

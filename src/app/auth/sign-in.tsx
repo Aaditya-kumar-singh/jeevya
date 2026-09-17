@@ -35,7 +35,7 @@ export default function SignInScreen() {
     const result = await signOut();
     setBusy(false);
     if (result.authError) setError(result.authError);
-    else setMessage('Signed out. Your local LifeOS data is unchanged.');
+    else setMessage('Signed out. Your local Jeevya data is unchanged.');
   };
 
   return (

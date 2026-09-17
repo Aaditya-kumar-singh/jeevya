@@ -17,15 +17,15 @@ const links = [
   { label: 'Tasks & Action Items', value: 'Stay organized daily with high-priority actions', href: '/tasks', icon: CheckSquare, iconBg: 'bg-violet-500/15 text-violet-500', badge: '12 Due' },
   { label: 'Habit Routines', value: 'Build long-term streak habits & routines', href: '/habits', icon: ListChecks, iconBg: 'bg-indigo-500/15 text-indigo-500', badge: '7d Streak' },
   { label: 'Reading Library', value: 'Book list, goals & reading analytics', href: '/books', icon: BookOpen, iconBg: 'bg-amber-500/15 text-amber-500', badge: '3 Active' },
-  { label: 'Goals & Progress', value: 'One view across supported LifeOS goals', href: '/goals', icon: Target, iconBg: 'bg-rose-500/15 text-rose-500', badge: 'Unified' },
-  { label: 'Life Intelligence', value: 'Deterministic signals across your LifeOS data', href: '/insights', icon: Brain, iconBg: 'bg-fuchsia-500/15 text-fuchsia-500', badge: 'Signals' },
-  { label: 'Search Everything', value: 'Find records across your LifeOS modules', href: '/search', icon: Search, iconBg: 'bg-cyan-500/15 text-cyan-500', badge: 'Global' },
-  { label: 'LifeOS Analytics', value: 'Cross-module activity and progress overview', href: '/analytics', icon: BarChart3, iconBg: 'bg-sky-500/15 text-sky-500', badge: '7d' },
+  { label: 'Goals & Progress', value: 'One view across your Jeevya goals', href: '/goals', icon: Target, iconBg: 'bg-rose-500/15 text-rose-500', badge: 'Unified' },
+  { label: 'Life Intelligence', value: 'Deterministic signals across your Jeevya data', href: '/insights', icon: Brain, iconBg: 'bg-fuchsia-500/15 text-fuchsia-500', badge: 'Signals' },
+  { label: 'Search Everything', value: 'Find records across your Jeevya modules', href: '/search', icon: Search, iconBg: 'bg-cyan-500/15 text-cyan-500', badge: 'Global' },
+  { label: 'Jeevya Analytics', value: 'Cross-module activity and progress overview', href: '/analytics', icon: BarChart3, iconBg: 'bg-sky-500/15 text-sky-500', badge: '7d' },
   { label: 'Data Quality', value: 'Check cross-module data integrity and diagnostics', href: '/data-quality', icon: ShieldCheck, iconBg: 'bg-emerald-500/15 text-emerald-500', badge: 'Diagnostics' },
-  { label: 'Life Timeline', value: 'Review historical activity across your LifeOS domains', href: '/life-timeline', icon: Clock3, iconBg: 'bg-sky-500/15 text-sky-500', badge: 'History' },
+  { label: 'Life Timeline', value: 'Review historical activity across your Jeevya domains', href: '/life-timeline', icon: Clock3, iconBg: 'bg-sky-500/15 text-sky-500', badge: 'History' },
   { label: 'Weekly Review', value: 'Review patterns, wins, and areas needing attention', href: '/weekly-review', icon: ClipboardCheck, iconBg: 'bg-emerald-500/15 text-emerald-500', badge: 'Weekly' },
   { label: 'Daily Reflection Journal', value: 'Reflect daily with mood logs', href: '/journal', icon: NotebookPen, iconBg: 'bg-emerald-500/15 text-emerald-500', badge: 'Today' },
-  { label: 'Settings & Preferences', value: 'Profile, theme, & data preferences', href: '/settings', icon: Settings, iconBg: 'bg-sky-500/15 text-sky-500', badge: 'LifeOS v2.4' },
+  { label: 'Settings & Preferences', value: 'Profile, theme, & data preferences', href: '/settings', icon: Settings, iconBg: 'bg-sky-500/15 text-sky-500', badge: 'Jeevya v2.4' },
 ];
 
 export default function MoreScreen() {
@@ -35,8 +35,8 @@ export default function MoreScreen() {
 
   const handleRestore = () => {
     Alert.alert(
-      'Restore LifeOS Backup',
-      'Restoring replaces all supported local LifeOS data with the backup. Continue only if the backup is trusted.',
+      'Restore Jeevya Backup',
+      'Restoring replaces all supported local Jeevya data with the backup. Continue only if the backup is trusted.',
       [
         { text: 'Cancel', style: 'cancel' },
         { text: 'Restore', style: 'destructive', onPress: async () => {
@@ -131,7 +131,7 @@ export default function MoreScreen() {
                     </View>
                     <View className="flex-1">
                       <Heading size="sm" className="font-bold">Export Backup</Heading>
-                      <Text size="xs" className="text-muted-foreground font-medium mt-0.5">Create a portable copy of supported LifeOS data</Text>
+                      <Text size="xs" className="text-muted-foreground font-medium mt-0.5">Create a portable copy of supported Jeevya data</Text>
                     </View>
                     <ChevronRight size={18} className="text-muted-foreground/60" />
                   </View>
@@ -146,7 +146,7 @@ export default function MoreScreen() {
                     </View>
                     <View className="flex-1">
                       <Heading size="sm" className="font-bold">Restore Backup</Heading>
-                      <Text size="xs" className="text-muted-foreground font-medium mt-0.5">Validate and replace supported local LifeOS data</Text>
+                      <Text size="xs" className="text-muted-foreground font-medium mt-0.5">Validate and replace supported local Jeevya data</Text>
                     </View>
                     <ChevronRight size={18} className="text-muted-foreground/60" />
                   </View>

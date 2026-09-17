@@ -1,4 +1,4 @@
-# Personality Improvement App (LifeOS) 👋
+# Jeevya 👋
 
 Expo React Native + Expo Router + TypeScript + NativeWind v5 + gluestack-ui + Lucide + Supabase.
 
