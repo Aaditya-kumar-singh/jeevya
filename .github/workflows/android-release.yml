@@ -30,7 +30,7 @@ jobs:
 
           if [ -z "${GH_TOKEN:-}" ]; then
             echo "::error::CODESPACES_TOKEN is not configured in GitHub Actions."
-            echo "::error::Add it at Settings â†’ Secrets and variables â†’ Actions â†’ New repository secret."
+            echo "::error::Add it at Settings Ã¢â€ â€™ Secrets and variables Ã¢â€ â€™ Actions Ã¢â€ â€™ New repository secret."
             exit 1
           fi
 
@@ -146,5 +146,3 @@ jobs:
           if [ -n "${CODESPACE_NAME:-}" ]; then
             gh codespace stop -c "$CODESPACE_NAME" || true
           fi
-  163
-  150
