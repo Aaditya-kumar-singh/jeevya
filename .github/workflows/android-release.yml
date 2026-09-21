@@ -94,11 +94,25 @@ jobs:
         run: |
           set -euo pipefail
 
-          echo "Codespace is Available. Waiting for the Codespaces SSH tunnel..."
+          echo "Codespace is Available. Preparing SSH configuration..."
+          mkdir -p "$HOME/.ssh"
+          chmod 700 "$HOME/.ssh"
+
+          echo "Generating Codespaces SSH configuration..."
+          gh codespace ssh -c "$CODESPACE_NAME" --config > "$HOME/.ssh/jeevya-codespace-config"
+          chmod 600 "$HOME/.ssh/jeevya-codespace-config"
+
+          SSH_HOST="$(awk '$1 == "Host" {print $2; exit}' "$HOME/.ssh/jeevya-codespace-config")"
+          if [ -z "$SSH_HOST" ]; then
+            echo "::error::Could not determine the SSH host alias."
+            exit 1
+          fi
+          echo "Using SSH host alias: $SSH_HOST"
+
           for i in {1..12}; do
             echo "SSH readiness attempt $i/12"
             set +e
-            timeout 45s gh codespace ssh -c "$CODESPACE_NAME" -- "command -v node >/dev/null && command -v java >/dev/null && echo JEEVYA_CONTAINER_READY"
+            timeout 45s ssh -F "$HOME/.ssh/jeevya-codespace-config" "$SSH_HOST" "command -v node >/dev/null && command -v java >/dev/null && echo JEEVYA_CONTAINER_READY"
             STATUS=$?
             set -e
 
@@ -109,7 +123,9 @@ jobs:
 
             echo "SSH readiness attempt failed with exit code $STATUS."
             if [ "$i" -eq 12 ]; then
-              echo "::error::Codespace became Available but gh codespace ssh could not connect."
+              echo "::error::Codespace became Available but OpenSSH could not connect through the Codespaces tunnel."
+              echo "=== SSH configuration ==="
+              cat "$HOME/.ssh/jeevya-codespace-config"
               echo "=== Codespace creation logs ==="
               gh codespace logs -c "$CODESPACE_NAME" || true
               exit 1
@@ -125,7 +141,8 @@ jobs:
         run: |
           set -euo pipefail
 
-          gh codespace ssh -c "$CODESPACE_NAME" -- 'cd /workspaces/jeevya && set -euo pipefail && echo "=== Jeevya automated Codespace release ===" && echo "Commit: $(git rev-parse HEAD)" && echo "Branch: $(git branch --show-current)" && echo "Node: $(node --version)" && echo "Java:" && java -version && echo "Android SDK: $ANDROID_HOME" && npm ci && JEEVYA_AUTOMATED_RELEASE=true npm run ship'
+          SSH_HOST="$(awk '$1 == "Host" {print $2; exit}' "$HOME/.ssh/jeevya-codespace-config")"
+          ssh -F "$HOME/.ssh/jeevya-codespace-config" "$SSH_HOST" 'cd /workspaces/jeevya && set -euo pipefail && echo "=== Jeevya automated Codespace release ===" && echo "Commit: $(git rev-parse HEAD)" && echo "Branch: $(git branch --show-current)" && echo "Node: $(node --version)" && echo "Java:" && java -version && echo "Android SDK: $ANDROID_HOME" && npm ci && JEEVYA_AUTOMATED_RELEASE=true npm run ship'
 
       - name: Stop release Codespace
         if: always()
