@@ -104,10 +104,16 @@ jobs:
 
           echo "Checking SSH configuration..."
           grep -E "^(Host|HostName|User|IdentityFile|ProxyCommand)" "$HOME/.ssh/jeevya-codespace-config" || true
+          SSH_HOST="$(awk '$1 == "Host" {print $2; exit}' "$HOME/.ssh/jeevya-codespace-config")"
+          if [ -z "$SSH_HOST" ]; then
+            echo "::error::Could not determine the SSH host alias from the Codespaces SSH configuration."
+            exit 1
+          fi
+          echo "Using SSH host alias: $SSH_HOST"
 
           for i in {1..12}; do
             echo "SSH readiness attempt $i/12"
-            if timeout 45s ssh -F "$HOME/.ssh/jeevya-codespace-config" "$CODESPACE_NAME" "command -v node >/dev/null && command -v java >/dev/null && echo JEEVYA_CONTAINER_READY"; then
+            if timeout 45s ssh -F "$HOME/.ssh/jeevya-codespace-config" "$SSH_HOST" "command -v node >/dev/null && command -v java >/dev/null && echo JEEVYA_CONTAINER_READY"; then
               echo "Codespace SSH and required runtimes are ready."
               exit 0
             fi
@@ -130,7 +136,8 @@ jobs:
         run: |
           set -euo pipefail
 
-          ssh -F "$HOME/.ssh/jeevya-codespace-config" "$CODESPACE_NAME" 'cd /workspaces/jeevya && set -euo pipefail && echo "=== Jeevya automated Codespace release ===" && echo "Commit: $(git rev-parse HEAD)" && echo "Branch: $(git branch --show-current)" && echo "Node: $(node --version)" && echo "Java:" && java -version && echo "Android SDK: $ANDROID_HOME" && npm ci && JEEVYA_AUTOMATED_RELEASE=true npm run ship'
+          SSH_HOST="$(awk '$1 == "Host" {print $2; exit}' "$HOME/.ssh/jeevya-codespace-config")"
+          ssh -F "$HOME/.ssh/jeevya-codespace-config" "$SSH_HOST" 'cd /workspaces/jeevya && set -euo pipefail && echo "=== Jeevya automated Codespace release ===" && echo "Commit: $(git rev-parse HEAD)" && echo "Branch: $(git branch --show-current)" && echo "Node: $(node --version)" && echo "Java:" && java -version && echo "Android SDK: $ANDROID_HOME" && npm ci && JEEVYA_AUTOMATED_RELEASE=true npm run ship'
 
       - name: Stop release Codespace
         if: always()
