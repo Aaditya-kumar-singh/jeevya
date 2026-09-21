@@ -87,6 +87,32 @@ jobs:
           echo "::error::Timed out waiting for Codespace."
           exit 1
 
+      - name: Wait for Codespace SSH
+        env:
+          GH_TOKEN: ${{ secrets.CODESPACES_TOKEN }}
+          CODESPACE_NAME: ${{ steps.codespace.outputs.name }}
+        run: |
+          set -euo pipefail
+
+          echo "Codespace is Available. Waiting for the dev container and SSH server..."
+          for i in {1..12}; do
+            echo "SSH readiness attempt $i/12"
+            if timeout 45s gh codespace ssh -c "$CODESPACE_NAME" -- bash -lc 'echo JEEVYA_SSH_READY'; then
+              echo "Codespace SSH is ready."
+              exit 0
+            fi
+
+            echo "SSH is not ready yet."
+            if [ "$i" -eq 12 ]; then
+              echo "::error::Codespace became Available but its SSH server did not become ready."
+              echo "=== Codespace creation logs ==="
+              gh codespace logs -c "$CODESPACE_NAME" || true
+              exit 1
+            fi
+
+            sleep 15
+          done
+
       - name: Build, sign, and publish from Codespace
         env:
           GH_TOKEN: ${{ secrets.CODESPACES_TOKEN }}
