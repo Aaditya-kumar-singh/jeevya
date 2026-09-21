@@ -34,8 +34,19 @@ jobs:
             exit 1
           fi
 
-          gh auth status
-          gh api user --jq '"Authenticated as: " + .login'
+          echo "Checking GitHub token authentication..."
+          if ! gh api user --jq '"Authenticated as: " + .login'; then
+            echo "::error::CODESPACES_TOKEN is present but GitHub rejected it."
+            echo "::error::Check that the token is active, belongs to the correct GitHub account, and has access to Aaditya-kumar-singh/jeevya."
+            exit 1
+          fi
+
+          echo "Checking Codespaces permission..."
+          if ! gh api "repos/Aaditya-kumar-singh/jeevya/codespaces/machines" --jq 'length'; then
+            echo "::error::CODESPACES_TOKEN cannot access the Jeevya Codespaces API."
+            echo "::error::The fine-grained token needs Repository permissions → Codespaces → Read and write."
+            exit 1
+          fi
 
       - name: Create dedicated release Codespace
         id: codespace
