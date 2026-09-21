@@ -6,6 +6,10 @@ Jeevya is a personal improvement and life-management app built with Expo React N
 **Platform:** Android, iOS, Web  
 **Repository:** https://github.com/Aaditya-kumar-singh/jeevya
 
+![Jeevya](assets/jeevya-banner.svg)
+
+> **Build your better day in one place.** Jeevya combines planning, habits, health, fitness, finance, goals, books, journal entries, insights, and Android home-screen widgets in one colourful personal-improvement experience.
+
 ## What can a user do with Jeevya?
 
 ### Dashboard
@@ -134,7 +138,19 @@ Jeevya is designed with a local-first approach.
 
 ### Android
 
-The recommended distribution method is the GitHub **Releases** page.
+The recommended distribution method is the GitHub **Releases** page. The current v1.1.0 Android build is generated automatically with Expo prebuild + Gradle, signed with the Jeevya release key, and published as a GitHub Release.
+
+| Android device family | Support |
+| --- | --- |
+| Redmi / Xiaomi | ARM64 Android build |
+| Samsung Galaxy | ARM64 Android build |
+| realme | ARM64 Android build |
+| vivo | ARM64 Android build |
+| OPPO | ARM64 Android build |
+| OnePlus | ARM64 Android build |
+| Other modern Android phones/tablets | ARM64 Android build |
+
+> **Compatibility note:** Jeevya's release APK is built for modern ARM64 Android devices. Exact installation and behaviour can vary with Android version, vendor software, and device-specific restrictions.
 
 1. Open the Jeevya repository:
    https://github.com/Aaditya-kumar-singh/jeevya
@@ -150,7 +166,7 @@ https://github.com/Aaditya-kumar-singh/jeevya/releases/latest
 
 GitHub supports attaching binary files such as APKs to releases, and users can download those release assets directly. See the GitHub release documentation for the release/download URL behaviour.
 
-> **Current distribution status:** Jeevya v1.1.0 source and release tag are published. The v1.1.0 production Android APK still needs to be generated and attached to the GitHub Release before users can install that exact version from GitHub.
+> **Current distribution status:** Jeevya v1.1.0 has an Android APK attached to its GitHub Release. Download it from the release page and install it on a compatible ARM64 Android device.
 
 ### Developers: run from source
 
