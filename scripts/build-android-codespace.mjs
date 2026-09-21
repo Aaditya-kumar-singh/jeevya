@@ -71,11 +71,14 @@ run('node', ['scripts/configure-android-signing.mjs'], {
   },
 });
 
-run('./android/gradlew', [
+run('./gradlew', [
   ':app:assembleRelease',
   '--no-daemon',
+  '--max-workers=2',
   '--stacktrace',
+  '-PreactNativeArchitectures=arm64-v8a',
 ], {
+  cwd: path.join(root, 'android'),
   env: {
     ...process.env,
     JEEVYA_VERSION_CODE: String(versionCode),
