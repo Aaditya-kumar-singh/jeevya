@@ -2,6 +2,9 @@
   "name": "Jeevya Android Codespace",
   "image": "mcr.microsoft.com/devcontainers/javascript-node:1-24-bookworm",
   "features": {
+    "ghcr.io/devcontainers/features/node:1": {
+      "version": "24"
+    },
     "ghcr.io/devcontainers/features/java:1": {
       "version": "17",
       "installGradle": false
