@@ -118,7 +118,7 @@ if (!apksigner) {
 
 run(apksigner, ['verify', '--verbose', assetPath]);
 
-const sha256 = output('sha256sum', [assetPath]).split(/\\s+/)[0];
+const sha256 = output('sha256sum', [assetPath]).trim().split(/\s+/)[0];
 const metadata = {
   version,
   versionCode,

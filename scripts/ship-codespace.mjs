@@ -44,18 +44,42 @@ run('git', ['push', 'origin', 'master']);
 const buildScript = path.join(root, 'scripts', 'build-android-codespace.mjs');
 run('node', [buildScript]);
 
-const metadataPath = path.join(
-  root,
-  'dist',
-  'releases',
-  fs.readdirSync(path.join(root, 'dist', 'releases')).find((name) => name.endsWith('.apk.json')),
-);
+const releasesDir = path.join(root, 'dist', 'releases');
+const metadataFiles = fs
+  .readdirSync(releasesDir)
+  .filter((name) => name.endsWith('.apk.json'));
 
-if (!fs.existsSync(metadataPath)) {
+const currentCommit = output('git', ['rev-parse', '--short=12', 'HEAD']);
+
+if (metadataFiles.length === 0) {
   throw new Error('Build metadata was not found.');
 }
 
-const metadata = JSON.parse(fs.readFileSync(metadataPath, 'utf8'));
+const metadataCandidates = metadataFiles
+  .map((name) => {
+    const metadataPath = path.join(releasesDir, name);
+    const content = fs.readFileSync(metadataPath, 'utf8').trim();
+
+    try {
+      const metadata = JSON.parse(content);
+      return { metadataPath, metadata };
+    } catch {
+      return null;
+    }
+  })
+  .filter(Boolean);
+
+const selected = metadataCandidates.find(
+  ({ metadata }) => metadata.commit === currentCommit,
+);
+
+if (!selected) {
+  throw new Error(
+    `No valid release metadata found for current commit ${currentCommit}.`,
+  );
+}
+
+const { metadataPath, metadata } = selected;
 const apkPath = path.join(path.dirname(metadataPath), metadata.assetName);
 
 const now = new Date();
