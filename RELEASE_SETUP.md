@@ -211,7 +211,7 @@ The workflow therefore needs one **GitHub Actions repository secret** named:
 CODESPACES_TOKEN
 ```
 
-Create a fine-grained personal access token for your GitHub account and give it access to the Jeevya repository with the Codespaces permissions required to create/manage a Codespace. GitHub's Codespaces API documents repository Codespaces write/lifecycle permissions for these operations. citeturn0search3
+For the Actions runner, use a **personal access token (classic)** for the Codespaces SSH connection. Give the token the `codespace` scope. GitHub documents that OAuth apps and classic personal access tokens use the `codespace` scope for Codespaces API operations, while fine-grained tokens use repository-specific Codespaces permissions. The repeated `Permission denied (publickey)` failure occurs specifically during the `gh codespace ssh` tunnel, so the classic `codespace` scope is the supported compatibility path for this CLI connection. citeturn3search2turn3search1
 
 Then add it at:
 
