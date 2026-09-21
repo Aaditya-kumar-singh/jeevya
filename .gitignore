@@ -50,3 +50,7 @@ example
 widget-check.log
 dist-check/
 graphify-out/
+
+# Android release signing
+*.keystore
+credentials.json

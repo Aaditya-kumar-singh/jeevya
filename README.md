@@ -312,30 +312,72 @@ Jeevya 1.1.0 was validated with:
 
 See the repository license file for licensing information.
 
-## GitHub Codespaces and automatic releases
+## GitHub Codespaces Android build pipeline
 
-Jeevya includes a ready-to-use GitHub Codespaces development environment in `.devcontainer/` and automated GitHub Actions workflows in `.github/workflows/`.
+Jeevya includes a complete Android build environment in `.devcontainer/`.
 
-### Development flow
+The Codespace contains:
+
+- Node.js 24
+- Java 17
+- Android SDK 36
+- Android Build Tools 36.0.0
+- Gradle through the generated Android project
+- GitHub CLI
+- Expo prebuild tooling
+
+The actual Android APK is built and signed inside the Codespace. EAS Build is not required for the normal GitHub release pipeline.
+
+### Release flow
 
 ```text
 GitHub Codespace
-      ?
+      |
 Edit + test
-      ?
-git push origin master
-      ?
-GitHub Actions
-      +-- CI validation
-      +-- Android APK release
-              ?
-         GitHub Releases
+      |
+git commit
+      |
+npm run ship
+      |
+git push
+      |
+Expo prebuild
+      |
+Gradle release build
+      |
+APK signing
+      |
+APK verification
+      |
+GitHub Release
+      |
+Codespace stops
 ```
 
-The Codespace is disposable: source code is stored in GitHub, validation runs in GitHub Actions, and Android release builds run on EAS Build. You do not need to keep the Codespace running after pushing your changes.
+The complete signing setup, existing EAS keystore migration, build commands, release process, security model, and Codespace shutdown flow are documented in [`RELEASE_SETUP.md`](./RELEASE_SETUP.md).
 
-The complete setup, secret configuration, release strategy, rollback process, and production AAB workflow are documented in [`RELEASE_SETUP.md`](./RELEASE_SETUP.md).
+### One-time signing setup
+
+Inside the Codespace:
+
+```bash
+npm run setup:codespace-signing
+```
+
+Signing credentials are stored as GitHub Codespaces secrets and are never committed to the repository.
+
+### Build without publishing
+
+```bash
+npm run android:codespace
+```
+
+### Build, publish, and stop the Codespace
+
+```bash
+npm run ship
+```
 
 ### Download Android builds
 
-Stable and automated Android builds are published under [GitHub Releases](https://github.com/Aaditya-kumar-singh/jeevya/releases). GitHub release builds use an APK so normal Android users can install them directly. The `production` EAS profile remains configured for Google Play AAB builds.
+Stable and automated Android builds are published under [GitHub Releases](https://github.com/Aaditya-kumar-singh/jeevya/releases). Development builds are published as prereleases so they do not replace the stable release.

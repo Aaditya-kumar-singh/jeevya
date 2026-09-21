@@ -1,9 +1,16 @@
 {
-  "name": "Jeevya Development",
+  "name": "Jeevya Android Codespace",
   "image": "mcr.microsoft.com/devcontainers/javascript-node:1-24-bookworm",
   "features": {
-    "ghcr.io/devcontainers/features/git:1": {},
-    "ghcr.io/devcontainers/features/github-cli:1": {}
+    "ghcr.io/devcontainers/features/java:1": {
+      "version": "17",
+      "installGradle": false
+    },
+    "ghcr.io/devcontainers/features/github-cli:1": {},
+    "ghcr.io/nordcominc/devcontainer-features/android-sdk:1.2.0": {
+      "platform": "36",
+      "build_tools": "36.0.0"
+    }
   },
   "customizations": {
     "vscode": {
@@ -11,13 +18,24 @@
         "expo.vscode-expo-tools",
         "dbaeumer.vscode-eslint",
         "esbenp.prettier-vscode",
-        "bradlc.vscode-tailwindcss"
+        "bradlc.vscode-tailwindcss",
+        "vscjava.vscode-java-pack"
       ],
       "settings": {
         "editor.formatOnSave": true,
         "typescript.tsdk": "node_modules/typescript/lib"
       }
+    },
+    "codespaces": {
+      "openFiles": [
+        "README.md",
+        "RELEASE_SETUP.md"
+      ]
     }
+  },
+  "remoteEnv": {
+    "ANDROID_HOME": "/usr/local/lib/android",
+    "ANDROID_SDK_ROOT": "/usr/local/lib/android"
   },
   "postCreateCommand": "npm ci",
   "forwardPorts": [8081, 19000, 19001, 19002],

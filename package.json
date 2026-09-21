@@ -73,7 +73,10 @@
                     "test":  "jest --runInBand",
                     "test:checks":  "node scripts/run-checks.mjs",
                     "test:all":  "npm run test \u0026\u0026 npm run test:checks",
-                    "ship":  "bash scripts/ship.sh"
+                    "ship":  "node scripts/ship-codespace.mjs",
+                    "android:codespace":  "node scripts/build-android-codespace.mjs",
+                    "setup:codespace-signing":  "bash scripts/setup-codespace-signing.sh",
+                    "release:codespace":  "node scripts/ship-codespace.mjs"
                 },
     "overrides":  {
                       "lightningcss":  "1.30.1"

@@ -22,14 +22,7 @@
                                      "ios":  {
                                                  "resourceClass":  "m-medium"
                                              }
-                                 },
-                  "github-release":  {
-                                         "distribution":  "internal",
-                                         "autoIncrement":  true,
-                                         "android":  {
-                                                         "buildType":  "apk"
-                                                     }
-                                     }
+                                 }
               },
     "submit":  {
                    "production":  {
