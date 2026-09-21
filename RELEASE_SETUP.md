@@ -163,7 +163,93 @@ This command:
 
 The GitHub CLI release command supports attaching assets, prereleases, and explicitly preventing the build from becoming the repository's latest stable release. citeturn7search0
 
-## 5. Release naming
+## 5. Automatic release on every push to master
+
+The repository now also has an automatic GitHub Actions workflow:
+
+```text
+git push origin master
+        ↓
+GitHub Actions
+        ↓
+create dedicated GitHub Codespace
+        ↓
+wait for Codespace
+        ↓
+SSH into Codespace
+        ↓
+npm ci
+        ↓
+npm run ship
+        ↓
+Expo prebuild + Gradle
+        ↓
+sign + verify APK
+        ↓
+create GitHub prerelease
+        ↓
+upload APK
+        ↓
+stop Codespace
+```
+
+The workflow is:
+
+```text
+.github/workflows/android-release.yml
+```
+
+Every push to `master` gets its own release run. Runs are serialized so two Android release builds do not run concurrently.
+
+### One required GitHub Actions secret
+
+GitHub Actions cannot read Codespaces secrets. citeturn5search1
+
+The workflow therefore needs one **GitHub Actions repository secret** named:
+
+```text
+CODESPACES_TOKEN
+```
+
+Create a fine-grained personal access token for your GitHub account and give it access to the Jeevya repository with the Codespaces permissions required to create/manage a Codespace. GitHub's Codespaces API documents repository Codespaces write/lifecycle permissions for these operations. citeturn0search3
+
+Then add it at:
+
+```text
+GitHub → Aaditya-kumar-singh/jeevya
+→ Settings
+→ Secrets and variables
+→ Actions
+→ New repository secret
+→ CODESPACES_TOKEN
+```
+
+Do not put this token in the repository or in `.env`.
+
+The Android signing values remain **Codespaces secrets**:
+
+```text
+ANDROID_KEYSTORE_BASE64
+ANDROID_KEYSTORE_PASSWORD
+ANDROID_KEY_ALIAS
+ANDROID_KEY_PASSWORD
+```
+
+Codespaces exposes those secrets to the running Codespace, while Actions cannot directly read them. citeturn1search6turn1search13
+
+### Result
+
+After `CODESPACES_TOKEN` is configured, you do not need to manually open a Codespace for releases.
+
+A normal:
+
+```bash
+git push origin master
+```
+
+will trigger the complete Android release pipeline.
+
+## 6. Release naming
 
 Every build receives a unique release tag similar to:
 
@@ -183,15 +269,13 @@ Jeevya-1.1.0-a1b2c3d4e5f6-android.apk
 
 Each build also writes a SHA-256 checksum beside the APK during the build.
 
-## 6. Android versionCode
+## 7. Android versionCode
 
-The Codespace release script uses the current Unix timestamp in seconds as the Android `versionCode`.
-
-This gives independently built APKs increasing Android version codes without needing EAS's remote version counter.
+The Codespace release script derives the Android `versionCode` from the Git commit count, starting at `100001`. This gives each pushed commit a deterministic, increasing version code without EAS's remote version counter.
 
 The version name remains the version in `package.json`.
 
-## 7. What is still cloud-based?
+## 8. What is still cloud-based?
 
 The actual Android compilation and signing happen inside the **GitHub Codespace VM**.
 
@@ -201,7 +285,7 @@ There is no EAS Build call in `npm run ship`.
 
 Therefore the normal release does not consume an EAS cloud Android build.
 
-## 8. Codespace shutdown
+## 9. Codespace shutdown
 
 The release script schedules:
 
@@ -215,7 +299,7 @@ GitHub documents `gh codespace stop` as the supported CLI method for stopping a 
 
 If the shutdown command cannot run, GitHub's normal Codespaces idle timeout remains a backup. Stopping a Codespace preserves its saved work and stops running processes. citeturn0search0
 
-## 9. Development flow
+## 10. Development flow
 
 Normal development:
 
@@ -242,7 +326,7 @@ npm run ship
 
 The release command itself pushes the commit before building it.
 
-## 10. Security
+## 11. Security
 
 Never commit:
 
@@ -257,7 +341,7 @@ The repository's `.gitignore` excludes native build output and signing files.
 
 The Codespaces signing secrets remain outside the Git repository.
 
-## 11. Stable production releases
+## 12. Stable production releases
 
 GitHub prereleases are intended for direct APK testing.
 
@@ -273,7 +357,7 @@ Update the version intentionally, commit it, and create the stable Git tag/relea
 
 The APK pipeline remains the same and does not require EAS.
 
-## 12. Why this design
+## 13. Why this design
 
 The important separation is:
 

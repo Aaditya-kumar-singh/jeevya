@@ -1,0 +1,112 @@
+name: Jeevya Automatic Android Release
+
+on:
+  push:
+    branches:
+      - master
+
+concurrency:
+  group: jeevya-android-release
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  release:
+    name: Build and release APK in GitHub Codespaces
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+
+    steps:
+      - name: Checkout release commit
+        uses: actions/checkout@v4
+
+      - name: Authenticate GitHub CLI
+        env:
+          GH_TOKEN: ${{ secrets.CODESPACES_TOKEN }}
+        run: |
+          test -n "$GH_TOKEN" || {
+            echo "::error::CODESPACES_TOKEN repository secret is missing."
+            exit 1
+          }
+          gh auth status
+
+      - name: Create dedicated release Codespace
+        id: codespace
+        env:
+          GH_TOKEN: ${{ secrets.CODESPACES_TOKEN }}
+        run: |
+          set -euo pipefail
+
+          NAME="$(gh codespace create \
+            --repo Aaditya-kumar-singh/jeevya \
+            --branch master \
+            --machine standardLinux \
+            --idle-timeout 60m \
+            --retention-period 1h \
+            --display-name "Jeevya Release ${GITHUB_RUN_NUMBER}" \
+            --default-permissions)"
+
+          echo "name=$NAME" >> "$GITHUB_OUTPUT"
+          echo "Created Codespace: $NAME"
+
+      - name: Wait for Codespace
+        env:
+          GH_TOKEN: ${{ secrets.CODESPACES_TOKEN }}
+          CODESPACE_NAME: ${{ steps.codespace.outputs.name }}
+        run: |
+          set -euo pipefail
+
+          for i in {1..60}; do
+            STATE="$(gh codespace view -c "$CODESPACE_NAME" --json state --jq '.state')"
+            echo "Codespace state: $STATE"
+
+            case "$STATE" in
+              Available)
+                exit 0
+                ;;
+              Shutdown|Deleted|Unavailable|Failed)
+                echo "::error::Codespace entered terminal state: $STATE"
+                exit 1
+                ;;
+            esac
+
+            sleep 10
+          done
+
+          echo "::error::Timed out waiting for Codespace."
+          exit 1
+
+      - name: Build, sign, and publish from Codespace
+        env:
+          GH_TOKEN: ${{ secrets.CODESPACES_TOKEN }}
+          CODESPACE_NAME: ${{ steps.codespace.outputs.name }}
+        run: |
+          set -euo pipefail
+
+          gh codespace ssh -c "$CODESPACE_NAME" -- bash -lc '
+            set -euo pipefail
+            cd /workspaces/jeevya
+
+            echo "=== Jeevya automated Codespace release ==="
+            echo "Commit: $(git rev-parse HEAD)"
+            echo "Branch: $(git branch --show-current)"
+            echo "Node: $(node --version)"
+            echo "Java:"
+            java -version
+            echo "Android SDK: $ANDROID_HOME"
+
+            npm ci
+            JEEVYA_AUTOMATED_RELEASE=true npm run ship
+          '
+
+      - name: Stop release Codespace
+        if: always()
+        env:
+          GH_TOKEN: ${{ secrets.CODESPACES_TOKEN }}
+          CODESPACE_NAME: ${{ steps.codespace.outputs.name }}
+        run: |
+          if [ -n "${CODESPACE_NAME:-}" ]; then
+            gh codespace stop -c "$CODESPACE_NAME" || true
+          fi

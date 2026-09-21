@@ -110,7 +110,7 @@ run(
 console.log('\\nRelease published successfully.');
 console.log(`https://github.com/Aaditya-kumar-singh/jeevya/releases/tag/${tag}`);
 
-if (process.env.CODESPACE_NAME) {
+if (process.env.CODESPACE_NAME && process.env.JEEVYA_AUTOMATED_RELEASE !== 'true') {
   console.log('\\nScheduling this Codespace to stop in 5 seconds...');
 
   const stopper = spawn(
