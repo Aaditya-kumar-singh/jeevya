@@ -94,17 +94,27 @@ jobs:
         run: |
           set -euo pipefail
 
-          echo "Codespace is Available. Waiting for the dev container and SSH server..."
+          echo "Codespace is Available. Preparing SSH configuration..."
+          mkdir -p "$HOME/.ssh"
+          chmod 700 "$HOME/.ssh"
+
+          echo "Generating Codespaces SSH configuration..."
+          gh codespace ssh -c "$CODESPACE_NAME" --config > "$HOME/.ssh/jeevya-codespace-config"
+          chmod 600 "$HOME/.ssh/jeevya-codespace-config"
+
+          echo "Checking SSH configuration..."
+          grep -E "^(Host|HostName|User|IdentityFile|ProxyCommand)" "$HOME/.ssh/jeevya-codespace-config" || true
+
           for i in {1..12}; do
             echo "SSH readiness attempt $i/12"
-            if timeout 45s gh codespace ssh -c "$CODESPACE_NAME" -- "command -v node >/dev/null && command -v java >/dev/null && echo JEEVYA_CONTAINER_READY"; then
-              echo "Codespace container and required runtimes are ready."
+            if timeout 45s ssh -F "$HOME/.ssh/jeevya-codespace-config" "$CODESPACE_NAME" "command -v node >/dev/null && command -v java >/dev/null && echo JEEVYA_CONTAINER_READY"; then
+              echo "Codespace SSH and required runtimes are ready."
               exit 0
             fi
 
             echo "SSH is not ready yet."
             if [ "$i" -eq 12 ]; then
-              echo "::error::Codespace became Available but its SSH server did not become ready."
+              echo "::error::Codespace became Available but SSH authentication/runtime readiness failed."
               echo "=== Codespace creation logs ==="
               gh codespace logs -c "$CODESPACE_NAME" || true
               exit 1
@@ -120,7 +130,7 @@ jobs:
         run: |
           set -euo pipefail
 
-          gh codespace ssh -c "$CODESPACE_NAME" -- 'cd /workspaces/jeevya && set -euo pipefail && echo "=== Jeevya automated Codespace release ===" && echo "Commit: $(git rev-parse HEAD)" && echo "Branch: $(git branch --show-current)" && echo "Node: $(node --version)" && echo "Java:" && java -version && echo "Android SDK: $ANDROID_HOME" && npm ci && JEEVYA_AUTOMATED_RELEASE=true npm run ship'
+          ssh -F "$HOME/.ssh/jeevya-codespace-config" "$CODESPACE_NAME" 'cd /workspaces/jeevya && set -euo pipefail && echo "=== Jeevya automated Codespace release ===" && echo "Commit: $(git rev-parse HEAD)" && echo "Branch: $(git branch --show-current)" && echo "Node: $(node --version)" && echo "Java:" && java -version && echo "Android SDK: $ANDROID_HOME" && npm ci && JEEVYA_AUTOMATED_RELEASE=true npm run ship'
 
       - name: Stop release Codespace
         if: always()
