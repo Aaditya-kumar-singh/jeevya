@@ -97,8 +97,8 @@ jobs:
           echo "Codespace is Available. Waiting for the dev container and SSH server..."
           for i in {1..12}; do
             echo "SSH readiness attempt $i/12"
-            if timeout 45s gh codespace ssh -c "$CODESPACE_NAME" -- bash -lc 'echo JEEVYA_SSH_READY'; then
-              echo "Codespace SSH is ready."
+            if timeout 45s gh codespace ssh -c "$CODESPACE_NAME" -- "command -v node >/dev/null && command -v java >/dev/null && echo JEEVYA_CONTAINER_READY"; then
+              echo "Codespace container and required runtimes are ready."
               exit 0
             fi
 
@@ -120,21 +120,7 @@ jobs:
         run: |
           set -euo pipefail
 
-          gh codespace ssh -c "$CODESPACE_NAME" -- bash -lc '
-            set -euo pipefail
-            cd /workspaces/jeevya
-
-            echo "=== Jeevya automated Codespace release ==="
-            echo "Commit: $(git rev-parse HEAD)"
-            echo "Branch: $(git branch --show-current)"
-            echo "Node: $(node --version)"
-            echo "Java:"
-            java -version
-            echo "Android SDK: $ANDROID_HOME"
-
-            npm ci
-            JEEVYA_AUTOMATED_RELEASE=true npm run ship
-          '
+          gh codespace ssh -c "$CODESPACE_NAME" -- 'cd /workspaces/jeevya && set -euo pipefail && echo "=== Jeevya automated Codespace release ===" && echo "Commit: $(git rev-parse HEAD)" && echo "Branch: $(git branch --show-current)" && echo "Node: $(node --version)" && echo "Java:" && java -version && echo "Android SDK: $ANDROID_HOME" && npm ci && JEEVYA_AUTOMATED_RELEASE=true npm run ship'
 
       - name: Stop release Codespace
         if: always()
