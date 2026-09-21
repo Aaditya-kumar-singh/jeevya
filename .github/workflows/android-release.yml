@@ -41,6 +41,16 @@ jobs:
             exit 1
           fi
 
+      - name: Store Codespaces CLI authentication
+        env:
+          GH_TOKEN: ${{ secrets.CODESPACES_TOKEN }}
+        run: |
+          set -euo pipefail
+          printf '%s' "$GH_TOKEN" | gh auth login --hostname github.com --with-token
+          gh auth status
+          echo "Checking Codespaces scope..."
+          gh api user/codespaces --jq '"Codespaces API accessible; total=" + (.total_count | tostring)'
+
       - name: Create dedicated release Codespace
         id: codespace
         env:
