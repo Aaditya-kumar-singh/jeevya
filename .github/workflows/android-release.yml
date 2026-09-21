@@ -41,13 +41,6 @@ jobs:
             exit 1
           fi
 
-          echo "Checking Codespaces permission..."
-          if ! gh api "repos/Aaditya-kumar-singh/jeevya/codespaces/machines" --jq 'length'; then
-            echo "::error::CODESPACES_TOKEN cannot access the Jeevya Codespaces API."
-            echo "::error::The fine-grained token needs Repository permissions → Codespaces → Read and write."
-            exit 1
-          fi
-
       - name: Create dedicated release Codespace
         id: codespace
         env:
