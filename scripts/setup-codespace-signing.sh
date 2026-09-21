@@ -68,7 +68,23 @@ printf '%s' "$KEY_ALIAS" | gh secret set ANDROID_KEY_ALIAS   --user --app codesp
 printf '%s' "$KEY_PASSWORD" | gh secret set ANDROID_KEY_PASSWORD   --user --app codespaces --repos "$REPO"
 
 echo
-echo "Codespaces signing secrets configured."
+echo "Verifying that all four Codespaces signing secrets are present..."
+EXPECTED_SECRETS=(
+  ANDROID_KEYSTORE_BASE64
+  ANDROID_KEYSTORE_PASSWORD
+  ANDROID_KEY_ALIAS
+  ANDROID_KEY_PASSWORD
+)
+AVAILABLE="$(gh secret list --user --app codespaces --repo "$REPO" --json name --jq '.[].name')"
+for SECRET_NAME in "${EXPECTED_SECRETS[@]}"; do
+  if ! grep -Fxq "$SECRET_NAME" <<< "$AVAILABLE"; then
+    echo "ERROR: Codespaces secret was not found: $SECRET_NAME"
+    echo "Make sure this repository is selected under the secret's Repository access."
+    exit 1
+  fi
+done
+
+echo "Codespaces signing secrets configured and verified."
 echo "Keystore backup: $KEYSTORE"
 echo "Base64 backup:   $KEYSTORE_B64"
 echo

@@ -20,6 +20,20 @@
   },
   "remoteUser": "vscode",
   "containerUser": "vscode",
+  "secrets": {
+    "ANDROID_KEYSTORE_BASE64": {
+      "description": "Base64-encoded permanent Jeevya Android release keystore."
+    },
+    "ANDROID_KEYSTORE_PASSWORD": {
+      "description": "Password for the Jeevya Android release keystore."
+    },
+    "ANDROID_KEY_ALIAS": {
+      "description": "Alias of the Jeevya Android release signing key."
+    },
+    "ANDROID_KEY_PASSWORD": {
+      "description": "Password for the Jeevya Android release signing key."
+    }
+  },
   "customizations": {
     "vscode": {
       "extensions": [

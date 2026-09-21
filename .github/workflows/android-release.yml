@@ -41,6 +41,37 @@ jobs:
             exit 1
           fi
 
+      - name: Verify Android signing Codespaces secrets
+        env:
+          GH_TOKEN: ${{ secrets.CODESPACES_TOKEN }}
+        run: |
+          set -euo pipefail
+          REQUIRED_SECRETS=(
+            ANDROID_KEYSTORE_BASE64
+            ANDROID_KEYSTORE_PASSWORD
+            ANDROID_KEY_ALIAS
+            ANDROID_KEY_PASSWORD
+          )
+
+          AVAILABLE="$(gh secret list --user --app codespaces --repo Aaditya-kumar-singh/jeevya --json name --jq '.[].name')"
+
+          MISSING=()
+          for SECRET_NAME in "${REQUIRED_SECRETS[@]}"; do
+            if ! grep -Fxq "$SECRET_NAME" <<< "$AVAILABLE"; then
+              MISSING+=("$SECRET_NAME")
+            fi
+          done
+
+          if [ "${#MISSING[@]}" -ne 0 ]; then
+            echo "::error::Missing Android signing Codespaces secret(s): ${MISSING[*]}"
+            echo "::error::These must be user Codespaces secrets associated with Aaditya-kumar-singh/jeevya."
+            echo "::error::GitHub Actions cannot read Codespaces secret values."
+            echo "::error::Run npm run setup:codespace-signing inside a normal Jeevya Codespace, or add the four secrets under GitHub Settings -> Codespaces -> Secrets."
+            exit 1
+          fi
+
+          echo "All four Android signing Codespaces secrets are configured."
+
       - name: Create dedicated release Codespace
         id: codespace
         env:
