@@ -87,52 +87,27 @@ jobs:
           echo "::error::Timed out waiting for Codespace."
           exit 1
 
-      - name: Configure Codespace SSH tunnel
-        id: ssh
-        env:
-          GH_TOKEN: ${{ secrets.CODESPACES_TOKEN }}
-          CODESPACE_NAME: ${{ steps.codespace.outputs.name }}
-        run: |
-          set -euo pipefail
-          SSH_CONFIG="$RUNNER_TEMP/codespace-ssh-config"
-          echo "Generating GitHub Codespaces OpenSSH configuration..."
-          gh codespace ssh --config -c "$CODESPACE_NAME" > "$SSH_CONFIG"
-          chmod 600 "$SSH_CONFIG"
-          SSH_HOST="$(awk '/^Host / {print $2; exit}' "$SSH_CONFIG")"
-          if [ -z "$SSH_HOST" ]; then
-            echo "::error::GitHub CLI did not return a Codespaces SSH host."
-            cat "$SSH_CONFIG"
-            exit 1
-          fi
-          echo "SSH host: $SSH_HOST"
-          echo "config=$SSH_CONFIG" >> "$GITHUB_OUTPUT"
-          echo "host=$SSH_HOST" >> "$GITHUB_OUTPUT"
-
       - name: Wait for Codespace SSH
         env:
           GH_TOKEN: ${{ secrets.CODESPACES_TOKEN }}
-          SSH_CONFIG: ${{ steps.ssh.outputs.config }}
-          SSH_HOST: ${{ steps.ssh.outputs.host }}
           CODESPACE_NAME: ${{ steps.codespace.outputs.name }}
         run: |
           set -euo pipefail
-          echo "Testing Codespaces through the generated OpenSSH tunnel."
-          echo "This intentionally avoids direct 'gh codespace ssh -- <command>'."
+          echo "Testing direct GitHub Codespaces SSH."
+          echo "GitHub CLI manages the Codespaces SSH key and connection."
           for i in {1..12}; do
             echo "SSH readiness attempt $i/12"
             set +e
-            timeout 60s ssh -F "$SSH_CONFIG" -o BatchMode=yes -o ConnectTimeout=30 "$SSH_HOST" "command -v node >/dev/null && command -v java >/dev/null && echo JEEVYA_CONTAINER_READY"
+            timeout 60s gh codespace ssh -c "$CODESPACE_NAME" -- 'command -v node >/dev/null && command -v java >/dev/null && echo JEEVYA_CONTAINER_READY'
             STATUS=$?
             set -e
             if [ "$STATUS" -eq 0 ]; then
-              echo "Codespace SSH tunnel and required runtimes are ready."
+              echo "Codespace SSH and required runtimes are ready."
               exit 0
             fi
             echo "SSH readiness attempt failed with exit code $STATUS."
             if [ "$i" -eq 12 ]; then
-              echo "::error::Codespace became Available but the generated OpenSSH tunnel could not connect."
-              echo "=== Generated SSH config ==="
-              sed 's#IdentityFile .*#IdentityFile <redacted>#' "$SSH_CONFIG" || true
+              echo "::error::Codespace became Available but GitHub CLI could not establish SSH."
               echo "=== Codespace creation logs ==="
               gh codespace logs -c "$CODESPACE_NAME" || true
               exit 1
@@ -143,11 +118,10 @@ jobs:
       - name: Build, sign, and publish from Codespace
         env:
           GH_TOKEN: ${{ secrets.CODESPACES_TOKEN }}
-          SSH_CONFIG: ${{ steps.ssh.outputs.config }}
-          SSH_HOST: ${{ steps.ssh.outputs.host }}
+          CODESPACE_NAME: ${{ steps.codespace.outputs.name }}
         run: |
           set -euo pipefail
-          ssh -F "$SSH_CONFIG" -o BatchMode=yes -o ConnectTimeout=30 "$SSH_HOST" 'cd /workspaces/jeevya && set -euo pipefail && echo "=== Jeevya automated Codespace release ===" && echo "Commit: $(git rev-parse HEAD)" && echo "Branch: $(git branch --show-current)" && echo "Node: $(node --version)" && echo "Java:" && java -version && echo "Android SDK: $ANDROID_HOME" && npm ci && JEEVYA_AUTOMATED_RELEASE=true npm run ship'
+          gh codespace ssh -c "$CODESPACE_NAME" -- 'cd /workspaces/jeevya && set -euo pipefail && echo "=== Jeevya automated Codespace release ===" && echo "Commit: $(git rev-parse HEAD)" && echo "Branch: $(git branch --show-current)" && echo "Node: $(node --version)" && echo "Java:" && java -version && echo "Android SDK: $ANDROID_HOME" && npm ci && JEEVYA_AUTOMATED_RELEASE=true npm run ship'
       - name: Stop release Codespace
         if: always()
         env:
