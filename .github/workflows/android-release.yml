@@ -95,7 +95,7 @@ jobs:
           set -euo pipefail
           echo "Testing direct GitHub Codespaces SSH."
           echo "GitHub CLI manages the Codespaces SSH key and connection."
-          for i in {1..12}; do
+          for i in {1..6}; do
             echo "SSH readiness attempt $i/12"
             set +e
             timeout 60s gh codespace ssh -c "$CODESPACE_NAME" -- 'command -v node >/dev/null && command -v java >/dev/null && echo JEEVYA_CONTAINER_READY'
