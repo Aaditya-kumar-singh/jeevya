@@ -45,7 +45,6 @@
     "ANDROID_HOME": "/usr/local/lib/android",
     "ANDROID_SDK_ROOT": "/usr/local/lib/android"
   },
-  "postCreateCommand": "npm ci",
   "forwardPorts": [8081, 19000, 19001, 19002],
   "portsAttributes": {
     "8081": {
