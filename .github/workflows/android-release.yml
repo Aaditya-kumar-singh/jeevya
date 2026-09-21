@@ -26,11 +26,16 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.CODESPACES_TOKEN }}
         run: |
-          test -n "$GH_TOKEN" || {
-            echo "::error::CODESPACES_TOKEN repository secret is missing."
+          set -euo pipefail
+
+          if [ -z "${GH_TOKEN:-}" ]; then
+            echo "::error::CODESPACES_TOKEN is not configured in GitHub Actions."
+            echo "::error::Add it at Settings → Secrets and variables → Actions → New repository secret."
             exit 1
-          }
+          fi
+
           gh auth status
+          gh api user --jq '"Authenticated as: " + .login'
 
       - name: Create dedicated release Codespace
         id: codespace
