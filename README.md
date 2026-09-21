@@ -1,183 +1,313 @@
-# Jeevya 👋
+# Jeevya
 
-Expo React Native + Expo Router + TypeScript + NativeWind v5 + gluestack-ui + Lucide + Supabase.
+Jeevya is a personal improvement and life-management app built with Expo React Native. It brings daily planning, tasks, habits, health, workouts, nutrition, sleep, recovery, finance, books, goals, insights, and Android home-screen widgets into one local-first experience.
 
-Phase 2 (Workout Engine) is **local-first**: all workout features persist to AsyncStorage.
-Supabase sync arrives later with Auth — the table schema (`sql/workout-tables.sql`) is ready.
+**Current release:** 1.1.0  
+**Platform:** Android, iOS, Web  
+**Repository:** https://github.com/Aaditya-kumar-singh/jeevya
 
-## Get started
+## What can a user do with Jeevya?
+
+### Dashboard
+- See a daily overview of progress.
+- View Daily Pulse and progress indicators.
+- See tasks, health information, finance information, and quick actions from one place.
+- Use Jeevya as a single starting point for the day.
+
+### Tasks and daily planning
+- Create and manage daily tasks.
+- Track completion and progress.
+- Use the daily plan to organise what needs attention.
+- Keep important actions accessible from the dashboard.
+
+### Habits
+- Track recurring habits.
+- Monitor habit progress and streak-oriented information.
+- Keep daily behaviour tracking alongside tasks and goals.
+
+### Health and fitness
+- Build workouts and organise exercises.
+- Start and track workout sessions.
+- Track sets, reps, rest timers, duration, volume, and personal records.
+- Review completed workout history.
+- Browse the exercise library.
+- Track sleep, recovery, water, calories, protein, carbohydrates, and fat.
+- Use the dedicated gym and health flows.
+
+### Nutrition
+- Track nutrition-related metrics.
+- Monitor calories and macronutrients.
+- Keep nutrition information together with health and workout progress.
+
+### Finance
+- Track spending.
+- Work with budgets.
+- Track savings and financial progress.
+- Keep personal finance information inside the same life dashboard.
+
+### Goals and books
+- Create and track personal goals.
+- Track reading and book progress.
+- Connect long-term goals with daily progress.
+
+### Journal and life tracking
+- Maintain journal entries.
+- Review life timeline information.
+- Explore historical analytics and personal insights.
+
+### Life Intelligence
+- Combine information from different areas of life.
+- Surface progress and analytics across multiple domains.
+- Use the app as a central personal-improvement dashboard rather than a single-purpose tracker.
+
+## Android Home-Screen Widgets
+
+Jeevya 1.1.0 introduces a configurable Android widget system.
+
+Users can open:
+
+**Settings → Home-screen Widgets → Widget Studio**
+
+From Widget Studio they can:
+
+- Create multiple widget configurations.
+- Rename widgets.
+- Add modules from Jeevya.
+- Remove modules.
+- Reorder modules.
+- Choose Daily, Health, Finance, or Progress presets.
+- Choose widget size.
+- Choose layout.
+- Choose compact or detailed density.
+- Choose background and accent styling.
+- Configure different widgets independently.
+
+Available widget modules currently include:
+
+- Tasks
+- Habits
+- Workout
+- Sleep
+- Recovery
+- Calories
+- Protein
+- Carbohydrates
+- Fat
+- Water
+- Finance spending
+- Finance budget
+- Savings
+- Books
+- Goals
+- Daily Pulse
+- Daily Plan
+- Life Intelligence
+
+This means a user can have different widgets for different purposes, for example:
+
+```text
+Widget 1: Daily
+Tasks + Habits + Daily Pulse
+
+Widget 2: Health
+Workout + Sleep + Recovery + Water
+
+Widget 3: Finance
+Spending + Budget + Savings
+
+Widget 4: Progress
+Goals + Books + Daily Pulse + Life Intelligence
+```
+
+## Data and privacy model
+
+Jeevya is designed with a local-first approach.
+
+- Workout data is persisted locally using AsyncStorage.
+- The application can continue working with local data without requiring a constant network connection.
+- Supabase is used where cloud functionality is enabled.
+- Client-side configuration must use publishable Supabase credentials.
+- Supabase service-role credentials must never be placed in Expo client code.
+- Widget snapshots are designed to avoid exposing authentication credentials or synchronization metadata.
+
+## How to download Jeevya
+
+### Android
+
+The recommended distribution method is the GitHub **Releases** page.
+
+1. Open the Jeevya repository:
+   https://github.com/Aaditya-kumar-singh/jeevya
+2. Open **Releases**.
+3. Select the latest stable release.
+4. Under **Assets**, download the Android `.apk`.
+5. Open the APK on an Android phone and install it.
+6. If Android asks for permission to install an app from that source, allow installation for the browser/file manager being used.
+
+Latest release page:
+
+https://github.com/Aaditya-kumar-singh/jeevya/releases/latest
+
+GitHub supports attaching binary files such as APKs to releases, and users can download those release assets directly. See the GitHub release documentation for the release/download URL behaviour.
+
+> **Current distribution status:** Jeevya v1.1.0 source and release tag are published. The v1.1.0 production Android APK still needs to be generated and attached to the GitHub Release before users can install that exact version from GitHub.
+
+### Developers: run from source
+
+Requirements:
+
+- Node.js
+- npm
+- Expo-compatible development environment
+- Android Studio/Android SDK for a local Android build
+
+Install:
 
 ```bash
+git clone https://github.com/Aaditya-kumar-singh/jeevya.git
+cd jeevya
 npm install
+```
+
+Start the development server:
+
+```bash
 npx expo start
 ```
 
-Scan QR with Expo Go (phone + PC on same WiFi, or use `npx expo start --tunnel`).
+For Android:
 
-- `a` in terminal = Android (needs emulator / adb - not installed here)
-- `w` = web
-- `r` = reload
+```bash
+npm run android
+```
 
-## Stack
+For web:
 
-- Expo SDK 57 (`expo@~57.0.22`, `expo-router@~57.0.21`, React 19.2.3, RN 0.86.3)
-- NativeWind v5 preview (`nativewind@^5.0.0-preview.2`, `tailwindcss@^4.2.0`)
-- gluestack-ui components (`src/components/ui/*`, `@gluestack-ui/core` alpha)
-- AsyncStorage (`@react-native-async-storage/async-storage`) — generic layer in `src/lib/storage.ts`
-- Supabase (`@supabase/supabase-js`) — client in `src/lib/supabase.ts`
-- Lucide (`lucide-react-native` + `react-native-svg`)
+```bash
+npm run web
+```
+
+## Tech stack
+
+- Expo SDK 57
+- React Native 0.86
+- React 19
+- TypeScript
+- Expo Router
+- NativeWind
+- gluestack-ui
+- Lucide React Native
+- Supabase
+- AsyncStorage
+- react-native-android-widget
+- React Native Reanimated
+- React Native SVG
 
 ## Project structure
 
 ```text
-.env.local            <- Expo env (publishable Supabase key) - GITIGNORED
-.env.example          <- Template for server-side env (.env) - commit this
-scripts/
-  import-exercises.ts <- Server-side dataset importer (uses SERVICE ROLE key)
 src/
-  app/
-    _layout.tsx       <- imports global.css + SafeArea + Stack
-    index.tsx         <- Redirect to /(tabs)
-    (tabs)/
-      _layout.tsx     <- Home/Health/Tasks/Finance/More + Lucide icons
-      index.tsx       <- Jeevya dashboard (DailyPulse/Progress/Health/Tasks/Finance/QuickActions)
-      health.tsx tasks.tsx finance.tsx more.tsx
-    health/workout.tsx exercises.tsx sleep.tsx nutrition.tsx
-    finance/transactions.tsx budget.tsx goals.tsx
-    books/index.tsx books/[id].tsx
-    journal/index.tsx
-    settings/index.tsx
-  components/
-    ui/               <- gluestack components (badge button card heading input progress text ...)
-    dashboard/        <- HomeHeader DailyPulse TodaysProgress HealthSnapshot TaskPreview FinanceSnapshot QuickActions
-  constants/
-    colors.ts         <- Jeevya light/dark tokens
-    spacing.ts typography.ts
-  hooks/
-  lib/
-    storage.ts        <- generic AsyncStorage (saveData / loadData / removeData)
-    supabase.ts       <- Supabase client (AsyncStorage session persistence)
-    mockData.ts       <- mock + full exercise library + task types/seed
-  services/           <- (reserved: exercises service lives here next)
+├── app/                 # Expo Router screens
+├── components/          # Reusable UI and dashboard components
+├── constants/           # Theme and design tokens
+├── hooks/               # Application hooks
+├── lib/                 # Storage, Supabase and shared utilities
+├── services/             # Domain services and repositories
+├── types/                # TypeScript domain models
+└── widgets/              # Android widget rendering and handlers
+
+sql/                     # Supabase database schemas
+scripts/                 # Development and data-import scripts
+assets/                  # App icons and visual assets
 ```
 
 ## Supabase setup
 
-### 1. Env files
-
-- `.env.local` (Expo, client-side, publishable key — never a service-role secret):
+Create a local environment file using publishable client credentials:
 
 ```text
 EXPO_PUBLIC_SUPABASE_URL=https://<project-ref>.supabase.co
 EXPO_PUBLIC_SUPABASE_KEY=sb_publishable_...
 ```
 
-- `.env` (server-side only, used by the import script — copy from `.env.example`):
+Never place a Supabase service-role key in Expo client code.
+
+The exercise importer uses a server-side environment:
 
 ```text
 SUPABASE_URL=https://<project-ref>.supabase.co
 SUPABASE_SERVICE_ROLE_KEY=sb_secret_...
 ```
 
-### 2. Database (SQL Editor → New query)
+Import the exercise dataset with:
 
-```sql
-create table if not exists public.exercises (
-  id text primary key,
-  name text not null,
-  category text,
-  body_part text,
-  equipment text,
-  target text,
-  muscle_group text,
-  secondary_muscles jsonb default '[]'::jsonb,
-  instructions jsonb,
-  instruction_steps jsonb,
-  media_id text,
-  image text,
-  gif_url text,
-  created_at timestamptz default now()
-);
+```bash
+npm run exercises:import
 ```
 
-Indexes + RLS:
+## Workout Engine
 
-```sql
-create index if not exists exercises_body_part_idx on public.exercises (body_part);
-create index if not exists exercises_equipment_idx on public.exercises (equipment);
-create index if not exists exercises_target_idx on public.exercises (target);
-create index if not exists exercises_category_idx on public.exercises (category);
-create index if not exists exercises_name_idx on public.exercises
-  using gin (to_tsvector('english', name));
+The workout system includes:
 
-alter table public.exercises enable row level security;
+- Workout builder
+- Exercise selection
+- Sets and reps
+- Rest timer
+- Active workout sessions
+- Pause/resume behaviour
+- Personal record detection
+- Volume calculation
+- Workout duration
+- Workout history
+- Workout details
+- Local persistence
 
-drop policy if exists "Anyone can read exercises" on public.exercises;
-create policy "Anyone can read exercises"
-  on public.exercises for select using (true);
+Every workout mutation is persisted immediately to local storage.
+
+## Development commands
+
+```bash
+npm install
+npx expo start
+npm run android
+npm run ios
+npm run web
+npm run lint
+npm test -- --runInBand
+npm run test:checks
+npm run test:all
+npx tsc --noEmit
+npx expo-doctor
 ```
 
-### 3. Import the dataset
+## Release validation
 
-`npm run exercises:import` downloads `hasaneyldrm/exercises-dataset`
-(`data/exercises.json`, 1,324 records), transforms to the schema, and batch-upserts
-with a progress bar. It is idempotent (`onConflict: 'id'`) and works from Node 24
-(native TypeScript type-stripping, `--env-file-if-exists`).
+Jeevya 1.1.0 was validated with:
 
-Requires the server-side `.env` above. Never put the service-role key in Expo code.
+- TypeScript: PASS
+- Expo Doctor: 21/21 checks passed
+- Jest smoke tests: 4/4 passed
+- Project checks: PASS
+- Phase 2H checks: 127/127 passed
+- Legacy checks: 51/51 passed
+- Android widget checks: 30/30 passed
 
-## Scripts
+## Release history
 
-- `npm start` / `npx expo start`
-- `npm run web` / `android` / `ios`
-- `npm run lint`
-- `npm run exercises:import` — Supabase dataset importer (server-side)
+### v1.1.0
 
-## Workout Engine (Phase 2, local-first)
+- Jeevya Widget Studio
+- Modular Android widget blocks
+- Multiple widget configurations
+- Widget presets
+- Widget size and layout controls
+- Widget density controls
+- Widget theme controls
+- Jeevya Android widget integration
+- Expo dependency updates
+- Expo Router patch
+- Reliability and validation improvements
 
-Routes:
+## License
 
-```text
-/health/workout-builder          <- create/edit workout (name, exercises, sets/reps/rest, reorder)
-/health/workout-session/[id]     <- active session (timer, sets, rest timer, PRs) + summary
-/health/workout-history          <- completed workouts + totals + filters (All/Strength/Cardio)
-/health/workout-history/[id]     <- workout detail (per-exercise sets, PRs, notes)
-```
-
-Architecture:
-
-```text
-src/types/workout.ts        <- Workout / WorkoutExercise / WorkoutSet / PersonalRecord
-src/services/workouts.ts    <- local-first repository over AsyncStorage (@jeevya/workouts/v1, @jeevya/prs/v1)
-src/hooks/useWorkout.ts     <- builder state (add/remove/duplicate/move/save/start)
-src/hooks/useWorkoutSession.ts  <- session (timestamp-based elapsed + rest, pause/resume, PRs)
-src/hooks/useWorkoutHistory.ts  <- completed history list
-src/components/workout/     <- Stepper, WorkoutHeader, WorkoutExerciseCard, WorkoutSetRow,
-                               ExercisePicker, RestTimer, WorkoutProgress, WorkoutSummary,
-                               WorkoutCard, WorkoutNowCard, WorkoutEmptyState
-```
-
-Behavior notes:
-
-- Every mutation persists immediately to AsyncStorage — closing the app never loses progress.
-- Elapsed/rest timers derive from timestamps (survives backgrounding); pause accumulates offset.
-- Completing a set auto-starts the rest timer (`restSeconds` per exercise, +30/+60/Skip).
-- PR detection on completed sets: max_weight / max_reps / max_volume per exercise.
-- Volume = Σ(weight × reps) of completed sets; duration = completed_at − started_at.
-- Offline by design (AsyncStorage); `sql/workout-tables.sql` mirrors the schema for future Supabase sync.
-
-## Validation
-
-- `npx tsc --noEmit` ✅
-- `npx expo-doctor` ✅ 21/21
-- `npx expo start` ✅ Metro bundles, QR shown
-
-## Next (per plan)
-
-- [ ] Run the exercises table SQL in Supabase, confirm `select count(*)` = 0
-- [ ] `npx expo start --clear` → temporary `testSupabaseConnection()` returns `error: null`
-- [ ] `npm run exercises:import` → 1,324 rows
-- [ ] Wire `health/exercises.tsx` to Supabase through `services/exercises.ts` + `hooks/useExercises.ts`
-- [ ] Supabase Auth + user-scoped RLS for tasks / finance / journal / goals
-
-
+See the repository license file for licensing information.
