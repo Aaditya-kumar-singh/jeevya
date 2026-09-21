@@ -1,150 +1,150 @@
 name: Jeevya Automatic Android Release
-    2	    2	
-    3	    3	on:
-    4	    4	  push:
-    5	    5	    branches:
-    6	    6	      - master
-    7	    7	
-    8	    8	concurrency:
-    9	    9	  group: jeevya-android-release
-   10	   10	  cancel-in-progress: false
-   11	   11	
-   12	   12	permissions:
-   13	   13	  contents: read
-   14	   14	
-   15	   15	jobs:
-   16	   16	  release:
-   17	   17	    name: Build and release APK in GitHub Codespaces
-   18	   18	    runs-on: ubuntu-latest
-   19	   19	    timeout-minutes: 90
-   20	   20	
-   21	   21	    steps:
-   22	   22	      - name: Checkout release commit
-   23	   23	        uses: actions/checkout@v4
-   24	   24	
-   25	   25	      - name: Authenticate GitHub CLI
-   26	   26	        env:
-   27	   27	          GH_TOKEN: ${{ secrets.CODESPACES_TOKEN }}
-   28	   28	        run: |
-   29	   29	          set -euo pipefail
-   30	   30	
-   31	   31	          if [ -z "${GH_TOKEN:-}" ]; then
-   32	   32	            echo "::error::CODESPACES_TOKEN is not configured in GitHub Actions."
-   33	   33	            echo "::error::Add it at Settings → Secrets and variables → Actions → New repository secret."
-   34	   34	            exit 1
-   35	   35	          fi
-   36	   36	
-   37	   37	          echo "Checking GitHub token authentication..."
-   38	   38	          if ! gh api user --jq '"Authenticated as: " + .login'; then
-   39	   39	            echo "::error::CODESPACES_TOKEN is present but GitHub rejected it."
-   40	   40	            echo "::error::Check that the token is active, belongs to the correct GitHub account, and has access to Aaditya-kumar-singh/jeevya."
-   41	   41	            exit 1
-   42	   42	          fi
-   43	   43	
-   44	   44	      - name: Create dedicated release Codespace
-   45	   45	        id: codespace
-   46	   46	        env:
-   47	   47	          GH_TOKEN: ${{ secrets.CODESPACES_TOKEN }}
-   48	   48	        run: |
-   49	   49	          set -euo pipefail
-   50	   50	
-   51	   51	          NAME="$(gh codespace create \
-   52	   52	            --repo Aaditya-kumar-singh/jeevya \
-   53	   53	            --branch master \
-   54	   54	            --machine standardLinux32gb \
-   55	   55	            --idle-timeout 60m \
-   56	   56	            --retention-period 1h \
-   57	   57	            --display-name "Jeevya Release ${GITHUB_RUN_NUMBER}" \
-   58	   58	            --default-permissions)"
-   59	   59	
-   60	   60	          echo "name=$NAME" >> "$GITHUB_OUTPUT"
-   61	   61	          echo "Created Codespace: $NAME"
-   62	   62	
-   63	   63	      - name: Wait for Codespace
-   64	   64	        env:
-   65	   65	          GH_TOKEN: ${{ secrets.CODESPACES_TOKEN }}
-   66	   66	          CODESPACE_NAME: ${{ steps.codespace.outputs.name }}
-   67	   67	        run: |
-   68	   68	          set -euo pipefail
-   69	   69	
-   70	   70	          for i in {1..60}; do
-   71	   71	            STATE="$(gh codespace view -c "$CODESPACE_NAME" --json state --jq '.state')"
-   72	   72	            echo "Codespace state: $STATE"
-   73	   73	
-   74	   74	            case "$STATE" in
-   75	   75	              Available)
-   76	   76	                exit 0
-   77	   77	                ;;
-   78	   78	              Shutdown|Deleted|Unavailable|Failed)
-   79	   79	                echo "::error::Codespace entered terminal state: $STATE"
-   80	   80	                exit 1
-   81	   81	                ;;
-   82	   82	            esac
-   83	   83	
-   84	   84	            sleep 10
-   85	   85	          done
-   86	   86	
-   87	   87	          echo "::error::Timed out waiting for Codespace."
-   88	   88	          exit 1
-   89	   89	
-   90	   90	      - name: Wait for Codespace SSH
-   91	        env:
-   92	          GH_TOKEN: ${{ secrets.CODESPACES_TOKEN }}
-   93	          CODESPACE_NAME: ${{ steps.codespace.outputs.name }}
-   94	        run: |
-   95	          set -euo pipefail
-   96	
-   97	          echo "Codespace is Available. Preparing Codespaces SSH..."
-   98	          mkdir -p "$HOME/.ssh"
-   99	          chmod 700 "$HOME/.ssh"
-  100	
-  101	          if [ ! -f "$HOME/.ssh/codespaces.auto" ]; then
-  102	            echo "Creating dedicated Codespaces SSH key..."
-  103	            ssh-keygen -t ed25519 -N "" -f "$HOME/.ssh/codespaces.auto" -C "jeevya-github-actions"
-  104	          fi
-  105	          chmod 600 "$HOME/.ssh/codespaces.auto"
-  106	          chmod 644 "$HOME/.ssh/codespaces.auto.pub"
-  107	
-  108	          echo "Connecting with gh codespace ssh so GitHub can establish the Codespaces tunnel..."
-  109	          for i in {1..12}; do
-  110	            echo "SSH readiness attempt $i/12"
-  111	            set +e
-  112	            timeout 60s gh codespace ssh -c "$CODESPACE_NAME" -- -i "$HOME/.ssh/codespaces.auto" "command -v node >/dev/null && command -v java >/dev/null && echo JEEVYA_CONTAINER_READY"
-  113	            STATUS=$?
-  114	            set -e
-  115	
-  116	            if [ "$STATUS" -eq 0 ]; then
-  117	              echo "Codespace SSH and required runtimes are ready."
-  118	              exit 0
-  119	            fi
-  120	
-  121	            echo "SSH readiness attempt failed with exit code $STATUS."
-  122	            if [ "$i" -eq 12 ]; then
-  123	              echo "::error::Codespace became Available but gh codespace ssh could not connect."
-  124	              echo "=== Codespace creation logs ==="
-  125	              gh codespace logs -c "$CODESPACE_NAME" || true
-  126	              exit 1
-  127	            fi
-  128	
-  129	            sleep 15
-  130	          done
-  131	
-  132	      - name: Build, sign, and publish from Codespace
-  133	        env:
-  134	          GH_TOKEN: ${{ secrets.CODESPACES_TOKEN }}
-  135	          CODESPACE_NAME: ${{ steps.codespace.outputs.name }}
-  136	        run: |
-  137	          set -euo pipefail
-  138	
-  139	          gh codespace ssh -c "$CODESPACE_NAME" -- -i "$HOME/.ssh/codespaces.auto" 'cd /workspaces/jeevya && set -euo pipefail && echo "=== Jeevya automated Codespace release ===" && echo "Commit: $(git rev-parse HEAD)" && echo "Branch: $(git branch --show-current)" && echo "Node: $(node --version)" && echo "Java:" && java -version && echo "Android SDK: $ANDROID_HOME" && npm ci && JEEVYA_AUTOMATED_RELEASE=true npm run ship'
-  140	      - name: Stop release Codespace
-  141	  155	        if: always()
-  142	  156	        env:
-  143	  157	          GH_TOKEN: ${{ secrets.CODESPACES_TOKEN }}
-  144	  158	          CODESPACE_NAME: ${{ steps.codespace.outputs.name }}
-  145	  159	        run: |
-  146	  160	          if [ -n "${CODESPACE_NAME:-}" ]; then
-  147	  161	            gh codespace stop -c "$CODESPACE_NAME" || true
-  148	  162	          fi
-  149	  163
+
+on:
+  push:
+    branches:
+      - master
+
+concurrency:
+  group: jeevya-android-release
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  release:
+    name: Build and release APK in GitHub Codespaces
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+
+    steps:
+      - name: Checkout release commit
+        uses: actions/checkout@v4
+
+      - name: Authenticate GitHub CLI
+        env:
+          GH_TOKEN: ${{ secrets.CODESPACES_TOKEN }}
+        run: |
+          set -euo pipefail
+
+          if [ -z "${GH_TOKEN:-}" ]; then
+            echo "::error::CODESPACES_TOKEN is not configured in GitHub Actions."
+            echo "::error::Add it at Settings â†’ Secrets and variables â†’ Actions â†’ New repository secret."
+            exit 1
+          fi
+
+          echo "Checking GitHub token authentication..."
+          if ! gh api user --jq '"Authenticated as: " + .login'; then
+            echo "::error::CODESPACES_TOKEN is present but GitHub rejected it."
+            echo "::error::Check that the token is active, belongs to the correct GitHub account, and has access to Aaditya-kumar-singh/jeevya."
+            exit 1
+          fi
+
+      - name: Create dedicated release Codespace
+        id: codespace
+        env:
+          GH_TOKEN: ${{ secrets.CODESPACES_TOKEN }}
+        run: |
+          set -euo pipefail
+
+          NAME="$(gh codespace create \
+            --repo Aaditya-kumar-singh/jeevya \
+            --branch master \
+            --machine standardLinux32gb \
+            --idle-timeout 60m \
+            --retention-period 1h \
+            --display-name "Jeevya Release ${GITHUB_RUN_NUMBER}" \
+            --default-permissions)"
+
+          echo "name=$NAME" >> "$GITHUB_OUTPUT"
+          echo "Created Codespace: $NAME"
+
+      - name: Wait for Codespace
+        env:
+          GH_TOKEN: ${{ secrets.CODESPACES_TOKEN }}
+          CODESPACE_NAME: ${{ steps.codespace.outputs.name }}
+        run: |
+          set -euo pipefail
+
+          for i in {1..60}; do
+            STATE="$(gh codespace view -c "$CODESPACE_NAME" --json state --jq '.state')"
+            echo "Codespace state: $STATE"
+
+            case "$STATE" in
+              Available)
+                exit 0
+                ;;
+              Shutdown|Deleted|Unavailable|Failed)
+                echo "::error::Codespace entered terminal state: $STATE"
+                exit 1
+                ;;
+            esac
+
+            sleep 10
+          done
+
+          echo "::error::Timed out waiting for Codespace."
+          exit 1
+
+      - name: Wait for Codespace SSH
+        env:
+          GH_TOKEN: ${{ secrets.CODESPACES_TOKEN }}
+          CODESPACE_NAME: ${{ steps.codespace.outputs.name }}
+        run: |
+          set -euo pipefail
+
+          echo "Codespace is Available. Preparing Codespaces SSH..."
+          mkdir -p "$HOME/.ssh"
+          chmod 700 "$HOME/.ssh"
+
+          if [ ! -f "$HOME/.ssh/codespaces.auto" ]; then
+            echo "Creating dedicated Codespaces SSH key..."
+            ssh-keygen -t ed25519 -N "" -f "$HOME/.ssh/codespaces.auto" -C "jeevya-github-actions"
+          fi
+          chmod 600 "$HOME/.ssh/codespaces.auto"
+          chmod 644 "$HOME/.ssh/codespaces.auto.pub"
+
+          echo "Connecting with gh codespace ssh so GitHub can establish the Codespaces tunnel..."
+          for i in {1..12}; do
+            echo "SSH readiness attempt $i/12"
+            set +e
+            timeout 60s gh codespace ssh -c "$CODESPACE_NAME" -- -i "$HOME/.ssh/codespaces.auto" "command -v node >/dev/null && command -v java >/dev/null && echo JEEVYA_CONTAINER_READY"
+            STATUS=$?
+            set -e
+
+            if [ "$STATUS" -eq 0 ]; then
+              echo "Codespace SSH and required runtimes are ready."
+              exit 0
+            fi
+
+            echo "SSH readiness attempt failed with exit code $STATUS."
+            if [ "$i" -eq 12 ]; then
+              echo "::error::Codespace became Available but gh codespace ssh could not connect."
+              echo "=== Codespace creation logs ==="
+              gh codespace logs -c "$CODESPACE_NAME" || true
+              exit 1
+            fi
+
+            sleep 15
+          done
+
+      - name: Build, sign, and publish from Codespace
+        env:
+          GH_TOKEN: ${{ secrets.CODESPACES_TOKEN }}
+          CODESPACE_NAME: ${{ steps.codespace.outputs.name }}
+        run: |
+          set -euo pipefail
+
+          gh codespace ssh -c "$CODESPACE_NAME" -- -i "$HOME/.ssh/codespaces.auto" 'cd /workspaces/jeevya && set -euo pipefail && echo "=== Jeevya automated Codespace release ===" && echo "Commit: $(git rev-parse HEAD)" && echo "Branch: $(git branch --show-current)" && echo "Node: $(node --version)" && echo "Java:" && java -version && echo "Android SDK: $ANDROID_HOME" && npm ci && JEEVYA_AUTOMATED_RELEASE=true npm run ship'
+      - name: Stop release Codespace
+        if: always()
+        env:
+          GH_TOKEN: ${{ secrets.CODESPACES_TOKEN }}
+          CODESPACE_NAME: ${{ steps.codespace.outputs.name }}
+        run: |
+          if [ -n "${CODESPACE_NAME:-}" ]; then
+            gh codespace stop -c "$CODESPACE_NAME" || true
+          fi
+  163
   150
