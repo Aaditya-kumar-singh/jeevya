@@ -94,22 +94,12 @@ jobs:
         run: |
           set -euo pipefail
 
-          echo "Codespace is Available. Preparing Codespaces SSH..."
-          mkdir -p "$HOME/.ssh"
-          chmod 700 "$HOME/.ssh"
-
-          if [ ! -f "$HOME/.ssh/codespaces.auto" ]; then
-            echo "Creating dedicated Codespaces SSH key..."
-            ssh-keygen -t ed25519 -N "" -f "$HOME/.ssh/codespaces.auto" -C "jeevya-github-actions"
-          fi
-          chmod 600 "$HOME/.ssh/codespaces.auto"
-          chmod 644 "$HOME/.ssh/codespaces.auto.pub"
-
-          echo "Connecting with gh codespace ssh so GitHub can establish the Codespaces tunnel..."
+          echo "Codespace is Available. Letting GitHub CLI manage Codespaces SSH authentication..."
+          echo "GitHub CLI will create/select its own Codespaces key automatically."
           for i in {1..12}; do
             echo "SSH readiness attempt $i/12"
             set +e
-            timeout 60s gh codespace ssh -c "$CODESPACE_NAME" -- -i "$HOME/.ssh/codespaces.auto" "command -v node >/dev/null && command -v java >/dev/null && echo JEEVYA_CONTAINER_READY"
+            timeout 60s gh codespace ssh -c "$CODESPACE_NAME" -- "command -v node >/dev/null && command -v java >/dev/null && echo JEEVYA_CONTAINER_READY"
             STATUS=$?
             set -e
 
@@ -136,7 +126,7 @@ jobs:
         run: |
           set -euo pipefail
 
-          gh codespace ssh -c "$CODESPACE_NAME" -- -i "$HOME/.ssh/codespaces.auto" 'cd /workspaces/jeevya && set -euo pipefail && echo "=== Jeevya automated Codespace release ===" && echo "Commit: $(git rev-parse HEAD)" && echo "Branch: $(git branch --show-current)" && echo "Node: $(node --version)" && echo "Java:" && java -version && echo "Android SDK: $ANDROID_HOME" && npm ci && JEEVYA_AUTOMATED_RELEASE=true npm run ship'
+          gh codespace ssh -c "$CODESPACE_NAME" -- 'cd /workspaces/jeevya && set -euo pipefail && echo "=== Jeevya automated Codespace release ===" && echo "Commit: $(git rev-parse HEAD)" && echo "Branch: $(git branch --show-current)" && echo "Node: $(node --version)" && echo "Java:" && java -version && echo "Android SDK: $ANDROID_HOME" && npm ci && JEEVYA_AUTOMATED_RELEASE=true npm run ship'
       - name: Stop release Codespace
         if: always()
         env:
