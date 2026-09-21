@@ -51,7 +51,7 @@ jobs:
           NAME="$(gh codespace create \
             --repo Aaditya-kumar-singh/jeevya \
             --branch master \
-            --machine standardLinux \
+            --machine standardLinux32gb \
             --idle-timeout 60m \
             --retention-period 1h \
             --display-name "Jeevya Release ${GITHUB_RUN_NUMBER}" \
