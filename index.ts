@@ -2,8 +2,8 @@ import 'expo-router/entry';
 
 import { registerWidgetConfigurationScreen, registerWidgetTaskHandler } from 'react-native-android-widget';
 
-import { LifeOSWidgetConfigurationScreen } from './src/widgets/LifeOSWidgetConfigurationScreen';
-import { widgetTaskHandler } from './src/widgets/lifeosWidgetTaskHandler';
+import { JeevyaWidgetConfigurationScreen } from './src/widgets/JeevyaWidgetConfigurationScreen';
+import { widgetTaskHandler } from './src/widgets/jeevyaWidgetTaskHandler';
 
 registerWidgetTaskHandler(widgetTaskHandler);
-registerWidgetConfigurationScreen(LifeOSWidgetConfigurationScreen);
+registerWidgetConfigurationScreen(JeevyaWidgetConfigurationScreen);

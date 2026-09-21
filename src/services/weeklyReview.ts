@@ -1,5 +1,5 @@
 import { todayCivilDate, type CivilDate } from '@/lib/date';
-import { getLifeOSAnalytics } from '@/services/lifeosAnalytics';
+import { getJeevyaAnalytics } from '@/services/jeevyaAnalytics';
 import type { WeeklyReviewInsight, WeeklyReviewResult } from '@/types/weeklyReview';
 
 export function buildWeeklyReviewInsights(result: WeeklyReviewResult['analytics']): WeeklyReviewInsight[] {
@@ -62,6 +62,6 @@ export function buildWeeklyReviewInsights(result: WeeklyReviewResult['analytics'
 }
 
 export async function getWeeklyReview(endDate: CivilDate = todayCivilDate()): Promise<WeeklyReviewResult> {
-  const analytics = await getLifeOSAnalytics(7, endDate);
+  const analytics = await getJeevyaAnalytics(7, endDate);
   return { startDate: analytics.startDate, endDate: analytics.endDate, analytics, insights: buildWeeklyReviewInsights(analytics) };
 }

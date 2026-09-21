@@ -1,12 +1,12 @@
-// LifeOS 3E: record-level Daily Pulse action tests.
+// Jeevya 3E: record-level Daily Pulse action tests.
 import { buildDailyPulse } from '@/services/dailyPulse';
-import type { LifeOSDailyState } from '@/types/lifeosIntegration';
+import type { JeevyaDailyState } from '@/types/jeevyaIntegration';
 
 function assert(condition: unknown, message: string): asserts condition {
   if (!condition) throw new Error(message);
 }
 
-const baseState: LifeOSDailyState = {
+const baseState: JeevyaDailyState = {
   date: '2026-09-14',
   tasks: {
     total: 1, dueToday: 1, overdue: 1, completedToday: 0, active: 1,
@@ -59,4 +59,4 @@ const multipleHabits = multiple.items.find((item) => item.id === 'habits-remaini
 assert(multipleOverdue?.actionType === 'navigate' && !multipleOverdue.actionTargetId, 'multiple overdue tasks must remain navigation-first');
 assert(multipleHabits?.actionType === 'navigate' && !multipleHabits.actionTargetId, 'multiple remaining habits must remain navigation-first');
 
-console.log('LIFEOS 3E RECORD ACTIONS: 7 passed, 0 failed');
+console.log('JEEVYA 3E RECORD ACTIONS: 7 passed, 0 failed');

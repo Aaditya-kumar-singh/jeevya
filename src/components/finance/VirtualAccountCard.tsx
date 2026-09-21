@@ -26,7 +26,7 @@ export function VirtualAccountCard({
         <View className="flex-row items-center gap-2">
           <CreditCard size={22} className="text-emerald-400" />
           <Text className="text-xs font-bold tracking-wider text-emerald-200 uppercase">
-            LifeOS Wealth Account
+            Jeevya Wealth Account
           </Text>
         </View>
         <View className="rounded-full bg-emerald-500/20 px-2.5 py-0.5 border border-emerald-400/30">

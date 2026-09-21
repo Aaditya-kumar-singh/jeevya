@@ -20,7 +20,7 @@ import { useHabits } from '@/hooks/useHabits';
 import { useTasks } from '@/hooks/useTasks';
 import type { DailyPulseItem } from '@/services/dailyPulse';
 import { getActiveWorkout } from '@/services/workouts';
-import { useLifeOSIntegration } from '@/hooks/useLifeOSIntegration';
+import { useJeevyaIntegration } from '@/hooks/useJeevyaIntegration';
 import { useDailyPlan } from '@/hooks/useDailyPlan';
 import { buildDailyPulse } from '@/services/dailyPulse';
 import type { DailyPlanItem } from '@/types/dailyPlan';
@@ -30,18 +30,18 @@ export default function HomeScreen() {
   const [workoutLabel, setWorkoutLabel] = useState('Workout');
   const { todayHabits, toggleCompletion } = useHabits();
   const { complete: completeTask } = useTasks();
-  const { data: lifeOSState, loading: lifeOSLoading, error: lifeOSError, refresh: refreshLifeOS } = useLifeOSIntegration();
+  const { data: jeevyaState, loading: jeevyaLoading, error: jeevyaError, refresh: refreshJeevya } = useJeevyaIntegration();
   const { data: dailyPlan, loading: dailyPlanLoading, error: dailyPlanError, refresh: refreshDailyPlan, execute: executeDailyPlanItem } = useDailyPlan();
   const dailyPulseModel = useMemo(
-    () => (lifeOSState ? buildDailyPulse(lifeOSState) : null),
-    [lifeOSState],
+    () => (jeevyaState ? buildDailyPulse(jeevyaState) : null),
+    [jeevyaState],
   );
   const insets = useSafeAreaInsets();
 
   useFocusEffect(
     useCallback(() => {
       let mounted = true;
-      void refreshLifeOS();
+      void refreshJeevya();
       void refreshDailyPlan();
       getActiveWorkout()
         .then((active) => {
@@ -58,7 +58,7 @@ export default function HomeScreen() {
       return () => {
         mounted = false;
       };
-    }, [refreshDailyPlan, refreshLifeOS]),
+    }, [refreshDailyPlan, refreshJeevya]),
   );
 
   const handleHabitComplete = useCallback(
@@ -72,23 +72,23 @@ export default function HomeScreen() {
     if (!item.actionTargetId) return;
     if (item.actionType === 'complete_task') {
       await completeTask(item.actionTargetId);
-      await Promise.all([refreshLifeOS(), refreshDailyPlan()]);
+      await Promise.all([refreshJeevya(), refreshDailyPlan()]);
       return;
     }
     if (item.actionType === 'complete_habit') {
       await toggleCompletion(item.actionTargetId);
-      await Promise.all([refreshLifeOS(), refreshDailyPlan()]);
+      await Promise.all([refreshJeevya(), refreshDailyPlan()]);
     }
-  }, [completeTask, refreshDailyPlan, refreshLifeOS, toggleCompletion]);
+  }, [completeTask, refreshDailyPlan, refreshJeevya, toggleCompletion]);
 
   const handleDailyPlanAction = useCallback(async (item: DailyPlanItem) => {
     if (item.actionType === 'complete_task' || item.actionType === 'complete_habit') {
       await executeDailyPlanItem(item);
-      await refreshLifeOS();
+      await refreshJeevya();
       return;
     }
     if (item.navigationTarget) router.push(item.navigationTarget as never);
-  }, [executeDailyPlanItem, refreshLifeOS]);
+  }, [executeDailyPlanItem, refreshJeevya]);
 
   const topPadding = Math.max(insets.top + 12, 48);
 
@@ -115,8 +115,8 @@ export default function HomeScreen() {
           <FadeInView delay={120}>
             <DailyPulse
               model={dailyPulseModel}
-              loading={lifeOSLoading || dailyPlanLoading}
-              error={lifeOSError || dailyPlanError}
+              loading={jeevyaLoading || dailyPlanLoading}
+              error={jeevyaError || dailyPlanError}
               onAction={handlePulseAction}
               plan={dailyPlan}
               onPlanAction={handleDailyPlanAction}

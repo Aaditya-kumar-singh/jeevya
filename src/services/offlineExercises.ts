@@ -2,10 +2,10 @@ import { Directory, File, Paths } from 'expo-file-system';
 import { loadData, saveData, removeData } from '@/lib/storage';
 import type { Exercise } from '@/types/exercise';
 
-const EXERCISE_JSON_KEY = 'lifeos:offline-exercises:';
-const COMPLETED_KEY = 'lifeos:exercise-completed:';
+const EXERCISE_JSON_KEY = 'jeevya:offline-exercises:';
+const COMPLETED_KEY = 'jeevya:exercise-completed:';
 
-const OFFLINE_EXERCISE_DIR = new Directory(Paths.document, 'lifeos', 'exercises');
+const OFFLINE_EXERCISE_DIR = new Directory(Paths.document, 'jeevya', 'exercises');
 
 function exerciseDir(id: string): Directory {
   const dir = new Directory(OFFLINE_EXERCISE_DIR, id);

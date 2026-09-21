@@ -5,9 +5,9 @@ import type {
   WorkoutSet, WorkoutStatus, NewWorkoutSetInput, WorkoutSession, WorkoutTotals,
 } from '@/types/workout';
 
-export const WORKOUTS_KEY = 'lifeos:workouts:sessions';
-const LEGACY_WORKOUTS_KEY = '@lifeos/workouts/v1';
-const PRS_KEY = '@lifeos/prs/v1';
+export const WORKOUTS_KEY = 'jeevya:workouts:sessions';
+const LEGACY_WORKOUTS_KEY = '@jeevya/workouts/v1';
+const PRS_KEY = '@jeevya/prs/v1';
 let storageQueue: Promise<void> = Promise.resolve();
 
 function nowIso() { return new Date().toISOString(); }

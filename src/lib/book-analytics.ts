@@ -250,7 +250,7 @@ export function computeBookAnalytics(
 /**
  * Current reading streak: consecutive days with positive page progress ending
  * today — or yesterday when today has none yet (one grace day, matching the
- * LifeOS task-streak convention; the streak is still alive until end of day).
+ * Jeevya task-streak convention; the streak is still alive until end of day).
  * Any inactive day breaks the chain. 0 when neither day is active.
  */
 export function readingStreak(deltas: PageDelta[], today: string): number {

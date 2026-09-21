@@ -1,4 +1,4 @@
-// LifeOS 3D: unified read-only Goals + Progress integration tests.
+// Jeevya 3D: unified read-only Goals + Progress integration tests.
 function assert(condition: unknown, message: string): asserts condition { if (!condition) throw new Error(message); }
 function equal(actual: unknown, expected: unknown, message: string): void {
   if (JSON.stringify(actual) !== JSON.stringify(expected)) {
@@ -27,7 +27,7 @@ function equal(actual: unknown, expected: unknown, message: string): void {
   const date = todayCivilDate();
   const monthStart = `${date.slice(0, 7)}-01`;
   const keys = [
-    'lifeos:book-goals', 'lifeos:books', 'lifeos:finance:savings-goals',
+    'jeevya:book-goals', 'jeevya:books', 'jeevya:finance:savings-goals',
   ];
 
   await AsyncStorage.clear();
@@ -84,9 +84,9 @@ function equal(actual: unknown, expected: unknown, message: string): void {
   };
 
   await Promise.all([
-    saveData('lifeos:books', [book]),
-    saveData('lifeos:book-goals', [bookGoal]),
-    saveData('lifeos:finance:savings-goals', [financeGoal]),
+    saveData('jeevya:books', [book]),
+    saveData('jeevya:book-goals', [bookGoal]),
+    saveData('jeevya:finance:savings-goals', [financeGoal]),
   ]);
 
   await check('Book Goals compatibility', async () => {
@@ -115,16 +115,16 @@ function equal(actual: unknown, expected: unknown, message: string): void {
 
   await check('source data and persistence remain unchanged', async () => {
     const before = await AsyncStorage.multiGet(keys);
-    const sourceBefore = JSON.stringify(await loadData('lifeos:books', []));
+    const sourceBefore = JSON.stringify(await loadData('jeevya:books', []));
     await getUnifiedGoals(date);
     const after = await AsyncStorage.multiGet(keys);
-    const sourceAfter = JSON.stringify(await loadData('lifeos:books', []));
+    const sourceAfter = JSON.stringify(await loadData('jeevya:books', []));
     equal(after, before, 'integration changed storage');
     equal(sourceAfter, sourceBefore, 'book source changed');
   });
 
   await check('missing source data is safe', async () => {
-    await saveData('lifeos:finance:savings-goals', []);
+    await saveData('jeevya:finance:savings-goals', []);
     const goals = await getUnifiedGoals(date);
     assert(goals.every((goal) => goal.source !== 'finance'), 'missing finance data fabricated goals');
   });
@@ -134,5 +134,5 @@ function equal(actual: unknown, expected: unknown, message: string): void {
     assert(p.status === 'unavailable' && p.currentValue === null, 'negative current value accepted');
   });
 
-  console.log(`LIFEOS 3D GOALS INTEGRATION: ${passed} passed, 0 failed`);
+  console.log(`JEEVYA 3D GOALS INTEGRATION: ${passed} passed, 0 failed`);
 })().catch((error) => { console.error(error); process.exitCode = 1; });

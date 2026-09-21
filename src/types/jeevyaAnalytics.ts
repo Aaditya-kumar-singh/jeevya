@@ -1,8 +1,8 @@
 import type { CivilDate } from '@/lib/date';
 
-export type LifeOSAnalyticsPeriod = 7 | 30 | 90;
+export type JeevyaAnalyticsPeriod = 7 | 30 | 90;
 
-export interface LifeOSAnalyticsPoint {
+export interface JeevyaAnalyticsPoint {
   date: CivilDate;
   tasksDue: number;
   tasksCompleted: number;
@@ -24,7 +24,7 @@ export interface LifeOSAnalyticsPoint {
   goalsBehind: number;
 }
 
-export interface LifeOSAnalyticsSummary {
+export interface JeevyaAnalyticsSummary {
   days: number;
   taskCompletionRate: number | null;
   totalTasksDue: number;
@@ -45,10 +45,10 @@ export interface LifeOSAnalyticsSummary {
   goalBehindDays: number;
 }
 
-export interface LifeOSAnalyticsResult {
-  period: LifeOSAnalyticsPeriod;
+export interface JeevyaAnalyticsResult {
+  period: JeevyaAnalyticsPeriod;
   startDate: CivilDate;
   endDate: CivilDate;
-  points: LifeOSAnalyticsPoint[];
-  summary: LifeOSAnalyticsSummary;
+  points: JeevyaAnalyticsPoint[];
+  summary: JeevyaAnalyticsSummary;
 }

@@ -18,7 +18,7 @@ import {
 } from "@expo-google-fonts/outfit";
 
 import { GluestackUIProvider } from "@/components/ui/gluestack-ui-provider";
-import { LifeOSThemeProvider } from "@/lib/themeContext";
+import { JeevyaThemeProvider } from "@/lib/themeContext";
 import { useTheme } from "@/hooks/use-theme";
 import { AndroidWidgetRefreshBridge } from "@/components/widgets/AndroidWidgetRefreshBridge";
 
@@ -47,9 +47,9 @@ export default function RootLayout() {
   }
 
   return (
-    <LifeOSThemeProvider>
+    <JeevyaThemeProvider>
       <ThemeShell />
-    </LifeOSThemeProvider>
+    </JeevyaThemeProvider>
   );
 }
 

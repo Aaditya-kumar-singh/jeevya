@@ -1,7 +1,7 @@
 import { buildDailyPulse, type DailyPulseItem } from '@/services/dailyPulse';
-import type { LifeOSDailyState } from '@/types/lifeosIntegration';
+import type { JeevyaDailyState } from '@/types/jeevyaIntegration';
 
-const emptyState = (date = '2026-09-14'): LifeOSDailyState => ({
+const emptyState = (date = '2026-09-14'): JeevyaDailyState => ({
   date,
   tasks: { total: 0, dueToday: 0, overdue: 0, completedToday: 0, active: 0 },
   habits: { activeToday: 0, completedToday: 0, completionRate: null },

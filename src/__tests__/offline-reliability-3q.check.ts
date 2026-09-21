@@ -2,12 +2,12 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { readStorage, updateStorage } from '@/services/storageReliability';
 import { createTask, getTasks, updateTask } from '@/services/tasks';
 import { createHabit, setHabitCompletion, toggleHabitCompletion, getHabitLogs } from '@/services/habits';
-import { getLifeOSDailyState } from '@/services/lifeosIntegration';
+import { getJeevyaDailyState } from '@/services/jeevyaIntegration';
 import { getDailyPlan } from '@/services/dailyPlan';
 import { getUnifiedGoals } from '@/services/goalsIntegration';
-import { getLifeOSAnalytics } from '@/services/lifeosAnalytics';
+import { getJeevyaAnalytics } from '@/services/jeevyaAnalytics';
 import { getLifeIntelligence } from '@/services/lifeIntelligence';
-import { searchLifeOS } from '@/services/unifiedSearch';
+import { searchJeevya } from '@/services/unifiedSearch';
 import { getLifeTimeline } from '@/services/lifeTimeline';
 import { getDataQuality } from '@/services/dataQuality';
 import { exportBackup, restoreBackup, serializeBackup } from '@/services/backup';
@@ -32,26 +32,26 @@ async function clear() { await AsyncStorage.clear(); }
 
   await check('missing key is a valid empty state', async () => {
     await clear();
-    const result = await readStorage('lifeos:tasks', []);
+    const result = await readStorage('jeevya:tasks', []);
     assert(result.status === 'missing' && Array.isArray(result.value) && result.value.length === 0, 'missing key not empty');
   });
 
   await check('malformed JSON is contained and classified', async () => {
-    await AsyncStorage.setItem('lifeos:tasks', '{bad-json');
-    const result = await readStorage('lifeos:tasks', []);
+    await AsyncStorage.setItem('jeevya:tasks', '{bad-json');
+    const result = await readStorage('jeevya:tasks', []);
     assert(result.status === 'malformed' && Array.isArray(result.value), 'malformed JSON not contained');
   });
 
   await check('valid empty and populated storage reads safely', async () => {
-    await AsyncStorage.setItem('lifeos:tasks', '[]');
-    assert((await readStorage('lifeos:tasks', [])).status === 'ok', 'empty read failed');
-    await AsyncStorage.setItem('lifeos:tasks', JSON.stringify([{ id: 't1', title: 'Keep', completed: false }]));
-    const result = await readStorage<{ id: string }[]>('lifeos:tasks', []);
+    await AsyncStorage.setItem('jeevya:tasks', '[]');
+    assert((await readStorage('jeevya:tasks', [])).status === 'ok', 'empty read failed');
+    await AsyncStorage.setItem('jeevya:tasks', JSON.stringify([{ id: 't1', title: 'Keep', completed: false }]));
+    const result = await readStorage<{ id: string }[]>('jeevya:tasks', []);
     assert(result.status === 'ok' && result.value[0].id === 't1', 'populated read failed');
   });
 
   await check('individual malformed task records do not crash domain reads', async () => {
-    await AsyncStorage.setItem('lifeos:tasks', JSON.stringify([null, 42, { id: 'good', title: 'Good' }]));
+    await AsyncStorage.setItem('jeevya:tasks', JSON.stringify([null, 42, { id: 'good', title: 'Good' }]));
     const tasks = await getTasks();
     assert(tasks.length === 1 && tasks[0].id === 'good', 'task record isolation failed');
   });
@@ -60,7 +60,7 @@ async function clear() { await AsyncStorage.clear(); }
     const original = AsyncStorage.getItem;
     AsyncStorage.getItem = async () => { throw new Error('read unavailable'); };
     try {
-      const result = await readStorage('lifeos:tasks', []);
+      const result = await readStorage('jeevya:tasks', []);
       assert(result.status === 'unavailable', 'read failure not classified');
     } finally { AsyncStorage.getItem = original; }
   });
@@ -70,7 +70,7 @@ async function clear() { await AsyncStorage.clear(); }
     AsyncStorage.setItem = async () => { throw new Error('write unavailable'); };
     try {
       let failed = false;
-      try { await updateStorage<{ id: string }[]>('lifeos:tasks', [], (items) => [...items, { id: 'x' }]); } catch { failed = true; }
+      try { await updateStorage<{ id: string }[]>('jeevya:tasks', [], (items) => [...items, { id: 'x' }]); } catch { failed = true; }
       assert(failed, 'write failure was swallowed');
     } finally { AsyncStorage.setItem = original; }
   });
@@ -97,7 +97,7 @@ async function clear() { await AsyncStorage.clear(); }
     await clear();
     const input = { icon: 'check', color: '#fff', frequency: 'daily' as const, days: [] };
     const [a, b] = await Promise.all([createHabit({ ...input, name: 'Habit A' }), createHabit({ ...input, name: 'Habit B' })]);
-    const raw = await readStorage<any[]>('lifeos:habits', []);
+    const raw = await readStorage<any[]>('jeevya:habits', []);
     assert(raw.status === 'ok' && raw.value.length === 2 && raw.value.some(x => x.id === a.id) && raw.value.some(x => x.id === b.id), 'habit race lost a write');
   });
 
@@ -120,27 +120,27 @@ async function clear() { await AsyncStorage.clear(); }
 
   await check('one malformed domain does not block integration', async () => {
     await clear();
-    await AsyncStorage.setItem('lifeos:finance:accounts', '{bad-json');
-    const state = await getLifeOSDailyState('2026-09-14');
+    await AsyncStorage.setItem('jeevya:finance:accounts', '{bad-json');
+    const state = await getJeevyaDailyState('2026-09-14');
     assert(state.tasks && state.habits && state.dataQuality?.degradedDomains.includes('finance'), 'finance failure was not isolated');
   });
 
   await check('multiple malformed domains remain isolated', async () => {
-    await AsyncStorage.setItem('lifeos:nutrition:foods', '{bad-json');
-    await AsyncStorage.setItem('lifeos:journal', '{bad-json');
-    const state = await getLifeOSDailyState('2026-09-14');
+    await AsyncStorage.setItem('jeevya:nutrition:foods', '{bad-json');
+    await AsyncStorage.setItem('jeevya:journal', '{bad-json');
+    const state = await getJeevyaDailyState('2026-09-14');
     assert(state.dataQuality?.degradedDomains.includes('nutrition') && state.dataQuality?.degradedDomains.includes('journal'), 'multiple failures not reported');
   });
 
   await check('dependent projections regenerate after mutation', async () => {
     await clear();
     const task = await createTask({ title: 'Projection task', dueDate: '2026-09-14' });
-    const state = await getLifeOSDailyState('2026-09-14');
+    const state = await getJeevyaDailyState('2026-09-14');
     const plan = await getDailyPlan('2026-09-14');
     const goals = await getUnifiedGoals('2026-09-14');
-    const analytics = await getLifeOSAnalytics(7, '2026-09-14');
+    const analytics = await getJeevyaAnalytics(7, '2026-09-14');
     const intelligence = await getLifeIntelligence('2026-09-14');
-    const search = await searchLifeOS('Projection task');
+    const search = await searchJeevya('Projection task');
     const timeline = await getLifeTimeline({ startDate: '2026-09-14', endDate: '2026-09-14' });
     assert(state.tasks.dueToday >= 1, 'Daily Pulse stale');
     assert(plan.items.some((x) => x.actionTargetId === task.id), 'Daily Plan stale');
@@ -151,7 +151,7 @@ async function clear() { await AsyncStorage.clear(); }
 
   await check('data quality reports storage corruption as degraded', async () => {
     await clear();
-    await AsyncStorage.setItem('lifeos:tasks', '{bad-json');
+    await AsyncStorage.setItem('jeevya:tasks', '{bad-json');
     const quality = await getDataQuality('2026-09-14');
     assert(quality.overallStatus !== 'healthy' && quality.degradedDomains.includes('tasks'), 'corruption reported healthy');
   });
@@ -160,9 +160,9 @@ async function clear() { await AsyncStorage.clear(); }
     await clear();
     await createTask({ title: 'Stable' });
     const [a, b, c] = await Promise.all([
-      getLifeOSDailyState('2026-09-14'),
-      getLifeOSDailyState('2026-09-14'),
-      getLifeOSDailyState('2026-09-14'),
+      getJeevyaDailyState('2026-09-14'),
+      getJeevyaDailyState('2026-09-14'),
+      getJeevyaDailyState('2026-09-14'),
     ]);
     assert(JSON.stringify(a) === JSON.stringify(b) && JSON.stringify(b) === JSON.stringify(c), 'overlapping reads diverged');
   });
@@ -170,18 +170,18 @@ async function clear() { await AsyncStorage.clear(); }
   await check('export during reads does not mutate domain data', async () => {
     await clear();
     await createTask({ title: 'Export read safety' });
-    const before = await AsyncStorage.getItem('lifeos:tasks');
-    await Promise.all([getLifeOSDailyState('2026-09-14'), getLifeTimeline(), exportBackup()]);
-    const after = await AsyncStorage.getItem('lifeos:tasks');
+    const before = await AsyncStorage.getItem('jeevya:tasks');
+    await Promise.all([getJeevyaDailyState('2026-09-14'), getLifeTimeline(), exportBackup()]);
+    const after = await AsyncStorage.getItem('jeevya:tasks');
     assert(before === after, 'export/read changed domain data');
   });
 
   await check('invalid restore preserves existing data', async () => {
     await clear();
     await createTask({ title: 'Keep me' });
-    const before = await AsyncStorage.getItem('lifeos:tasks');
+    const before = await AsyncStorage.getItem('jeevya:tasks');
     const result = await restoreBackup('{not-json');
-    assert(!result.success && (await AsyncStorage.getItem('lifeos:tasks')) === before, 'invalid restore mutated data');
+    assert(!result.success && (await AsyncStorage.getItem('jeevya:tasks')) === before, 'invalid restore mutated data');
   });
 
   await check('failed restore rolls back all touched keys', async () => {
@@ -206,17 +206,17 @@ async function clear() { await AsyncStorage.clear(); }
     const result = await restoreBackup(serializeBackup(backup));
     const tasks = await getTasks();
     assert(result.success && tasks.length === 1 && tasks[0].id === original.id, 'successful restore not reloadable');
-    const state = await getLifeOSDailyState('2026-09-14');
+    const state = await getJeevyaDailyState('2026-09-14');
     assert(state.tasks.total === 1, 'post-restore projection stale');
   });
 
   await check('corrupted domain remains recoverable without automatic wipe', async () => {
     await clear();
     await createTask({ title: 'Recoverable' });
-    await AsyncStorage.setItem('lifeos:tasks', '{corrupt');
+    await AsyncStorage.setItem('jeevya:tasks', '{corrupt');
     const result = await getDataQuality('2026-09-14');
     assert(result.degradedDomains.includes('tasks'), 'corruption not diagnostic');
-    const stored = await AsyncStorage.getItem('lifeos:tasks');
+    const stored = await AsyncStorage.getItem('jeevya:tasks');
     assert(stored === '{corrupt', 'corrupted data was automatically wiped');
   });
 
@@ -228,5 +228,5 @@ async function clear() { await AsyncStorage.clear(); }
     assert(JSON.stringify(a) === JSON.stringify(b), 'timeline projection is non-deterministic');
   });
 
-  console.log(`LIFEOS 3Q OFFLINE RELIABILITY: ${passed} passed, 0 failed`);
+  console.log(`JEEVYA 3Q OFFLINE RELIABILITY: ${passed} passed, 0 failed`);
 })().catch((error) => { console.error(error); process.exitCode = 1; });

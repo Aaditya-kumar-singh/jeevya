@@ -1,4 +1,4 @@
-// LifeOS 3M: deterministic cross-module data quality and diagnostics.
+// Jeevya 3M: deterministic cross-module data quality and diagnostics.
 // @ts-nocheck
 const assert = (condition, message) => { if (!condition) throw new Error(message); };
 
@@ -116,5 +116,5 @@ function baseState(overrides = {}) {
   assert(model.diagnostics.every((d) => d.domain && d.stableId), 'Unified Search-compatible diagnostics must preserve domain identity and stable IDs');
   passed++; console.log('PASS Unified Search diagnostic compatibility');
 
-  console.log(`LIFEOS 3M DATA QUALITY: ${passed} passed, 0 failed`);
-})().catch((error) => { console.error(`LIFEOS 3M DATA QUALITY: FAILED - ${error.message}`); process.exitCode = 1; });
+  console.log(`JEEVYA 3M DATA QUALITY: ${passed} passed, 0 failed`);
+})().catch((error) => { console.error(`JEEVYA 3M DATA QUALITY: FAILED - ${error.message}`); process.exitCode = 1; });

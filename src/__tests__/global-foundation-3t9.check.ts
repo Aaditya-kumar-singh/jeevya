@@ -2,15 +2,15 @@
 import fs from 'node:fs';
 import { canAccess, getFeatureAccess, requiresAuthentication } from '@/services/capabilities';
 import {
-  LIFEOS_GLOBAL_METRIC_FIELDS,
-  isLifeOSGlobalMetric,
-  type LifeOSGlobalMetric,
+  JEEVYA_GLOBAL_METRIC_FIELDS,
+  isJeevyaGlobalMetric,
+  type JeevyaGlobalMetric,
 } from '@/types/global';
 
 const src = (path: string) => fs.readFileSync(path, 'utf8');
 const globalTypesSource = src('src/types/global.ts');
 const globalServiceSource = src('src/services/globalData.ts');
-const sql = src('sql/lifeos-global-metrics.sql');
+const sql = src('sql/jeevya-global-metrics.sql');
 const capabilityTypes = src('src/types/capabilities.ts');
 const capabilityService = src('src/services/capabilities.ts');
 const capabilityHook = src('src/hooks/useCapabilities.ts');
@@ -41,20 +41,20 @@ assert(capabilityService.includes('checkFeatureAccess'), 'capability service no 
 assert(capabilityHook.includes('useAuth'), 'capability hook no longer uses existing auth state');
 assert(accountGate.includes('AccountGateProps'), 'AccountGate was not preserved as the reusable account boundary');
 assert(authSource.includes('supabase.auth.getSession()'), 'auth boundary changed unexpectedly');
-assert(syncSource.includes("supabase.from('lifeos_sync_records')"), '3R sync boundary changed unexpectedly');
+assert(syncSource.includes("supabase.from('jeevya_sync_records')"), '3R sync boundary changed unexpectedly');
 console.log('PASS existing capability, AccountGate, auth, and 3R integration foundations are preserved');
 
 const forbiddenGlobalFields = [
   'email', 'authToken', 'password', 'journalText', 'taskDescription', 'financialTransaction',
   'nutritionFood', 'workoutPrivateDetails', 'preciseLocation', 'latitude', 'longitude', 'profileId', 'userId',
 ];
-for (const field of forbiddenGlobalFields) assert(!LIFEOS_GLOBAL_METRIC_FIELDS.includes(field as never), `forbidden global field present: ${field}`);
-assertEqual(LIFEOS_GLOBAL_METRIC_FIELDS.length, 13);
-assert(globalTypesSource.includes('export interface LifeOSGlobalMetric'), 'global metric interface missing');
-assert(globalTypesSource.includes('LIFEOS_GLOBAL_SCHEMA_VERSION'), 'global schema version missing');
+for (const field of forbiddenGlobalFields) assert(!JEEVYA_GLOBAL_METRIC_FIELDS.includes(field as never), `forbidden global field present: ${field}`);
+assertEqual(JEEVYA_GLOBAL_METRIC_FIELDS.length, 13);
+assert(globalTypesSource.includes('export interface JeevyaGlobalMetric'), 'global metric interface missing');
+assert(globalTypesSource.includes('JEEVYA_GLOBAL_SCHEMA_VERSION'), 'global schema version missing');
 console.log('PASS global model exposes only privacy-safe aggregate fields');
 
-const sampleMetric: LifeOSGlobalMetric = {
+const sampleMetric: JeevyaGlobalMetric = {
   metricName: 'task_completion_rate',
   metricType: 'rate',
   period: 'week',
@@ -69,22 +69,22 @@ const sampleMetric: LifeOSGlobalMetric = {
   dataVersion: 1,
   schemaVersion: 1,
 };
-assert(isLifeOSGlobalMetric(sampleMetric), 'valid aggregate metric was rejected');
-for (const key of Object.keys(sampleMetric)) assert(LIFEOS_GLOBAL_METRIC_FIELDS.includes(key as never), `unexpected payload field: ${key}`);
+assert(isJeevyaGlobalMetric(sampleMetric), 'valid aggregate metric was rejected');
+for (const key of Object.keys(sampleMetric)) assert(JEEVYA_GLOBAL_METRIC_FIELDS.includes(key as never), `unexpected payload field: ${key}`);
 console.log('PASS global metric contract supports aggregate metric type, period, optional geography, values, timestamps, and versions');
 
-assert(globalServiceSource.includes(".from('lifeos_global_metrics')"), 'global service does not use the dedicated global table');
+assert(globalServiceSource.includes(".from('jeevya_global_metrics')"), 'global service does not use the dedicated global table');
 assert(globalServiceSource.includes(".select(GLOBAL_METRIC_COLUMNS)"), 'global service does not use an explicit aggregate-only projection');
-assert(!globalServiceSource.includes(".from('lifeos_sync_records')"), 'global service reads private sync records');
-assert(!globalServiceSource.includes(".from('lifeos_" + "tasks"), 'global service reads private task records');
+assert(!globalServiceSource.includes(".from('jeevya_sync_records')"), 'global service reads private sync records');
+assert(!globalServiceSource.includes(".from('jeevya_" + "tasks"), 'global service reads private task records');
 console.log('PASS global service never reads private user-owned records');
 
 assert(!globalServiceSource.includes('.insert('), 'global service can insert global data');
 assert(!globalServiceSource.includes('.upsert('), 'global service can upsert global data');
 assert(!globalServiceSource.includes('.update('), 'global service can update global data');
 assert(!globalServiceSource.includes('.delete('), 'global service can delete global data');
-assert(!globalServiceSource.includes(".from('lifeos_global_metrics').insert"), 'global service publishes fabricated production statistics');
-assert(!globalServiceSource.includes(".from('lifeos_global_metrics').upsert"), 'global service publishes fabricated production statistics');
+assert(!globalServiceSource.includes(".from('jeevya_global_metrics').insert"), 'global service publishes fabricated production statistics');
+assert(!globalServiceSource.includes(".from('jeevya_global_metrics').upsert"), 'global service publishes fabricated production statistics');
 console.log('PASS global service is read-only and contains no fake/sample production statistics');
 
 assert(globalServiceSource.includes('supabase.auth.getSession()'), 'global service does not require the current auth session');
@@ -148,12 +148,12 @@ async function runRuntimeChecks(): Promise<void> {
   Object.defineProperty(supabase, 'from', { configurable: true, writable: true, value: originalFrom });
 }
 
-assert(sql.includes('create table if not exists public.lifeos_global_metrics'), 'global metrics table missing');
-assert(sql.includes('alter table public.lifeos_global_metrics enable row level security'), 'global metrics RLS is not enabled');
+assert(sql.includes('create table if not exists public.jeevya_global_metrics'), 'global metrics table missing');
+assert(sql.includes('alter table public.jeevya_global_metrics enable row level security'), 'global metrics RLS is not enabled');
 assert(sql.includes('to authenticated'), 'global read policy is not restricted to authenticated users');
 assert(sql.includes('using (true)'), 'authenticated aggregate read policy missing');
-assert(sql.includes('revoke all on table public.lifeos_global_metrics from anon, authenticated'), 'client write privileges are not revoked');
-assert(sql.includes('grant select on table public.lifeos_global_metrics to authenticated'), 'authenticated read privilege missing');
+assert(sql.includes('revoke all on table public.jeevya_global_metrics from anon, authenticated'), 'client write privileges are not revoked');
+assert(sql.includes('grant select on table public.jeevya_global_metrics to authenticated'), 'authenticated read privilege missing');
 console.log('PASS global metrics SQL has authenticated-only read and no client write authority');
 
 assert(!sql.match(/create policy[^\n]+for (insert|update|delete)/i), 'global SQL creates a client write policy');
@@ -174,7 +174,7 @@ assert(sql.includes('aggregate_count >= 5'), 'global aggregates do not enforce a
 assert(sql.includes('schema_version integer') && sql.includes('data_version integer'), 'version fields missing');
 console.log('PASS geography, aggregate count, and schema/data version constraints are explicit');
 
-console.log('LIFEOS 3T.9 GLOBAL CAPABILITY + DATA FOUNDATION: 15 passed, 0 failed');
+console.log('JEEVYA 3T.9 GLOBAL CAPABILITY + DATA FOUNDATION: 15 passed, 0 failed');
 }
 
 void runRuntimeChecks().catch((error) => {

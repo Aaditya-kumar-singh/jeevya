@@ -33,7 +33,7 @@ export default function WeeklyReviewScreen() {
             <ArrowLeft size={20} />
           </Button>
           <View className="flex-1">
-            <Text size="sm" className="text-muted-foreground">LifeOS · Review</Text>
+            <Text size="sm" className="text-muted-foreground">Jeevya · Review</Text>
             <Heading size="xl" className="mt-1">Weekly Review</Heading>
             <Text size="sm" className="mt-1 text-muted-foreground">A factual summary of the last 7 days</Text>
           </View>
@@ -46,7 +46,7 @@ export default function WeeklyReviewScreen() {
           <>
             <Card className="p-4">
               <Heading size="sm">{data.startDate} → {data.endDate}</Heading>
-              <Text size="xs" className="mt-1 text-muted-foreground">Derived directly from existing LifeOS domain records.</Text>
+              <Text size="xs" className="mt-1 text-muted-foreground">Derived directly from existing Jeevya domain records.</Text>
             </Card>
             {data.insights.length ? data.insights.map((insight) => (
               <Card key={insight.id} className="p-4">
@@ -62,7 +62,7 @@ export default function WeeklyReviewScreen() {
               <Card className="items-center p-6">
                 <ClipboardCheck size={28} className="text-muted-foreground" />
                 <Heading size="md" className="mt-3">No review signals yet</Heading>
-                <Text size="sm" className="mt-1 text-center text-muted-foreground">Use your LifeOS modules during the week and this review will summarize the available activity.</Text>
+                <Text size="sm" className="mt-1 text-center text-muted-foreground">Use your Jeevya modules during the week and this review will summarize the available activity.</Text>
               </Card>
             )}
           </>

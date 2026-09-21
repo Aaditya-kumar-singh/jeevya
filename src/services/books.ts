@@ -16,7 +16,7 @@ import {
 
 // ─── Storage Key ──────────────────────────────────────────────────────────────
 
-const BOOKS_KEY = 'lifeos:books';
+const BOOKS_KEY = 'jeevya:books';
 
 // ─── Migration / Backward Compatibility ───────────────────────────────────────
 

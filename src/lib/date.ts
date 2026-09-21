@@ -1,4 +1,4 @@
-// ─── LifeOS Canonical Date Utilities (A3) ─────────────────────────────────────
+// ─── Jeevya Canonical Date Utilities (A3) ─────────────────────────────────────
 // Date policy:
 // - CivilDate is a calendar date (YYYY-MM-DD), never an instant.
 // - Civil-date arithmetic uses UTC-noon internally so timezone offsets cannot

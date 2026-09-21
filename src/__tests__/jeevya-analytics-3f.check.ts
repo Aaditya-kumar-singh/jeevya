@@ -1,12 +1,12 @@
-// LifeOS 3F: cross-module analytics aggregation tests.
-import { summarizeLifeOSAnalytics } from '@/services/lifeosAnalytics';
-import type { LifeOSAnalyticsPoint } from '@/types/lifeosAnalytics';
+// Jeevya 3F: cross-module analytics aggregation tests.
+import { summarizeJeevyaAnalytics } from '@/services/jeevyaAnalytics';
+import type { JeevyaAnalyticsPoint } from '@/types/jeevyaAnalytics';
 
 function assert(condition: unknown, message: string): asserts condition {
   if (!condition) throw new Error(message);
 }
 
-const points: LifeOSAnalyticsPoint[] = [
+const points: JeevyaAnalyticsPoint[] = [
   {
     date: '2026-09-13', tasksDue: 4, tasksCompleted: 3, tasksOverdue: 1,
     habitCompletionRate: 80, workoutsCompleted: 1, workoutMinutes: 45, sleepMinutes: 420,
@@ -23,7 +23,7 @@ const points: LifeOSAnalyticsPoint[] = [
   },
 ];
 
-const summary = summarizeLifeOSAnalytics(points);
+const summary = summarizeJeevyaAnalytics(points);
 assert(summary.days === 2, 'day count');
 assert(summary.taskCompletionRate === 83.3, 'task completion rate');
 assert(summary.totalTasksDue === 6 && summary.totalTasksCompleted === 5, 'task totals');
@@ -37,11 +37,11 @@ assert(summary.totalFinanceTransactions === 3 && summary.totalFinanceIncome === 
 assert(summary.totalJournalEntries === 1, 'journal total');
 assert(summary.goalCompletionCount === 1 && summary.goalBehindDays === 1, 'goal observations');
 
-const empty = summarizeLifeOSAnalytics([]);
+const empty = summarizeJeevyaAnalytics([]);
 assert(empty.days === 0 && empty.taskCompletionRate === null && empty.averageSleepMinutes === null, 'empty summary');
 
-const deterministicA = JSON.stringify(summarizeLifeOSAnalytics(points));
-const deterministicB = JSON.stringify(summarizeLifeOSAnalytics(points));
+const deterministicA = JSON.stringify(summarizeJeevyaAnalytics(points));
+const deterministicB = JSON.stringify(summarizeJeevyaAnalytics(points));
 assert(deterministicA === deterministicB, 'aggregation must be deterministic');
 
-console.log('LIFEOS 3F CROSS-MODULE ANALYTICS: 13 passed, 0 failed');
+console.log('JEEVYA 3F CROSS-MODULE ANALYTICS: 13 passed, 0 failed');

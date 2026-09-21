@@ -12,7 +12,7 @@ import { getBooks } from '@/services/books';
 import { getEntries } from '@/services/journal';
 import { getUnifiedGoals } from '@/services/goalsIntegration';
 import { readStorage } from '@/services/storageReliability';
-import type { LifeOSDailyState } from '@/types/lifeosIntegration';
+import type { JeevyaDailyState } from '@/types/jeevyaIntegration';
 
 function emptyNutrition(date: string) {
   const summary = calculateDailyNutrition(date, [], [], []);
@@ -20,7 +20,7 @@ function emptyNutrition(date: string) {
   return { summary, targets: null, energy };
 }
 
-function emptyState(date: string): LifeOSDailyState {
+function emptyState(date: string): JeevyaDailyState {
   const nutrition = emptyNutrition(date);
   return {
     date,
@@ -37,7 +37,7 @@ function emptyState(date: string): LifeOSDailyState {
 }
 
 /** Assemble a read-only snapshot from existing domain services. No persistence or mutation. */
-export async function getLifeOSDailyState(date: string = todayCivilDate()): Promise<LifeOSDailyState> {
+export async function getJeevyaDailyState(date: string = todayCivilDate()): Promise<JeevyaDailyState> {
   if (!isValidCivilDate(date)) return emptyState(date);
 
   const parsedDate = parseCivilDate(date);
@@ -52,13 +52,13 @@ export async function getLifeOSDailyState(date: string = todayCivilDate()): Prom
     }
   }
   const domainStorageKeys: Record<string, string[]> = {
-    tasks: ['lifeos:tasks'],
-    habits: ['lifeos:habits', 'lifeos:habit-logs'],
-    nutrition: ['lifeos:nutrition:foods', 'lifeos:nutrition:food-logs', 'lifeos:nutrition:recipes', 'lifeos:nutrition:body-profile', 'lifeos:nutrition:energy-activities'],
-    finance: ['lifeos:finance:accounts', 'lifeos:finance:transactions', 'lifeos:finance:categories', 'lifeos:finance:budgets', 'lifeos:finance:savings-goals'],
-    books: ['lifeos:books', 'lifeos:book-goals', 'lifeos:book-progress'],
-    journal: ['lifeos:journal'],
-    health: ['lifeos:workouts:sessions', 'lifeos:health:sleep'],
+    tasks: ['jeevya:tasks'],
+    habits: ['jeevya:habits', 'jeevya:habit-logs'],
+    nutrition: ['jeevya:nutrition:foods', 'jeevya:nutrition:food-logs', 'jeevya:nutrition:recipes', 'jeevya:nutrition:body-profile', 'jeevya:nutrition:energy-activities'],
+    finance: ['jeevya:finance:accounts', 'jeevya:finance:transactions', 'jeevya:finance:categories', 'jeevya:finance:budgets', 'jeevya:finance:savings-goals'],
+    books: ['jeevya:books', 'jeevya:book-goals', 'jeevya:book-progress'],
+    journal: ['jeevya:journal'],
+    health: ['jeevya:workouts:sessions', 'jeevya:health:sleep'],
   };
   if (typeof window !== 'undefined') {
     await Promise.all(Object.entries(domainStorageKeys).map(async ([domain, keys]) => {

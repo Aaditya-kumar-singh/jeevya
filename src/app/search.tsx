@@ -16,7 +16,7 @@ export default function SearchScreen() {
   return (
     <ScrollView className="flex-1 bg-background" contentContainerStyle={{ paddingBottom: 40 }}>
       <View className="gap-4 px-5 pt-14">
-        <View className="flex-row items-center gap-3"><Button variant="ghost" size="icon" onPress={() => router.back()}><ArrowLeft size={20} /></Button><View className="flex-1"><Text size="sm" className="text-muted-foreground">LifeOS</Text><Heading size="xl" className="mt-1">Search Everything</Heading></View><SearchIcon size={24} className="text-primary" /></View>
+        <View className="flex-row items-center gap-3"><Button variant="ghost" size="icon" onPress={() => router.back()}><ArrowLeft size={20} /></Button><View className="flex-1"><Text size="sm" className="text-muted-foreground">Jeevya</Text><Heading size="xl" className="mt-1">Search Everything</Heading></View><SearchIcon size={24} className="text-primary" /></View>
         <View className="flex-row items-center rounded-2xl border border-border bg-card px-3"><SearchIcon size={18} className="text-muted-foreground" /><TextInput value={query} onChangeText={setQuery} placeholder="Search tasks, habits, books, journal..." placeholderTextColor="#888" autoFocus className="flex-1 px-3 py-3 text-foreground" /></View>
         {error ? <Card className="p-3"><Text size="xs" className="text-red-600 dark:text-red-400">{error}</Text></Card> : null}
         {loading ? <View className="items-center py-4"><ActivityIndicator /></View> : null}

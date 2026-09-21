@@ -1,8 +1,8 @@
 // @ts-nocheck
 import fs from 'node:fs';
-import { LIFEOS_GLOBAL_METRIC_FIELDS, isLifeOSGlobalMetric } from '@/types/global';
+import { JEEVYA_GLOBAL_METRIC_FIELDS, isJeevyaGlobalMetric } from '@/types/global';
 
-let LIFEOS_GLOBAL_METRIC_DEFINITIONS: any;
+let JEEVYA_GLOBAL_METRIC_DEFINITIONS: any;
 let compareGlobalMetric: any;
 let previousEquivalentPeriod: any;
 
@@ -16,22 +16,22 @@ const check = async (name: string, fn: () => void | Promise<void>) => { await fn
 async function main() {
 Object.defineProperty(globalThis, 'window', { configurable: true, value: { localStorage: { getItem: () => null, setItem: () => undefined, removeItem: () => undefined } } });
 const globalData = await import('@/services/globalData');
-LIFEOS_GLOBAL_METRIC_DEFINITIONS = globalData.LIFEOS_GLOBAL_METRIC_DEFINITIONS;
+JEEVYA_GLOBAL_METRIC_DEFINITIONS = globalData.JEEVYA_GLOBAL_METRIC_DEFINITIONS;
 compareGlobalMetric = globalData.compareGlobalMetric;
 previousEquivalentPeriod = globalData.previousEquivalentPeriod;
 await check('metric definition registry is explicit and contains no demonstration metrics', () => {
-  assert(Array.isArray(LIFEOS_GLOBAL_METRIC_DEFINITIONS), 'registry missing');
-  assert(LIFEOS_GLOBAL_METRIC_DEFINITIONS.every((d) => d.metricName && d.metricType && d.unit && d.meaning && d.supportedPeriods.length > 0), 'invalid metric definition');
+  assert(Array.isArray(JEEVYA_GLOBAL_METRIC_DEFINITIONS), 'registry missing');
+  assert(JEEVYA_GLOBAL_METRIC_DEFINITIONS.every((d) => d.metricName && d.metricType && d.unit && d.meaning && d.supportedPeriods.length > 0), 'invalid metric definition');
 });
 await check('global metric contract contains only approved aggregate fields', () => {
-  assert(!LIFEOS_GLOBAL_METRIC_FIELDS.includes('userId' as never), 'userId exposed');
-  assert(!LIFEOS_GLOBAL_METRIC_FIELDS.includes('email' as never), 'email exposed');
+  assert(!JEEVYA_GLOBAL_METRIC_FIELDS.includes('userId' as never), 'userId exposed');
+  assert(!JEEVYA_GLOBAL_METRIC_FIELDS.includes('email' as never), 'email exposed');
 });
 await check('valid aggregate retrieval path is restricted to the global table and explicit columns', () => {
   const source = read('src/services/globalData.ts');
-  assert(source.includes("from('lifeos_global_metrics')"), 'wrong table');
+  assert(source.includes("from('jeevya_global_metrics')"), 'wrong table');
   assert(source.includes(".select(GLOBAL_METRIC_COLUMNS)"), 'arbitrary selection allowed');
-  assert(!source.includes("from('lifeos_sync_records')"), 'sync records accessed');
+  assert(!source.includes("from('jeevya_sync_records')"), 'sync records accessed');
 });
 await check('invalid remote rows are rejected before becoming trusted statistics', () => {
   const source = read('src/services/globalData.ts');
@@ -83,8 +83,8 @@ await check('trend is neutral to meaning and deterministic', async () => {
   assert(up.trend === 'up' && down.trend === 'down' && same.trend === 'unchanged' && none.trend === 'insufficient_data', 'trend calculation incorrect');
 });
 await check('malformed data and private fields cannot enter the contract', () => {
-  assert(!isLifeOSGlobalMetric({ userId: 'private' }), 'private row accepted');
-  assert(!LIFEOS_GLOBAL_METRIC_FIELDS.some((f) => /user|email|password|token|journal|transaction|description/i.test(f)), 'private field in contract');
+  assert(!isJeevyaGlobalMetric({ userId: 'private' }), 'private row accepted');
+  assert(!JEEVYA_GLOBAL_METRIC_FIELDS.some((f) => /user|email|password|token|journal|transaction|description/i.test(f)), 'private field in contract');
 });
 await check('client has no global write API or service-role usage', () => {
   const source = read('src/services/globalData.ts');
@@ -92,7 +92,7 @@ await check('client has no global write API or service-role usage', () => {
   assert(!/SUPABASE_SERVICE_ROLE_KEY|service_role|sb_secret/i.test(source), 'service role referenced');
 });
 await check('3T.9 RLS and authority boundary remain intact', () => {
-  const sql = read('sql/lifeos-global-metrics.sql');
+  const sql = read('sql/jeevya-global-metrics.sql');
   assert(sql.includes('enable row level security'), 'RLS missing');
   assert(sql.includes('for select') && sql.includes('to authenticated'), 'authenticated read missing');
   assert(!sql.includes('for insert') && !sql.includes('for update') && !sql.includes('for delete'), 'client write policy introduced');
@@ -104,7 +104,7 @@ await check('capability/global boundary is preserved and no global UI was added'
   assert(!fs.existsSync(`${root}/src/app/global-statistics.tsx`), 'global UI exposed');
 });
 
-console.log(`LIFEOS 3T.10 GLOBAL STATISTICS FOUNDATION: ${passed} passed, 0 failed`);
+console.log(`JEEVYA 3T.10 GLOBAL STATISTICS FOUNDATION: ${passed} passed, 0 failed`);
 }
 
 main().catch((error) => { console.error(error); process.exit(1); });

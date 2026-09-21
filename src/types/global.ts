@@ -1,16 +1,16 @@
-export type LifeOSGlobalMetricType = 'count' | 'sum' | 'average' | 'rate' | 'ratio';
+export type JeevyaGlobalMetricType = 'count' | 'sum' | 'average' | 'rate' | 'ratio';
 
-export type LifeOSGlobalPeriod = 'day' | 'week' | 'month' | 'quarter' | 'year';
+export type JeevyaGlobalPeriod = 'day' | 'week' | 'month' | 'quarter' | 'year';
 
-export type LifeOSGlobalGeographicLevel = 'global' | 'country' | 'region' | 'city';
+export type JeevyaGlobalGeographicLevel = 'global' | 'country' | 'region' | 'city';
 
-export interface LifeOSGlobalMetric {
+export interface JeevyaGlobalMetric {
   metricName: string;
-  metricType: LifeOSGlobalMetricType;
-  period: LifeOSGlobalPeriod;
+  metricType: JeevyaGlobalMetricType;
+  period: JeevyaGlobalPeriod;
   periodStart: string;
   periodEnd: string;
-  geographicLevel?: LifeOSGlobalGeographicLevel;
+  geographicLevel?: JeevyaGlobalGeographicLevel;
   geographicCode?: string;
   aggregateValue: number;
   aggregateCount: number;
@@ -20,143 +20,143 @@ export interface LifeOSGlobalMetric {
   schemaVersion: number;
 }
 
-export type LifeOSGlobalDataStatus = 'available' | 'unavailable' | 'empty' | 'auth_required' | 'invalid';
+export type JeevyaGlobalDataStatus = 'available' | 'unavailable' | 'empty' | 'auth_required' | 'invalid';
 
-export type LifeOSGlobalComparisonStatus = 'available' | 'insufficient_data' | 'unavailable' | 'auth_required' | 'invalid' | 'incompatible';
+export type JeevyaGlobalComparisonStatus = 'available' | 'insufficient_data' | 'unavailable' | 'auth_required' | 'invalid' | 'incompatible';
 
-export type LifeOSGlobalRankingBand = 'bottom' | 'lower' | 'middle' | 'upper' | 'top';
+export type JeevyaGlobalRankingBand = 'bottom' | 'lower' | 'middle' | 'upper' | 'top';
 
-export type LifeOSGlobalChallengeStatus = 'upcoming' | 'active' | 'completed' | 'unavailable' | 'invalid';
+export type JeevyaGlobalChallengeStatus = 'upcoming' | 'active' | 'completed' | 'unavailable' | 'invalid';
 
-export type LifeOSGlobalParticipationStatus = 'eligible' | 'unavailable' | 'insufficient_data' | 'auth_required' | 'invalid';
+export type JeevyaGlobalParticipationStatus = 'eligible' | 'unavailable' | 'insufficient_data' | 'auth_required' | 'invalid';
 
-export interface LifeOSGlobalDataResult {
-  status: LifeOSGlobalDataStatus;
-  metrics: LifeOSGlobalMetric[];
+export interface JeevyaGlobalDataResult {
+  status: JeevyaGlobalDataStatus;
+  metrics: JeevyaGlobalMetric[];
   error: string | null;
 }
 
-export interface LifeOSGlobalMetricQuery {
+export interface JeevyaGlobalMetricQuery {
   metricName?: string;
-  metricType?: LifeOSGlobalMetricType;
-  period?: LifeOSGlobalPeriod;
+  metricType?: JeevyaGlobalMetricType;
+  period?: JeevyaGlobalPeriod;
   periodStart?: string;
   periodEnd?: string;
-  geographicLevel?: LifeOSGlobalGeographicLevel;
+  geographicLevel?: JeevyaGlobalGeographicLevel;
   geographicCode?: string;
 }
 
-export interface LifeOSGlobalMetricDefinition {
+export interface JeevyaGlobalMetricDefinition {
   metricName: string;
-  metricType: LifeOSGlobalMetricType;
+  metricType: JeevyaGlobalMetricType;
   unit: string;
   meaning: string;
-  supportedPeriods: readonly LifeOSGlobalPeriod[];
+  supportedPeriods: readonly JeevyaGlobalPeriod[];
   higherIsMeaningful?: boolean;
   lowerIsMeaningful?: boolean;
 }
 
-export type LifeOSGlobalComparisonKind = 'period' | 'geographic';
+export type JeevyaGlobalComparisonKind = 'period' | 'geographic';
 
-export interface LifeOSGlobalComparison {
-  current: LifeOSGlobalMetric;
-  previous: LifeOSGlobalMetric | null;
+export interface JeevyaGlobalComparison {
+  current: JeevyaGlobalMetric;
+  previous: JeevyaGlobalMetric | null;
   absoluteChange: number | null;
   percentageChange: number | null;
-  kind?: LifeOSGlobalComparisonKind;
+  kind?: JeevyaGlobalComparisonKind;
 }
 
-export type LifeOSGlobalTrend = 'up' | 'down' | 'unchanged' | 'insufficient_data';
+export type JeevyaGlobalTrend = 'up' | 'down' | 'unchanged' | 'insufficient_data';
 
-export interface LifeOSGlobalComparisonResult {
-  status: LifeOSGlobalComparisonStatus;
-  comparison: LifeOSGlobalComparison | null;
-  trend: LifeOSGlobalTrend;
+export interface JeevyaGlobalComparisonResult {
+  status: JeevyaGlobalComparisonStatus;
+  comparison: JeevyaGlobalComparison | null;
+  trend: JeevyaGlobalTrend;
   error: string | null;
 }
 
-export interface LifeOSGlobalRankingDistributionBand {
-  band: LifeOSGlobalRankingBand;
+export interface JeevyaGlobalRankingDistributionBand {
+  band: JeevyaGlobalRankingBand;
   minimumValue: number;
   maximumValue: number;
   populationCount: number;
 }
 
-export interface LifeOSGlobalRankingDistribution {
+export interface JeevyaGlobalRankingDistribution {
   metricName: string;
-  metricType: LifeOSGlobalMetricType;
-  period: LifeOSGlobalPeriod;
+  metricType: JeevyaGlobalMetricType;
+  period: JeevyaGlobalPeriod;
   periodStart: string;
   periodEnd: string;
-  geographicLevel?: LifeOSGlobalGeographicLevel;
+  geographicLevel?: JeevyaGlobalGeographicLevel;
   geographicCode?: string;
   totalPopulation: number;
-  bands: readonly LifeOSGlobalRankingDistributionBand[];
+  bands: readonly JeevyaGlobalRankingDistributionBand[];
   dataVersion: number;
   schemaVersion: number;
 }
 
-export interface LifeOSGlobalRankingBandResult {
-  status: LifeOSGlobalComparisonStatus;
-  band: LifeOSGlobalRankingBand | null;
+export interface JeevyaGlobalRankingBandResult {
+  status: JeevyaGlobalComparisonStatus;
+  band: JeevyaGlobalRankingBand | null;
   error: string | null;
 }
 
-export interface LifeOSGlobalChallenge {
+export interface JeevyaGlobalChallenge {
   challengeId: string;
   title: string;
   description: string;
   metricName: string;
-  metricType: LifeOSGlobalMetricType;
+  metricType: JeevyaGlobalMetricType;
   targetValue: number;
   unit: string;
   startDate: string;
   endDate: string;
-  geographicLevel?: LifeOSGlobalGeographicLevel;
+  geographicLevel?: JeevyaGlobalGeographicLevel;
   geographicCode?: string;
   participantCount: number;
   completionCount: number;
   dataVersion: number;
   schemaVersion: number;
-  status: LifeOSGlobalChallengeStatus;
+  status: JeevyaGlobalChallengeStatus;
 }
 
-export interface LifeOSGlobalCommunityAggregate {
+export interface JeevyaGlobalCommunityAggregate {
   metricName: string;
-  metricType: LifeOSGlobalMetricType;
-  period: LifeOSGlobalPeriod;
+  metricType: JeevyaGlobalMetricType;
+  period: JeevyaGlobalPeriod;
   periodStart: string;
   periodEnd: string;
   totalParticipants: number;
   aggregateActivity: number;
   completionRate: number;
-  aggregateTrend: LifeOSGlobalTrend;
-  geographicLevel?: LifeOSGlobalGeographicLevel;
+  aggregateTrend: JeevyaGlobalTrend;
+  geographicLevel?: JeevyaGlobalGeographicLevel;
   geographicCode?: string;
   dataVersion: number;
   schemaVersion: number;
 }
 
-export interface LifeOSGlobalChallengeResult {
-  status: LifeOSGlobalChallengeStatus;
-  challenge: LifeOSGlobalChallenge | null;
+export interface JeevyaGlobalChallengeResult {
+  status: JeevyaGlobalChallengeStatus;
+  challenge: JeevyaGlobalChallenge | null;
   error: string | null;
 }
 
-export interface LifeOSGlobalParticipationResult {
-  status: LifeOSGlobalParticipationStatus;
+export interface JeevyaGlobalParticipationResult {
+  status: JeevyaGlobalParticipationStatus;
   error: string | null;
 }
 
-export const LIFEOS_GLOBAL_METRIC_FIELDS = [
+export const JEEVYA_GLOBAL_METRIC_FIELDS = [
   'metricName', 'metricType', 'period', 'periodStart', 'periodEnd',
   'geographicLevel', 'geographicCode', 'aggregateValue', 'aggregateCount',
   'createdAt', 'updatedAt', 'dataVersion', 'schemaVersion',
 ] as const;
 
-export const LIFEOS_GLOBAL_SCHEMA_VERSION = 1;
+export const JEEVYA_GLOBAL_SCHEMA_VERSION = 1;
 
-export function isLifeOSGlobalMetric(value: unknown): value is LifeOSGlobalMetric {
+export function isJeevyaGlobalMetric(value: unknown): value is JeevyaGlobalMetric {
   if (!value || typeof value !== 'object' || Array.isArray(value)) return false;
   const r = value as Record<string, unknown>;
   return typeof r.metricName === 'string' && typeof r.metricType === 'string' &&

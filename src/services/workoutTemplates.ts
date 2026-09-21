@@ -17,7 +17,7 @@ import type {
   WorkoutProgramScheduleInput,
 } from '@/types/workout';
 
-export const WORKOUT_TEMPLATES_KEY = 'lifeos:workouts:templates';
+export const WORKOUT_TEMPLATES_KEY = 'jeevya:workouts:templates';
 
 let storageQueue: Promise<void> = Promise.resolve();
 
@@ -418,7 +418,7 @@ export const addTemplate = createWorkoutTemplate;
 export const editTemplate = updateWorkoutTemplate;
 export const removeTemplate = deleteWorkoutTemplate;
 
-export const WORKOUT_PROGRAMS_KEY = 'lifeos:workouts:programs';
+export const WORKOUT_PROGRAMS_KEY = 'jeevya:workouts:programs';
 let programQueue: Promise<void> = Promise.resolve();
 const programClone = <T,>(v: T): T => JSON.parse(JSON.stringify(v)) as T;
 const validDay = (d: number) => Number.isInteger(d) && d >= 0 && d <= 6;

@@ -17,7 +17,7 @@ import type {
   LifeTimelineResult,
 } from '@/types/lifeTimeline';
 
-const HABIT_LOGS_KEY = 'lifeos:habit-logs';
+const HABIT_LOGS_KEY = 'jeevya:habit-logs';
 const DOMAIN_ORDER: LifeTimelineDomain[] = ['tasks', 'habits', 'workout', 'sleep', 'nutrition', 'finance', 'books', 'journal', 'goals'];
 const FILTER_DOMAINS: Record<Exclude<LifeTimelineFilter, 'all'>, LifeTimelineDomain[]> = {
   tasks: ['tasks'], habits: ['habits'], 'health/workout': ['workout', 'sleep'], nutrition: ['nutrition'], finance: ['finance'], books: ['books'], journal: ['journal'], goals: ['goals'],
@@ -196,20 +196,20 @@ async function collectSources(): Promise<{ data: SourceData; degradedDomains: Li
   const degradedDomains: LifeTimelineDomain[] = [];
   const errors: Partial<Record<LifeTimelineDomain, string>> = {};
   const sources: [LifeTimelineDomain, () => Promise<unknown>][] = [
-    ['tasks', () => readArray<Task>('lifeos:tasks')],
-    ['habits', () => readArray<Habit>('lifeos:habits')],
+    ['tasks', () => readArray<Task>('jeevya:tasks')],
+    ['habits', () => readArray<Habit>('jeevya:habits')],
     ['habits', () => readArray<HabitLog>(HABIT_LOGS_KEY)],
-    ['workout', () => readArray<WorkoutSession>('lifeos:workouts:sessions')],
-    ['sleep', () => readArray<SleepEntry>('lifeos:health:sleep')],
-    ['nutrition', () => readArray<FoodLogEntry>('lifeos:nutrition:food-logs')],
-    ['nutrition', () => readArray<EnergyActivity>('lifeos:nutrition:energy-activities')],
-    ['finance', () => readArray<FinanceTransaction>('lifeos:finance:transactions')],
-    ['books', () => readArray<Book>('lifeos:books')],
-    ['books', () => readArray<BookProgressEntry>('lifeos:book-progress')],
-    ['journal', () => readArray<JournalEntry>('lifeos:journal')],
+    ['workout', () => readArray<WorkoutSession>('jeevya:workouts:sessions')],
+    ['sleep', () => readArray<SleepEntry>('jeevya:health:sleep')],
+    ['nutrition', () => readArray<FoodLogEntry>('jeevya:nutrition:food-logs')],
+    ['nutrition', () => readArray<EnergyActivity>('jeevya:nutrition:energy-activities')],
+    ['finance', () => readArray<FinanceTransaction>('jeevya:finance:transactions')],
+    ['books', () => readArray<Book>('jeevya:books')],
+    ['books', () => readArray<BookProgressEntry>('jeevya:book-progress')],
+    ['journal', () => readArray<JournalEntry>('jeevya:journal')],
     ['goals', async () => Promise.all([
-      readArray<BookGoal>('lifeos:book-goals'),
-      readArray<FinanceSavingsGoal>('lifeos:finance:savings-goals'),
+      readArray<BookGoal>('jeevya:book-goals'),
+      readArray<FinanceSavingsGoal>('jeevya:finance:savings-goals'),
     ])],
   ];
   const results = await Promise.allSettled(sources.map(([, loader]) => loader()));

@@ -1,8 +1,8 @@
 import { isValidCivilDate, todayCivilDate } from '@/lib/date';
-import { getLifeOSDailyState } from '@/services/lifeosIntegration';
+import { getJeevyaDailyState } from '@/services/jeevyaIntegration';
 import type { DailyPlanModel } from '@/types/dailyPlan';
 import type { DailyPulseModel } from '@/services/dailyPulse';
-import type { LifeOSDailyState } from '@/types/lifeosIntegration';
+import type { JeevyaDailyState } from '@/types/jeevyaIntegration';
 import { readStorage } from '@/services/storageReliability';
 import type { SyncConflict } from '@/types/sync';
 import type {
@@ -23,7 +23,7 @@ const severityRank: Record<DataQualitySeverity, number> = { critical: 0, warning
 
 /**
  * 3K route contract expressed as validation patterns, not a route registry.
- * These are only the authoritative destinations already used by LifeOS.
+ * These are only the authoritative destinations already used by Jeevya.
  */
 export function isValidNavigationTarget(target: string | undefined): boolean {
   if (!target || !target.startsWith('/')) return false;
@@ -59,7 +59,7 @@ function failureDiagnostic(domain: DataQualityDomain): DataQualityDiagnostic {
     status: 'unavailable',
     severity: 'critical',
     issue: 'Domain data could not be read',
-    description: `The ${domain} data source reported a read failure. Existing LifeOS data was not modified.`,
+    description: `The ${domain} data source reported a read failure. Existing Jeevya data was not modified.`,
     affectedArea: domain,
     actionable: true,
     route: domainRoute(domain),
@@ -90,14 +90,14 @@ function validateRoute(items: DataQualityDiagnostic[], domain: DataQualityDomain
     status: 'degraded',
     severity: 'critical',
     issue: 'Unreachable navigation target',
-    description: `The affected action points to an invalid LifeOS destination (${target}).`,
+    description: `The affected action points to an invalid Jeevya destination (${target}).`,
     affectedArea,
     actionable: false,
     stableId: `data-quality:${stableId}:route`,
   });
 }
 
-function validateTaskData(state: LifeOSDailyState, items: DataQualityDiagnostic[]): void {
+function validateTaskData(state: JeevyaDailyState, items: DataQualityDiagnostic[]): void {
   for (const task of [...(state.tasks.overdueTasks ?? []), ...(state.tasks.incompleteDueTodayTasks ?? [])]) {
     if (!task?.id || !task?.title?.trim()) {
       addDiagnostic(items, {
@@ -110,7 +110,7 @@ function validateTaskData(state: LifeOSDailyState, items: DataQualityDiagnostic[
   }
 }
 
-function validateHabitData(state: LifeOSDailyState, items: DataQualityDiagnostic[]): void {
+function validateHabitData(state: JeevyaDailyState, items: DataQualityDiagnostic[]): void {
   for (const habit of state.habits.remainingToday ?? []) {
     if (!habit?.id || !habit?.name?.trim()) {
       addDiagnostic(items, {
@@ -123,7 +123,7 @@ function validateHabitData(state: LifeOSDailyState, items: DataQualityDiagnostic
   }
 }
 
-function validateHealthData(state: LifeOSDailyState, items: DataQualityDiagnostic[]): void {
+function validateHealthData(state: JeevyaDailyState, items: DataQualityDiagnostic[]): void {
   if (state.health.activeWorkout && state.health.activeWorkoutId !== null && state.health.activeWorkoutId !== undefined && !state.health.activeWorkoutId.trim()) {
     addDiagnostic(items, {
       domain: 'health', status: 'degraded', severity: 'warning',
@@ -147,7 +147,7 @@ function validateHealthData(state: LifeOSDailyState, items: DataQualityDiagnosti
   }
 }
 
-function validateNutritionData(state: LifeOSDailyState, items: DataQualityDiagnostic[]): void {
+function validateNutritionData(state: JeevyaDailyState, items: DataQualityDiagnostic[]): void {
   const { summary, targets } = state.nutrition;
   if (!summary || !summary.totals) return;
   const calories = summary.totals.calories;
@@ -165,7 +165,7 @@ function validateNutritionData(state: LifeOSDailyState, items: DataQualityDiagno
   }
 }
 
-function validateFinanceData(state: LifeOSDailyState, items: DataQualityDiagnostic[]): void {
+function validateFinanceData(state: JeevyaDailyState, items: DataQualityDiagnostic[]): void {
   if (state.finance.accountCount < 0 || state.finance.transactionsToday < 0 || state.finance.incomeToday < 0 || state.finance.expenseToday < 0) {
     addDiagnostic(items, {
       domain: 'finance', status: 'degraded', severity: 'warning', issue: 'Invalid finance summary',
@@ -183,7 +183,7 @@ function validateFinanceData(state: LifeOSDailyState, items: DataQualityDiagnost
   }
 }
 
-function validateGoalsData(state: LifeOSDailyState, items: DataQualityDiagnostic[]): void {
+function validateGoalsData(state: JeevyaDailyState, items: DataQualityDiagnostic[]): void {
   for (const goal of state.goals ?? []) {
     const sourceMetricValid = (goal.source === 'books' && (goal.metric === 'books_completed' || goal.metric === 'pages_read')) || (goal.source === 'finance' && goal.metric === 'savings_amount');
     const numericProgressValid = goal.progressPercentage === null || (Number.isFinite(goal.progressPercentage) && goal.progressPercentage >= 0 && goal.progressPercentage <= 100);
@@ -197,17 +197,17 @@ function validateGoalsData(state: LifeOSDailyState, items: DataQualityDiagnostic
   }
 }
 
-function validateCoreState(state: LifeOSDailyState, items: DataQualityDiagnostic[]): void {
+function validateCoreState(state: JeevyaDailyState, items: DataQualityDiagnostic[]): void {
   if (!isValidCivilDate(state.date)) {
     addDiagnostic(items, {
       domain: 'integration', status: 'degraded', severity: 'critical', issue: 'Invalid integration date',
-      description: 'The cross-module snapshot is using an invalid civil date.', affectedArea: 'LifeOS integration', actionable: false, stableId: 'data-quality:integration:invalid-date',
+      description: 'The cross-module snapshot is using an invalid civil date.', affectedArea: 'Jeevya integration', actionable: false, stableId: 'data-quality:integration:invalid-date',
     });
   }
   if (!state.tasks || !state.habits || !state.health || !state.nutrition || !state.finance || !state.books || !state.journal || !Array.isArray(state.goals)) {
     addDiagnostic(items, {
       domain: 'integration', status: 'degraded', severity: 'critical', issue: 'Incomplete integration snapshot',
-      description: 'A required section of the cross-module read model is missing.', affectedArea: 'LifeOS integration', actionable: false, stableId: 'data-quality:integration:incomplete-snapshot',
+      description: 'A required section of the cross-module read model is missing.', affectedArea: 'Jeevya integration', actionable: false, stableId: 'data-quality:integration:incomplete-snapshot',
     });
   }
 }
@@ -231,7 +231,7 @@ function validatePlanAndPulse(items: DataQualityDiagnostic[], plan?: DailyPlanMo
   for (const item of pulse?.items ?? []) validateRoute(items, item.source === 'health' ? 'health' : item.source, `daily-pulse:${item.id}`, item.navigationTarget, 'Daily Pulse');
 }
 
-const SYNC_CONFLICTS_KEY = 'lifeos:sync:conflicts';
+const SYNC_CONFLICTS_KEY = 'jeevya:sync:conflicts';
 const SYNC_DOMAINS = new Set(['tasks', 'habits', 'books', 'journal', 'finance', 'nutrition', 'workout', 'sleep']);
 
 async function readSyncConflictDiagnostics(): Promise<{ conflicts: SyncConflict[]; malformed: number; duplicateIds: number; unsupportedDomains: number; invalidStatuses: number; stalePending: number }> {
@@ -265,7 +265,7 @@ function validateSyncConflicts(items: DataQualityDiagnostic[], conflicts: SyncCo
 }
 
 export function buildDataQualityModel(
-  state: LifeOSDailyState,
+  state: JeevyaDailyState,
   options: { plan?: DailyPlanModel; pulse?: DailyPulseModel; syncConflicts?: SyncConflict[] } = {},
 ): DataQualityModel {
   const items: DataQualityDiagnostic[] = [];
@@ -306,7 +306,7 @@ export function buildDataQualityModel(
 
 export async function getDataQuality(date: string = todayCivilDate()): Promise<DataQualityModel> {
   try {
-    const state = await getLifeOSDailyState(date);
+    const state = await getJeevyaDailyState(date);
     const syncDiagnostics = await readSyncConflictDiagnostics();
     const model = buildDataQualityModel(state, { syncConflicts: syncDiagnostics.conflicts });
     const syncIssues: DataQualityDiagnostic[] = [];

@@ -201,7 +201,7 @@ function assert(condition: unknown, message: string) {
   await check('analytics result is deep isolated', async () => { const a = await getHealthAnalytics('7d'); a.workout.exerciseMetrics.push({ exerciseId: 'mutated' }); a.trend[0].date = 'changed'; const b = await getHealthAnalytics('7d'); assert(!b.workout.exerciseMetrics.some(x => x.exerciseId === 'mutated'), 'nested isolation'); assert(b.trend[0].date !== 'changed', 'trend isolation'); });
   await check('source workouts are not mutated', async () => { const before = JSON.stringify(await loadData(WORKOUTS_KEY, [])); await getHealthAnalytics('7d'); const after = JSON.stringify(await loadData(WORKOUTS_KEY, [])); assert(before === after, 'workout immutability'); });
   await check('source sleep is not mutated', async () => { const before = JSON.stringify(await loadData(SLEEP_KEY, [])); await getHealthAnalytics('7d'); const after = JSON.stringify(await loadData(SLEEP_KEY, [])); assert(before === after, 'sleep immutability'); });
-  await check('analytics has no storage key', async () => assert(await loadData('lifeos:health:analytics', null) === null, 'no analytics storage'));
+  await check('analytics has no storage key', async () => assert(await loadData('jeevya:health:analytics', null) === null, 'no analytics storage'));
   await check('sleep list remains isolated', async () => { const e = (await listSleepEntries())[0]; e.durationMinutes = 1; assert((await listSleepEntries())[0].durationMinutes !== 1, 'sleep service isolation'); });
   await check('workout history remains isolated', async () => { const h = await getWorkoutHistory({ fromDate: shift(TODAY, -6), toDate: TODAY }); h.workouts[0].name = 'mutated'; const h2 = await getWorkoutHistory({ fromDate: shift(TODAY, -6), toDate: TODAY }); assert(h2.workouts[0].name !== 'mutated', 'history isolation'); });
 
@@ -217,7 +217,7 @@ function assert(condition: unknown, message: string) {
   await check('Phase 2F regression: sleep list', async () => assert((await listSleepEntries()).length === 9, '2F'));
   await check('Phase 2F regression: sleep duration derived', async () => assert((await listSleepEntries()).find(x => x.date === TODAY).durationMinutes === 510, '2F duration'));
   await check('Phase 2G regression: recovery formula', async () => { const r = await getRecoveryForDate(TODAY); assert(r.readinessScore === Math.round(r.sleepScore * .5 + r.trainingLoadScore * .3 + r.consistencyScore * .2), '2G formula'); });
-  await check('Phase 2G regression: recovery has no persistence', async () => assert(await loadData('lifeos:health:recovery', null) === null, '2G persistence'));
+  await check('Phase 2G regression: recovery has no persistence', async () => assert(await loadData('jeevya:health:recovery', null) === null, '2G persistence'));
 
   // Determinism and period boundary repetitions, each checks a distinct invariant.
   for (const period of ['7d', '30d', '90d', '365d', 'all'] as any[]) {

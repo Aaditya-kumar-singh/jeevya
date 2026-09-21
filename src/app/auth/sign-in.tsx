@@ -56,9 +56,9 @@ export default function SignInScreen() {
                     <ShieldCheck size={24} className="text-sky-500" />
                   </View>
                   <View className="flex-1">
-                    <Text size="xs" className="font-semibold text-sky-500 uppercase tracking-wider">LifeOS Account</Text>
+                    <Text size="xs" className="font-semibold text-sky-500 uppercase tracking-wider">Jeevya Account</Text>
                     <Heading size="xl" className="mt-1 font-bold">Sign in</Heading>
-                    <Text size="sm" className="mt-1 text-muted-foreground">Your local LifeOS data stays on this device.</Text>
+                    <Text size="sm" className="mt-1 text-muted-foreground">Your local Jeevya data stays on this device.</Text>
                   </View>
                 </View>
 

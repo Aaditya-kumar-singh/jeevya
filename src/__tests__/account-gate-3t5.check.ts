@@ -50,13 +50,13 @@ console.log('PASS account actions route through the existing sign-in/sign-up sur
 const gate = createAccountGateState({
   feature: 'cloudSync',
   title: 'Account required',
-  explanation: 'Create a free LifeOS account to use this feature.',
+  explanation: 'Create a free Jeevya account to use this feature.',
 });
 assertDeepEqual(gate, {
   visible: true,
   feature: 'cloudSync',
   title: 'Account required',
-  explanation: 'Create a free LifeOS account to use this feature.',
+  explanation: 'Create a free Jeevya account to use this feature.',
 });
 console.log('PASS account gate state is reusable and dismissible without auth-state mutation');
 
@@ -69,4 +69,4 @@ assertEqual(getAccountGateDecision('accountSettings', 'guest'), 'gate');
 assertEqual(getAccountGateDecision('accountSettings', 'authenticated'), 'allow');
 console.log('PASS account settings use the same capability-backed gate without a second auth state');
 
-console.log('LIFEOS 3T.5 ACCOUNT-GATED USER EXPERIENCE: 10 passed, 0 failed');
+console.log('JEEVYA 3T.5 ACCOUNT-GATED USER EXPERIENCE: 10 passed, 0 failed');

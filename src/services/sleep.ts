@@ -2,7 +2,7 @@ import { loadData, saveData } from '@/lib/storage';
 import { isValidDay } from '@/lib/journal-calendar';
 import { uid } from '@/lib/uid';
 
-export const SLEEP_KEY = 'lifeos:health:sleep';
+export const SLEEP_KEY = 'jeevya:health:sleep';
 export type SleepQuality = 'poor' | 'fair' | 'good' | 'excellent';
 
 export interface SleepEntry {

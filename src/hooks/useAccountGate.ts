@@ -52,7 +52,7 @@ export function useAccountGate() {
         setGate(createAccountGateState({
           feature,
           title: request?.title ?? 'Account required',
-          explanation: request?.explanation ?? 'Create a free LifeOS account to use this feature.',
+          explanation: request?.explanation ?? 'Create a free Jeevya account to use this feature.',
         }));
       }
       return false;

@@ -1,27 +1,27 @@
 import type { AuthState } from '@/types/auth';
 
-export type LifeOSAccessLevel = 'local' | 'account' | 'global';
+export type JeevyaAccessLevel = 'local' | 'account' | 'global';
 
-export type LifeOSCapability =
+export type JeevyaCapability =
   | 'tasks' | 'habits' | 'workout' | 'sleep' | 'nutrition' | 'finance' | 'books' | 'journal'
   | 'analytics' | 'weeklyReview' | 'dailyPulse' | 'dailyPlan' | 'lifeIntelligence' | 'unifiedSearch'
   | 'lifeTimeline' | 'dataQuality' | 'backup' | 'localLocation'
   | 'cloudSync' | 'crossDevice' | 'accountSettings'
   | 'globalStats' | 'leaderboard' | 'community' | 'globalChallenges' | 'locationComparison';
 
-export interface LifeOSCapabilityDefinition {
-  feature: LifeOSCapability;
-  accessLevel: LifeOSAccessLevel;
+export interface JeevyaCapabilityDefinition {
+  feature: JeevyaCapability;
+  accessLevel: JeevyaAccessLevel;
 }
 
-export interface LifeOSAccessResult {
+export interface JeevyaAccessResult {
   feature: string;
-  accessLevel: LifeOSAccessLevel | null;
+  accessLevel: JeevyaAccessLevel | null;
   allowed: boolean;
   requiresAuthentication: boolean;
 }
 
-export const LIFEOS_CAPABILITY_REGISTRY: Readonly<Record<LifeOSCapability, LifeOSCapabilityDefinition>> = {
+export const JEEVYA_CAPABILITY_REGISTRY: Readonly<Record<JeevyaCapability, JeevyaCapabilityDefinition>> = {
   tasks: { feature: 'tasks', accessLevel: 'local' },
   habits: { feature: 'habits', accessLevel: 'local' },
   workout: { feature: 'workout', accessLevel: 'local' },
@@ -50,9 +50,9 @@ export const LIFEOS_CAPABILITY_REGISTRY: Readonly<Record<LifeOSCapability, LifeO
   locationComparison: { feature: 'locationComparison', accessLevel: 'global' },
 };
 
-export function getFeatureAccess(feature: string): LifeOSCapabilityDefinition | null {
-  if (!Object.prototype.hasOwnProperty.call(LIFEOS_CAPABILITY_REGISTRY, feature)) return null;
-  return LIFEOS_CAPABILITY_REGISTRY[feature as LifeOSCapability];
+export function getFeatureAccess(feature: string): JeevyaCapabilityDefinition | null {
+  if (!Object.prototype.hasOwnProperty.call(JEEVYA_CAPABILITY_REGISTRY, feature)) return null;
+  return JEEVYA_CAPABILITY_REGISTRY[feature as JeevyaCapability];
 }
 
 export function requiresAuthentication(feature: string): boolean {
@@ -66,7 +66,7 @@ export function canAccess(feature: string, authState: AuthState): boolean {
   return definition.accessLevel === 'local' || authState === 'authenticated';
 }
 
-export function checkFeatureAccess(feature: string, authState: AuthState): LifeOSAccessResult {
+export function checkFeatureAccess(feature: string, authState: AuthState): JeevyaAccessResult {
   const definition = getFeatureAccess(feature);
   return {
     feature,

@@ -1,4 +1,4 @@
-// LIFEOS 3T.14 focused tests: comprehensive food + nutrient database expansion.
+// JEEVYA 3T.14 focused tests: comprehensive food + nutrient database expansion.
 // Run: npx tsx --import ./src/__tests__/mock-setup.ts src/__tests__/nutrition-3t14.test.ts
 
 import { saveData } from '@/lib/storage';
@@ -52,9 +52,9 @@ const byId = (id: string): FoodItem => {
 };
 
 void (async () => {
-  console.log('\n=== LIFEOS 3T.14 Comprehensive Food + Nutrient Database ===');
+  console.log('\n=== JEEVYA 3T.14 Comprehensive Food + Nutrient Database ===');
 
-  await saveData('lifeos:nutrition:foods', []);
+  await saveData('jeevya:nutrition:foods', []);
   const seed = await seedSystemFoods();
   const foods = await getSystemFoods();
   const newFoods = foods.filter((food) => food.id.startsWith('food_sys_3t14_'));

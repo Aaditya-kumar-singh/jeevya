@@ -1,9 +1,35 @@
 import type { AuthState } from '@/types/auth';
 
-export const WIDGET_CONFIG_STORAGE_KEY = 'lifeos:widgets:configurations';
+export const WIDGET_CONFIG_STORAGE_KEY = 'jeevya:widgets:configurations';
 
 export type WidgetPresetType = 'custom' | 'daily' | 'nutrition' | 'finance' | 'progress';
 export type WidgetDensity = 'compact' | 'detailed';
+export type WidgetSize = 'small' | 'medium' | 'large';
+export type WidgetLayout = 'stack' | 'split' | 'grid' | 'hero_list';
+
+export interface WidgetTheme {
+  backgroundColor: string;
+  opacity: number;
+  accentColor: string;
+  textColor: string;
+  radius: number;
+}
+
+export interface WidgetSlotConfig {
+  slotId: string;
+  module: WidgetModule;
+  enabled: boolean;
+  metricKeys?: string[];
+  customTitle?: string;
+}
+
+export const DEFAULT_WIDGET_THEME: WidgetTheme = {
+  backgroundColor: '#FFFFFF',
+  opacity: 1,
+  accentColor: '#6366F1',
+  textColor: '#0F0F19',
+  radius: 18,
+};
 
 export type WidgetModule =
   | 'tasks' | 'habits' | 'workout' | 'sleep' | 'recovery'
@@ -17,6 +43,10 @@ export interface WidgetConfiguration {
   preset: WidgetPresetType;
   density: WidgetDensity;
   modules: WidgetModule[];
+  slots?: WidgetSlotConfig[];
+  size?: WidgetSize;
+  layout?: WidgetLayout;
+  theme?: WidgetTheme;
   selectedMetrics?: string[];
   displayPreferences?: Record<string, string | number | boolean>;
   createdAt: string;
@@ -40,6 +70,9 @@ export interface WidgetSnapshot {
   date: string;
   generatedAt: string;
   density: WidgetDensity;
+  size?: WidgetSize;
+  layout?: WidgetLayout;
+  theme?: WidgetTheme;
   title?: string;
   modules: WidgetModuleSnapshot[];
   degradedDomains: string[];
@@ -53,6 +86,13 @@ export interface WidgetConfigurationStoreResult {
 export interface WidgetProjectionContext {
   authState?: AuthState;
 }
+
+export const WIDGET_MODULE_LABELS: Record<WidgetModule, string> = {
+  tasks: 'Tasks', habits: 'Habits', workout: 'Workout', sleep: 'Sleep', recovery: 'Recovery',
+  calories: 'Calories', protein: 'Protein', carbohydrates: 'Carbohydrates', fat: 'Fat', water: 'Water',
+  finance_spending: 'Spending', finance_budget: 'Budget', savings: 'Savings', books: 'Books', goals: 'Goals',
+  daily_pulse: 'Daily Pulse', daily_plan: 'Daily Plan', life_intelligence: 'Life Intelligence',
+};
 
 export const WIDGET_MODULES: readonly WidgetModule[] = [
   'tasks', 'habits', 'workout', 'sleep', 'recovery',
@@ -103,6 +143,30 @@ export function normalizeWidgetConfiguration(value: unknown, now: string): Widge
   const preset: WidgetPresetType = raw.preset === 'daily' || raw.preset === 'nutrition' || raw.preset === 'finance' || raw.preset === 'progress' ? raw.preset : 'custom';
   const density: WidgetDensity = raw.density === 'detailed' ? 'detailed' : 'compact';
   const metrics = Array.isArray(raw.selectedMetrics) ? raw.selectedMetrics.filter((item): item is string => typeof item === 'string').slice(0, 50) : [];
+  const size: WidgetSize = raw.size === 'small' || raw.size === 'large' ? raw.size : 'medium';
+  const layout: WidgetLayout = raw.layout === 'split' || raw.layout === 'grid' || raw.layout === 'hero_list' ? raw.layout : 'stack';
+  const rawSlots = Array.isArray(raw.slots) ? raw.slots : [];
+  const slots: WidgetSlotConfig[] = rawSlots.reduce<WidgetSlotConfig[]>((result, slot, index) => {
+    const item = slot as Record<string, unknown>;
+    const module = isWidgetModule(item.module) ? item.module : modules[index];
+    if (!module) return result;
+    result.push({
+      slotId: typeof item.slotId === 'string' && item.slotId ? item.slotId : 'slot_' + (index + 1),
+      module,
+      enabled: item.enabled !== false,
+      ...(Array.isArray(item.metricKeys) ? { metricKeys: item.metricKeys.filter((value): value is string => typeof value === 'string').slice(0, 20) } : {}),
+      ...(typeof item.customTitle === 'string' ? { customTitle: item.customTitle.slice(0, 50) } : {}),
+    });
+    return result;
+  }, []).slice(0, 12);
+  const themeRaw = raw.theme && typeof raw.theme === 'object' ? raw.theme as Record<string, unknown> : {};
+  const theme: WidgetTheme = {
+    backgroundColor: typeof themeRaw.backgroundColor === 'string' ? themeRaw.backgroundColor : DEFAULT_WIDGET_THEME.backgroundColor,
+    opacity: typeof themeRaw.opacity === 'number' ? Math.max(0.35, Math.min(1, themeRaw.opacity)) : DEFAULT_WIDGET_THEME.opacity,
+    accentColor: typeof themeRaw.accentColor === 'string' ? themeRaw.accentColor : DEFAULT_WIDGET_THEME.accentColor,
+    textColor: typeof themeRaw.textColor === 'string' ? themeRaw.textColor : DEFAULT_WIDGET_THEME.textColor,
+    radius: typeof themeRaw.radius === 'number' ? Math.max(8, Math.min(32, themeRaw.radius)) : DEFAULT_WIDGET_THEME.radius,
+  };
   const preferences = raw.displayPreferences && typeof raw.displayPreferences === 'object' ? Object.fromEntries(
     Object.entries(raw.displayPreferences as Record<string, unknown>).filter(([, item]) => ['string', 'number', 'boolean'].includes(typeof item)) as [string, string | number | boolean][],
   ) : undefined;
@@ -112,6 +176,10 @@ export function normalizeWidgetConfiguration(value: unknown, now: string): Widge
     preset,
     density,
     modules,
+    slots: slots.length ? slots : modules.map((module, index) => ({ slotId: 'slot_' + (index + 1), module, enabled: true })),
+    size,
+    layout,
+    theme,
     selectedMetrics: metrics,
     ...(preferences && Object.keys(preferences).length ? { displayPreferences: preferences } : {}),
     createdAt: typeof raw.createdAt === 'string' ? raw.createdAt : now,

@@ -652,7 +652,7 @@ export function getNowISO(): string {
 
 /**
  * Today's date as YYYY-MM-DD (same UTC date-part convention used across
- * LifeOS — consistent with task due dates and goal windows).
+ * Jeevya — consistent with task due dates and goal windows).
  */
 export function getTodayDate(): string {
   return todayCivilDate();

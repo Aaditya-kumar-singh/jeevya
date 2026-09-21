@@ -1,7 +1,7 @@
 // @ts-nocheck
 import {saveData,loadData} from '@/lib/storage'; import {listSleepEntries,SLEEP_KEY} from '@/services/sleep'; import {calculateSleepScore,calculateTrainingLoadScore,calculateConsistencyScore,calculateReadinessScore,getReadinessLevel,getRecoveryForDate,getRecoveryForDateRange} from '@/services/recovery';
 require('./mock-setup');
-const WK='lifeos:workouts:sessions'; let n=0,fail=0; const assert=(x,m)=>{n++;if(!x){fail++;throw Error(m)}}; const rawSleep=(date,dur)=>({id:`s${date}`,date,sleepStart:`${date}T22:00:00.000Z`,sleepEnd:new Date(Date.parse(`${date}T22:00:00.000Z`)+dur*60000).toISOString(),durationMinutes:dur,quality:'good',createdAt:`${date}T08:00:00.000Z`,updatedAt:`${date}T08:00:00.000Z`}); const rawWorkout=(id,date,seconds,status='completed')=>({id,name:id,status,createdAt:`${date}T18:00:00.000Z`,startedAt:`${date}T18:00:00.000Z`,completedAt:status==='completed'?`${date}T19:00:00.000Z`:null,durationSeconds:seconds,exercises:[]});
+const WK='jeevya:workouts:sessions'; let n=0,fail=0; const assert=(x,m)=>{n++;if(!x){fail++;throw Error(m)}}; const rawSleep=(date,dur)=>({id:`s${date}`,date,sleepStart:`${date}T22:00:00.000Z`,sleepEnd:new Date(Date.parse(`${date}T22:00:00.000Z`)+dur*60000).toISOString(),durationMinutes:dur,quality:'good',createdAt:`${date}T08:00:00.000Z`,updatedAt:`${date}T08:00:00.000Z`}); const rawWorkout=(id,date,seconds,status='completed')=>({id,name:id,status,createdAt:`${date}T18:00:00.000Z`,startedAt:`${date}T18:00:00.000Z`,completedAt:status==='completed'?`${date}T19:00:00.000Z`:null,durationSeconds:seconds,exercises:[]});
 async function check(m,f){try{await f();console.log('PASS',++n,m)}catch(e){console.error('FAIL',m,e.message)}}
 (async()=>{await saveData(SLEEP_KEY,[]);await saveData(WK,[]);
 for(const [v,s] of [[480,100],[479.9,85],[420,85],[419.9,70],[360,70],[359.9,50],[300,50],[299.9,30],[1,30],[0,null],[-1,null],[NaN,null],[Infinity,null]])await check(`sleep ${v}`,async()=>assert(calculateSleepScore(v)===s,'sleep'));
@@ -24,7 +24,7 @@ await check('derived isolation',async()=>{const r=await getRecoveryForDate('2026
 await check('source sleep isolation',async()=>{const e=(await listSleepEntries())[0];e.durationMinutes=1;assert((await listSleepEntries())[0].durationMinutes===480,'source')});
 await check('range',async()=>assert((await getRecoveryForDateRange('2026-09-11','2026-09-13')).length===3,'range')); await check('empty range',async()=>assert((await getRecoveryForDateRange('2026-09-14','2026-09-13')).length===0,'range'));
 for(let i=0;i<70;i++)await check(`deterministic-${i}`,async()=>assert(calculateReadinessScore(85,90,100)===90,'det'));
-await check('canonical sleep key only',async()=>assert(await loadData(SLEEP_KEY,[]) instanceof Array,'key')); await check('no recovery storage',async()=>assert(await loadData('lifeos:health:recovery',null)===null,'no recovery'));
+await check('canonical sleep key only',async()=>assert(await loadData(SLEEP_KEY,[]) instanceof Array,'key')); await check('no recovery storage',async()=>assert(await loadData('jeevya:health:recovery',null)===null,'no recovery'));
 console.log(`Phase 2G: ${n} passed, ${fail} failed`);process.exit(fail?1:0)})();
 
 

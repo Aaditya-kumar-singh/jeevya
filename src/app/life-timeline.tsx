@@ -76,9 +76,9 @@ export default function LifeTimelineScreen() {
         <View className="flex-row items-center gap-3">
           <Button variant="ghost" size="icon" onPress={() => router.back()}><ArrowLeft size={20} /></Button>
           <View className="flex-1">
-            <Text size="sm" className="text-muted-foreground">LifeOS · History</Text>
+            <Text size="sm" className="text-muted-foreground">Jeevya · History</Text>
             <Heading size="xl" className="mt-1">Life Timeline</Heading>
-            <Text size="sm" className="mt-1 text-muted-foreground">A read-only history across your LifeOS systems</Text>
+            <Text size="sm" className="mt-1 text-muted-foreground">A read-only history across your Jeevya systems</Text>
           </View>
           <Clock3 size={24} className="text-primary" />
         </View>
@@ -134,7 +134,7 @@ export default function LifeTimelineScreen() {
           <Card className="items-center p-6">
             <Clock3 size={28} className="text-muted-foreground" />
             <Heading size="md" className="mt-3">No timeline events</Heading>
-            <Text size="sm" className="mt-1 text-center text-muted-foreground">Historical activity will appear here as you use LifeOS.</Text>
+            <Text size="sm" className="mt-1 text-center text-muted-foreground">Historical activity will appear here as you use Jeevya.</Text>
           </Card>
         ) : (
           <View className="gap-3">

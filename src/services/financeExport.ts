@@ -146,7 +146,7 @@ export function generateTransactionsCsv(
   ]);
 
   const datePart = filter === 'selected-month' && selectedMonth ? selectedMonth : formatDateKey();
-  const filename = `lifeos-transactions-${datePart}.csv`;
+  const filename = `jeevya-transactions-${datePart}.csv`;
 
   return { csv: buildCsv(headers, rows), filename };
 }
@@ -171,7 +171,7 @@ export function generateAccountsCsv(accounts: FinanceAccount[]): {
 
   return {
     csv: buildCsv(headers, rows),
-    filename: `lifeos-accounts-${formatDateKey()}.csv`,
+    filename: `jeevya-accounts-${formatDateKey()}.csv`,
   };
 }
 
@@ -196,7 +196,7 @@ export function generateBudgetsCsv(
 
   return {
     csv: buildCsv(headers, rows),
-    filename: `lifeos-budgets-${formatDateKey()}.csv`,
+    filename: `jeevya-budgets-${formatDateKey()}.csv`,
   };
 }
 
@@ -239,7 +239,7 @@ export function generateSavingsGoalsCsv(goals: FinanceSavingsGoal[]): {
 
   return {
     csv: buildCsv(headers, rows),
-    filename: `lifeos-savings-goals-${formatDateKey()}.csv`,
+    filename: `jeevya-savings-goals-${formatDateKey()}.csv`,
   };
 }
 
@@ -270,7 +270,7 @@ export function generateJsonBackup(
 ): { json: string; filename: string } {
   const backup: FinanceBackup = {
     metadata: {
-      app: 'LifeOS',
+      app: 'Jeevya',
       module: 'finance',
       exportedAt: new Date().toISOString(),
       schemaVersion: '1.0',
@@ -286,7 +286,7 @@ export function generateJsonBackup(
 
   return {
     json: JSON.stringify(backup, null, 2),
-    filename: `lifeos-finance-backup-${formatDateKey()}.json`,
+    filename: `jeevya-finance-backup-${formatDateKey()}.json`,
   };
 }
 

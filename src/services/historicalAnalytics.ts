@@ -21,9 +21,9 @@ import type {
 } from '@/types/historicalAnalytics';
 
 const KEYS = {
-  tasks: 'lifeos:tasks', habits: 'lifeos:habits', habitLogs: 'lifeos:habit-logs', books: 'lifeos:books', progress: 'lifeos:book-progress',
-  bookGoals: 'lifeos:book-goals', journal: 'lifeos:journal', transactions: 'lifeos:finance:transactions', savingsGoals: 'lifeos:finance:savings-goals',
-  foodLogs: 'lifeos:nutrition:food-logs', workouts: 'lifeos:workouts:sessions', sleep: 'lifeos:health:sleep',
+  tasks: 'jeevya:tasks', habits: 'jeevya:habits', habitLogs: 'jeevya:habit-logs', books: 'jeevya:books', progress: 'jeevya:book-progress',
+  bookGoals: 'jeevya:book-goals', journal: 'jeevya:journal', transactions: 'jeevya:finance:transactions', savingsGoals: 'jeevya:finance:savings-goals',
+  foodLogs: 'jeevya:nutrition:food-logs', workouts: 'jeevya:workouts:sessions', sleep: 'jeevya:health:sleep',
 } as const;
 
 const DOMAIN_ORDER: HistoricalAnalyticsDomain[] = ['tasks', 'habits', 'workout', 'sleep', 'recovery', 'nutrition', 'finance', 'books', 'journal', 'goals'];

@@ -11,7 +11,7 @@ export function useLifeIntelligence(initialDate: CivilDate = todayCivilDate()) {
   const load = useCallback(async (nextDate: CivilDate = date) => {
     setLoading(true); setError(null);
     try { const result = await getLifeIntelligence(nextDate); setData(result); setDate(nextDate); return result; }
-    catch (cause) { const message = cause instanceof Error ? cause.message : 'Failed to load LifeOS intelligence'; setError(message); throw cause; }
+    catch (cause) { const message = cause instanceof Error ? cause.message : 'Failed to load Jeevya intelligence'; setError(message); throw cause; }
     finally { setLoading(false); }
   }, [date]);
   useEffect(() => {

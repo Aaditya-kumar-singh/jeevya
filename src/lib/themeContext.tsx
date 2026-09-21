@@ -9,7 +9,8 @@ import {
 } from '@/constants/theme';
 import { loadData, saveData } from '@/lib/storage';
 
-const THEME_STORAGE_KEY = '@lifeos_selected_theme_id';
+// Keep the storage key stable so existing users retain their selected theme across the Jeevya rebrand.
+const THEME_STORAGE_KEY = '@jeevya_selected_theme_id';
 
 interface ThemeContextValue {
   theme: ThemeDefinition;
@@ -73,7 +74,7 @@ const ThemeContext = createContext<ThemeContextValue>({
   themes: THEMES,
 });
 
-export function LifeOSThemeProvider({ children }: { children: React.ReactNode }) {
+export function JeevyaThemeProvider({ children }: { children: React.ReactNode }) {
   const [themeId, setThemeIdState] = useState<ThemeId>(DEFAULT_THEME_ID);
   const { setColorScheme } = useNativeWindColorScheme();
 

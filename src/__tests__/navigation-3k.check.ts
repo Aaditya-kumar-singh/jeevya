@@ -1,4 +1,4 @@
-// LifeOS 3K: cross-module navigation and action coverage audit tests.
+// Jeevya 3K: cross-module navigation and action coverage audit tests.
 // This test derives the route set from src/app instead of introducing a second route registry.
 // @ts-nocheck
 /* eslint-disable */
@@ -185,7 +185,7 @@ async function setupStorage() {
   const { saveData } = await import('@/lib/storage');
   const { todayCivilDate } = await import('@/lib/date');
   const { buildDailyPulse } = await import('@/services/dailyPulse');
-  const { searchLifeOS } = await import('@/services/unifiedSearch');
+  const { searchJeevya } = await import('@/services/unifiedSearch');
   const date = todayCivilDate();
 
   const baseState = {
@@ -254,21 +254,21 @@ async function setupStorage() {
   const transaction = { id: 'search-transaction-3k', accountId: account.id, type: 'expense', amount: 120, categoryId: 'cat-3k', title: 'Search target transaction', note: 'target', date, createdAt: `${date}T08:00:00.000Z`, updatedAt: `${date}T08:00:00.000Z` };
 
   await AsyncStorage.multiSet([
-    ['lifeos:tasks', JSON.stringify([task])],
-    ['lifeos:habits', JSON.stringify([habit])],
-    ['lifeos:books', JSON.stringify([book])],
-    ['lifeos:journal', JSON.stringify([journal])],
-    ['lifeos:finance:accounts', JSON.stringify([account])],
-    ['lifeos:finance:transactions', JSON.stringify([transaction])],
-    ['lifeos:book-goals', '[]'],
-    ['lifeos:nutrition:foods', '[]'],
-    ['lifeos:nutrition:food-logs', '[]'],
-    ['lifeos:nutrition:recipes', '[]'],
-    ['lifeos:nutrition:body-profile', 'null'],
-    ['lifeos:nutrition:energy-activities', '[]'],
+    ['jeevya:tasks', JSON.stringify([task])],
+    ['jeevya:habits', JSON.stringify([habit])],
+    ['jeevya:books', JSON.stringify([book])],
+    ['jeevya:journal', JSON.stringify([journal])],
+    ['jeevya:finance:accounts', JSON.stringify([account])],
+    ['jeevya:finance:transactions', JSON.stringify([transaction])],
+    ['jeevya:book-goals', '[]'],
+    ['jeevya:nutrition:foods', '[]'],
+    ['jeevya:nutrition:food-logs', '[]'],
+    ['jeevya:nutrition:recipes', '[]'],
+    ['jeevya:nutrition:body-profile', 'null'],
+    ['jeevya:nutrition:energy-activities', '[]'],
   ]);
 
-  const result = await searchLifeOS('target', date);
+  const result = await searchJeevya('target', date);
   const expectedRoutes: Record<string, string> = {
     tasks: `/tasks/${task.id}`,
     habits: `/habits/${habit.id}`,
@@ -284,13 +284,13 @@ async function setupStorage() {
   console.log('PASS Unified Search result routes, including finance detail');
   passed++;
 
-  await saveData('lifeos:tasks', []);
-  await saveData('lifeos:habits', []);
-  await saveData('lifeos:books', []);
-  await saveData('lifeos:journal', []);
-  await saveData('lifeos:finance:accounts', []);
-  await saveData('lifeos:finance:transactions', []);
-  const emptySearch = await searchLifeOS('target', date);
+  await saveData('jeevya:tasks', []);
+  await saveData('jeevya:habits', []);
+  await saveData('jeevya:books', []);
+  await saveData('jeevya:journal', []);
+  await saveData('jeevya:finance:accounts', []);
+  await saveData('jeevya:finance:transactions', []);
+  const emptySearch = await searchJeevya('target', date);
   assert(emptySearch.results.length === 0, 'deleted records must disappear from search results');
   console.log('PASS deleted records fail safely through search');
   passed++;
@@ -324,7 +324,7 @@ async function setupStorage() {
   console.log('PASS finance search uses transaction detail destination');
   passed++;
 
-  console.log(`LIFEOS 3K NAVIGATION: ${passed} passed, 0 failed`);
+  console.log(`JEEVYA 3K NAVIGATION: ${passed} passed, 0 failed`);
 })().catch((error) => {
   console.error(error);
   process.exitCode = 1;

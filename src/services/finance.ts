@@ -15,11 +15,11 @@ import {
 
 // ─── Storage Keys ─────────────────────────────────────────────────────────────
 
-const ACCOUNTS_KEY = 'lifeos:finance:accounts';
-const TRANSACTIONS_KEY = 'lifeos:finance:transactions';
-const CATEGORIES_KEY = 'lifeos:finance:categories';
-const BUDGETS_KEY = 'lifeos:finance:budgets';
-const SAVINGS_GOALS_KEY = 'lifeos:finance:savings-goals';
+const ACCOUNTS_KEY = 'jeevya:finance:accounts';
+const TRANSACTIONS_KEY = 'jeevya:finance:transactions';
+const CATEGORIES_KEY = 'jeevya:finance:categories';
+const BUDGETS_KEY = 'jeevya:finance:budgets';
+const SAVINGS_GOALS_KEY = 'jeevya:finance:savings-goals';
 
 // ─── Input Types ──────────────────────────────────────────────────────────────
 

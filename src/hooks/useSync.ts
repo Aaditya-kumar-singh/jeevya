@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
-import { getPendingConflicts, getSyncStatus, resolveConflictKeepLocal, resolveConflictKeepRemote, synchronizeLifeOS } from '@/services/sync';
+import { getPendingConflicts, getSyncStatus, resolveConflictKeepLocal, resolveConflictKeepRemote, synchronizeJeevya } from '@/services/sync';
 import type { SyncConflict, SyncConflictResolutionResult, SyncResult, SyncStatus } from '@/types/sync';
 
 const DEFAULT_STATUS: SyncStatus = { state: 'idle', lastSyncedAt: null, conflicts: 0, message: 'Ready to synchronize.' };
@@ -15,7 +15,7 @@ export function useSync() {
 
   const sync = useCallback(async (): Promise<SyncResult> => {
     setStatus((current) => ({ ...current, state: 'syncing', message: 'Synchronizing local data with Supabase.' }));
-    const result = await synchronizeLifeOS();
+    const result = await synchronizeJeevya();
     const pending = await getPendingConflicts();
     setStatus({ state: result.state, lastSyncedAt: result.state === 'synced' || result.state === 'conflict_pending' ? new Date().toISOString() : null, conflicts: pending.length, message: result.message });
     setConflicts(pending);

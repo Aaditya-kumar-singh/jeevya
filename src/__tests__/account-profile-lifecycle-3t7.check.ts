@@ -1,4 +1,4 @@
-// LIFEOS 3T.7: account profile + account lifecycle UX.
+// JEEVYA 3T.7: account profile + account lifecycle UX.
 // @ts-nocheck
 import fs from 'node:fs';
 
@@ -149,7 +149,7 @@ const assert = (condition, message) => { if (!condition) throw new Error(message
   });
 
   await check('3R and 3S remain untouched by account UI', async () => {
-    assert(syncSource.includes('synchronizeLifeOS'), '3R sync entry point missing');
+    assert(syncSource.includes('synchronizeJeevya'), '3R sync entry point missing');
     assert(syncSource.includes('getCurrentSessionUserId'), '3R session identity bridge missing');
     assert(syncSource.includes('getConflicts'), '3S conflict handling missing');
     assert(!settingsSource.includes('resolveConflict') && !settingsSource.includes('setConflict'), 'account UI modifies 3S conflict behavior');
@@ -166,5 +166,5 @@ const assert = (condition, message) => { if (!condition) throw new Error(message
 
   Object.defineProperty(supabase.auth, 'getSession', { configurable: true, writable: true, value: originalGetSession });
   Object.defineProperty(supabase.auth, 'signOut', { configurable: true, writable: true, value: originalSignOut });
-  console.log(`LIFEOS 3T.7 ACCOUNT PROFILE + ACCOUNT LIFECYCLE UX: ${passed} passed, 0 failed`);
+  console.log(`JEEVYA 3T.7 ACCOUNT PROFILE + ACCOUNT LIFECYCLE UX: ${passed} passed, 0 failed`);
 })().catch((error) => { console.error(error); process.exitCode = 1; });

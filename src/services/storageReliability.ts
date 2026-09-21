@@ -18,7 +18,7 @@ function normalizedKeys(keys: string[]): string[] {
 /**
  * Run a local storage operation under an exclusive lock for the supplied keys.
  * Locks are process-local and intentionally provide no database/transaction
- * semantics. They only prevent overlapping LifeOS operations from interleaving.
+ * semantics. They only prevent overlapping Jeevya operations from interleaving.
  */
 export async function withStorageLock<T>(keys: string[], operation: () => Promise<T>): Promise<T> {
   const lockKeys = normalizedKeys(keys);

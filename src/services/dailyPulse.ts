@@ -1,5 +1,5 @@
 import { daysBetweenInclusive, isValidCivilDate } from '@/lib/date';
-import type { LifeOSDailyState } from '@/types/lifeosIntegration';
+import type { JeevyaDailyState } from '@/types/jeevyaIntegration';
 
 export type PulsePriority = 'critical' | 'high' | 'medium' | 'low';
 export type PulseCategory = 'today' | 'attention' | 'progress' | 'positive';
@@ -56,7 +56,7 @@ function add(items: DailyPulseItem[], item: DailyPulseItem | null): void {
   if (item) items.push(item);
 }
 
-function nutritionItems(state: LifeOSDailyState): DailyPulseItem[] {
+function nutritionItems(state: JeevyaDailyState): DailyPulseItem[] {
   const items: DailyPulseItem[] = [];
   const { summary, targets } = state.nutrition;
   const calories = summary.totals.calories;
@@ -141,7 +141,7 @@ function habitAction(id: string | undefined): Pick<DailyPulseItem, 'actionType' 
     : { actionType: 'navigate', actionLabel: 'Open Habits' };
 }
 
-export function buildDailyPulse(state: LifeOSDailyState): DailyPulseModel {
+export function buildDailyPulse(state: JeevyaDailyState): DailyPulseModel {
   const items: DailyPulseItem[] = [];
 
   if (state.tasks.overdue > 0) {

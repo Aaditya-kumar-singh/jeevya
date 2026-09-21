@@ -116,7 +116,7 @@ async function main() {
   await check('progression output is independently mutable', async () => { const p = await getExerciseProgression('bench'); p.points[0].bestWeightKg = 9999; assert((await getExerciseProgression('bench')).points[0].bestWeightKg === 80, 'shared progression'); });
   await check('performance output is independently mutable', async () => { const p = await getLatestExercisePerformance('bench'); p!.bestReps = 9999; assert((await getLatestExercisePerformance('bench'))!.bestReps === 15, 'shared performance'); });
   await check('history storage is unchanged by PR reads', async () => { const before = JSON.stringify(await getWorkout('second')); await getExercisePRs('bench'); await getExerciseProgression('bench'); assert(JSON.stringify(await getWorkout('second')) === before, 'historical mutation'); });
-  await check('canonical storage remains source', async () => assert(store.has(WORKOUTS_KEY) && !store.has('lifeos:workouts:progression'), 'duplicate progression storage'));
+  await check('canonical storage remains source', async () => assert(store.has(WORKOUTS_KEY) && !store.has('jeevya:workouts:progression'), 'duplicate progression storage'));
   await check('malformed root is safe', async () => { await seed({ malformed: true }); assert((await getExercisePRs('bench')).length === 0, 'malformed root'); });
   await check('invalid numeric values do not create PRs', async () => { await seed([session('invalid', '2026-09-13', 'bench', [set('nan', 'bench', 1, { reps: Number.NaN, weightKg: Number.NaN }), set('inf', 'bench', 2, { reps: Infinity, weightKg: Infinity }), set('neg', 'bench', 3, { reps: -4, weightKg: -5 }), set('zero', 'bench', 4, { reps: 0, weightKg: 0 })])]); assert((await getExercisePRs('bench')).length === 0, 'invalid PR'); });
   await check('ties prefer newest session', async () => { await seed([session('older', '2026-09-01', 'bench', [set('older-s', 'bench', 1, { reps: 10, weightKg: 100 })]), session('newer', '2026-09-12', 'bench', [set('newer-s', 'bench', 1, { reps: 10, weightKg: 100 })])]); const pr = (await getExercisePRs('bench')).find((x) => x.recordType === 'max_weight')!; assert(pr.sessionId === 'newer' && pr.setId === 'newer-s', 'tie break'); });
@@ -131,8 +131,8 @@ async function main() {
   await check('progression session names are retained', async () => assert((await getExerciseProgression('bench')).points.every((x) => x.sessionName.length > 0), 'session names'));
   await check('cancelled records remain persisted', async () => { await seed([cancelled]); assert((await getWorkout('cancelled'))?.status === 'cancelled', 'cancelled lost'); });
   await check('in-progress records remain persisted', async () => { await seed([active]); assert((await getWorkout('active'))?.status === 'in_progress', 'active lost'); });
-  await check('no progression storage is created', async () => assert(!store.has('lifeos:workouts:progression'), 'progression storage'));
-  await check('no PR storage is created', async () => assert(!store.has('lifeos:workouts:prs'), 'PR storage'));
+  await check('no progression storage is created', async () => assert(!store.has('jeevya:workouts:progression'), 'progression storage'));
+  await check('no PR storage is created', async () => assert(!store.has('jeevya:workouts:prs'), 'PR storage'));
   await check('first progression current 1RM is available when valid', async () => { await seed([session('one', '2026-09-01', 'bench', [set('one-s', 'bench', 1, { weightKg: 60, reps: 5 })])]); assert((await getExerciseProgression('bench')).currentEstimatedOneRepMax === 70, 'first 1RM'); });
   await check('previous is null for one session', async () => assert((await getExerciseProgression('bench')).previousEstimatedOneRepMax === null, 'one-session previous'));
   await check('change is null for one session', async () => { const p = await getExerciseProgression('bench'); assert(p.weightChange === null && p.repsChange === null && p.volumeChange === null && p.estimatedOneRepMaxChange === null, 'one-session change'); });
@@ -181,8 +181,8 @@ async function main() {
   await check('unknown previous is null', async () => assert(await getPreviousExercisePerformance('unknown') === null, 'unknown previous'));
   await check('unknown best 1RM is null', async () => assert(await getBestEstimatedOneRepMax('unknown') === null, 'unknown best'));
   await check('historical session survives progression reads', async () => { const before = JSON.stringify(await getWorkout('b')); await getExercisePRs('bench'); await getExerciseProgression('bench'); assert(JSON.stringify(await getWorkout('b')) === before, 'overwrite'); });
-  await check('no progression storage key exists', async () => assert(!store.has('lifeos:workouts:progression'), 'progression storage'));
-  await check('no PR storage key exists', async () => assert(!store.has('lifeos:workouts:prs'), 'PR storage'));
+  await check('no progression storage key exists', async () => assert(!store.has('jeevya:workouts:progression'), 'progression storage'));
+  await check('no PR storage key exists', async () => assert(!store.has('jeevya:workouts:prs'), 'PR storage'));
   await check('first performance has no previous', async () => { await seed([session('one', '2026-09-01', 'bench', [set('one-s', 'bench', 1, { weightKg: 60, reps: 5 })])]); const p = await getExerciseProgression('bench'); assert(p.previousPerformance === null && p.weightChange === null && p.repsChange === null && p.volumeChange === null, 'first performance'); });
   await check('first performance 1RM is 70', async () => assert((await getExerciseProgression('bench')).currentEstimatedOneRepMax === 70, 'first current 1RM'));
   await check('first performance best 1RM is 70', async () => assert(await getBestEstimatedOneRepMax('bench') === 70, 'first best 1RM'));

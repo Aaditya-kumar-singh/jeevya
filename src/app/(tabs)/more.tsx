@@ -60,7 +60,7 @@ export default function MoreScreen() {
             <View className="flex-row items-center justify-between">
               <View>
                 <Text size="xs" className="font-semibold text-amber-500 uppercase tracking-wider">
-                  LifeOS Core Engine
+                  Jeevya Core Engine
                 </Text>
                 <Heading size="xl" className="mt-1 font-bold tracking-tight text-foreground">
                   System Tools & Growth

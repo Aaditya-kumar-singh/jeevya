@@ -1,4 +1,4 @@
--- LifeOS Workout Engine — table schema + RLS.
+-- Jeevya Workout Engine — table schema + RLS.
 -- Local-first phase: the app persists to AsyncStorage today.
 -- Run this in Supabase SQL Editor when you add Supabase Auth to enable online sync.
 -- Column shapes intentionally match src/types/workout.ts and src/services/workouts.ts.

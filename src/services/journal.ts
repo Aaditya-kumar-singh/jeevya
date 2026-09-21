@@ -18,7 +18,7 @@ import {
 
 // ─── Storage Key ──────────────────────────────────────────────────────────────
 
-const JOURNAL_KEY = 'lifeos:journal';
+const JOURNAL_KEY = 'jeevya:journal';
 
 // ─── Validation Limits ────────────────────────────────────────────────────────
 

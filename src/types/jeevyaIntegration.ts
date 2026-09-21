@@ -7,7 +7,7 @@ import type { RecoveryResult } from '@/services/recovery';
 import type { Task } from '@/types/tasks';
 import type { Habit } from '@/types/habit';
 
-export interface LifeOSDailyState {
+export interface JeevyaDailyState {
   date: string;
   tasks: {
     total: number;

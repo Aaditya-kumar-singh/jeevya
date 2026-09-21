@@ -129,7 +129,7 @@ export default function GoalsScreen() {
           </Button>
           <View className="flex-1">
             <Text size="sm" className="text-muted-foreground">
-              LifeOS · Progress
+              Jeevya · Progress
             </Text>
             <Heading size="xl" className="mt-1">
               Goals & Progress

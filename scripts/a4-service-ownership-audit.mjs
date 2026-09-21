@@ -1,4 +1,4 @@
-﻿import fs from 'node:fs';
+import fs from 'node:fs';
 import path from 'node:path';
 
 const root = path.resolve('src');
@@ -29,7 +29,7 @@ for (const file of screens) {
   assert(!/@react-native-async-storage\/async-storage/.test(text), `screen imports AsyncStorage: ${file}`);
   assert(!/@\/lib\/storage/.test(text), `screen imports persistence helper: ${file}`);
   assert(!/\b(?:loadData|saveData|removeData)\s*\(/.test(text), `screen calls persistence helper: ${file}`);
-  assert(!/['"`]lifeos:[^'"`]+['"`]/.test(text), `screen embeds storage key: ${file}`);
+  assert(!/['"`]jeevya:[^'"`]+['"`]/.test(text), `screen embeds storage key: ${file}`);
 }
 
 const ownership = [

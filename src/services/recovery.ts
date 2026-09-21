@@ -7,7 +7,7 @@ const isValidDay = isValidCivilDate;
 export type ReadinessLevel = 'low' | 'moderate' | 'good' | 'excellent';
 export interface RecoveryMetric { date:string; sleepScore:number|null; trainingLoadScore:number; consistencyScore:number|null; readinessScore:number|null; available:boolean; missingData:string[]; }
 export interface RecoveryResult extends RecoveryMetric { readinessLevel?: ReadinessLevel; factors:string[]; }
-const WORKOUT_KEY='lifeos:workouts:sessions';
+const WORKOUT_KEY='jeevya:workouts:sessions';
 
 function clone<T>(v:T):T{return JSON.parse(JSON.stringify(v)) as T;}
 function dayShift(day:string,delta:number):string|null { return addDays(day, delta); }
@@ -32,7 +32,7 @@ export async function getRecoveryForDate(date:string):Promise<RecoveryResult>{
 }
 export async function getTodayRecovery():Promise<RecoveryResult>{return getRecoveryForDate(todayCivilDate());}
 export async function getRecoveryForDateRange(startDate:string,endDate:string):Promise<RecoveryResult[]>{if(!isValidDay(startDate)||!isValidDay(endDate)||startDate>endDate)return[];const out:RecoveryResult[]=[];let d=startDate;while(d<=endDate){out.push(await getRecoveryForDate(d));const next=dayShift(d,1);if(!next)break;d=next;}return out;}
-export const RECOVERY_STORAGE_KEYS=[WORKOUT_KEY,'lifeos:health:sleep'];
+export const RECOVERY_STORAGE_KEYS=[WORKOUT_KEY,'jeevya:health:sleep'];
 export async function __recoveryStorageSanity(){return loadData(RECOVERY_STORAGE_KEYS[0],[]);}
 
 

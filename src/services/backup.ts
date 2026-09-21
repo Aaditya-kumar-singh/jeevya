@@ -8,7 +8,7 @@ import {
   type BackupDomainName,
   type BackupValidationIssue,
   type BackupValidationResult,
-  type LifeOSBackup,
+  type JeevyaBackup,
 } from '@/types/backup';
 
 const DOMAIN_ORDER: BackupDomainName[] = [
@@ -83,43 +83,43 @@ function validateRecords(domain: BackupDomainName, payload: Record<string, unkno
   }
 }
 
-function validateRelationships(backup: LifeOSBackup, issues: BackupValidationIssue[]): void {
+function validateRelationships(backup: JeevyaBackup, issues: BackupValidationIssue[]): void {
   const tasks = backup.domains.tasks ?? {};
-  const labels = Array.isArray(tasks['lifeos:labels']) ? tasks['lifeos:labels'] as Record<string, unknown>[] : [];
+  const labels = Array.isArray(tasks['jeevya:labels']) ? tasks['jeevya:labels'] as Record<string, unknown>[] : [];
   const labelIds = new Set(labels.map((x) => x?.id).filter((x): x is string => typeof x === 'string'));
-  const taskRecords = Array.isArray(tasks['lifeos:tasks']) ? tasks['lifeos:tasks'] as Record<string, unknown>[] : [];
+  const taskRecords = Array.isArray(tasks['jeevya:tasks']) ? tasks['jeevya:tasks'] as Record<string, unknown>[] : [];
   taskRecords.forEach((task) => {
     const ids = Array.isArray(task.labelIds) ? task.labelIds : [];
     ids.forEach((id) => { if (typeof id === 'string' && !labelIds.has(id)) addIssue(issues, { code: 'invalid_relationship', domain: 'tasks', message: `Task ${String(task.id)} references missing label ${id}.` }); });
   });
 
   const books = backup.domains.books ?? {};
-  const bookIds = new Set((Array.isArray(books['lifeos:books']) ? books['lifeos:books'] as Record<string, unknown>[] : []).map((x) => x?.id).filter((x): x is string => typeof x === 'string'));
-  const progress = Array.isArray(books['lifeos:book-progress']) ? books['lifeos:book-progress'] as Record<string, unknown>[] : [];
+  const bookIds = new Set((Array.isArray(books['jeevya:books']) ? books['jeevya:books'] as Record<string, unknown>[] : []).map((x) => x?.id).filter((x): x is string => typeof x === 'string'));
+  const progress = Array.isArray(books['jeevya:book-progress']) ? books['jeevya:book-progress'] as Record<string, unknown>[] : [];
   progress.forEach((entry) => { if (typeof entry.bookId === 'string' && !bookIds.has(entry.bookId)) addIssue(issues, { code: 'invalid_relationship', domain: 'books', message: `Book progress ${String(entry.id)} references missing book ${entry.bookId}.` }); });
 
   const finance = backup.domains.finance ?? {};
-  const accountIds = new Set((Array.isArray(finance['lifeos:finance:accounts']) ? finance['lifeos:finance:accounts'] as Record<string, unknown>[] : []).map((x) => x?.id).filter((x): x is string => typeof x === 'string'));
-  const categoryIds = new Set((Array.isArray(finance['lifeos:finance:categories']) ? finance['lifeos:finance:categories'] as Record<string, unknown>[] : []).map((x) => x?.id).filter((x): x is string => typeof x === 'string'));
-  const transactions = Array.isArray(finance['lifeos:finance:transactions']) ? finance['lifeos:finance:transactions'] as Record<string, unknown>[] : [];
+  const accountIds = new Set((Array.isArray(finance['jeevya:finance:accounts']) ? finance['jeevya:finance:accounts'] as Record<string, unknown>[] : []).map((x) => x?.id).filter((x): x is string => typeof x === 'string'));
+  const categoryIds = new Set((Array.isArray(finance['jeevya:finance:categories']) ? finance['jeevya:finance:categories'] as Record<string, unknown>[] : []).map((x) => x?.id).filter((x): x is string => typeof x === 'string'));
+  const transactions = Array.isArray(finance['jeevya:finance:transactions']) ? finance['jeevya:finance:transactions'] as Record<string, unknown>[] : [];
   transactions.forEach((tx) => {
     for (const field of ['accountId', 'fromAccountId', 'toAccountId']) if (typeof tx[field] === 'string' && !accountIds.has(tx[field])) addIssue(issues, { code: 'invalid_relationship', domain: 'finance', message: `Transaction ${String(tx.id)} references missing account ${tx[field]}.` });
     if (typeof tx.categoryId === 'string' && !categoryIds.has(tx.categoryId)) addIssue(issues, { code: 'invalid_relationship', domain: 'finance', message: `Transaction ${String(tx.id)} references missing category ${tx.categoryId}.` });
   });
-  const budgets = Array.isArray(finance['lifeos:finance:budgets']) ? finance['lifeos:finance:budgets'] as Record<string, unknown>[] : [];
+  const budgets = Array.isArray(finance['jeevya:finance:budgets']) ? finance['jeevya:finance:budgets'] as Record<string, unknown>[] : [];
   budgets.forEach((budget) => { if (typeof budget.categoryId === 'string' && !categoryIds.has(budget.categoryId)) addIssue(issues, { code: 'invalid_relationship', domain: 'finance', message: `Budget ${String(budget.id)} references missing category ${budget.categoryId}.` }); });
 
   const nutrition = backup.domains.nutrition ?? {};
-  const foodIds = new Set((Array.isArray(nutrition['lifeos:nutrition:foods']) ? nutrition['lifeos:nutrition:foods'] as Record<string, unknown>[] : []).map((x) => x?.id).filter((x): x is string => typeof x === 'string'));
-  const foodLogs = Array.isArray(nutrition['lifeos:nutrition:food-logs']) ? nutrition['lifeos:nutrition:food-logs'] as Record<string, unknown>[] : [];
+  const foodIds = new Set((Array.isArray(nutrition['jeevya:nutrition:foods']) ? nutrition['jeevya:nutrition:foods'] as Record<string, unknown>[] : []).map((x) => x?.id).filter((x): x is string => typeof x === 'string'));
+  const foodLogs = Array.isArray(nutrition['jeevya:nutrition:food-logs']) ? nutrition['jeevya:nutrition:food-logs'] as Record<string, unknown>[] : [];
   foodLogs.forEach((log) => { if (typeof log.foodId === 'string' && !foodIds.has(log.foodId)) addIssue(issues, { code: 'invalid_relationship', domain: 'nutrition', message: `Food log ${String(log.id)} references missing food ${log.foodId}.` }); });
 }
 
-export async function exportBackup(): Promise<LifeOSBackup> {
+export async function exportBackup(): Promise<JeevyaBackup> {
   const raw = await AsyncStorage.multiGet([...BACKUP_STORAGE_KEYS]);
   const byKey = new Map(raw);
-  const dynamicKeys = (await AsyncStorage.getAllKeys()).filter((key) => key.startsWith('lifeos:exercise-completed:')).sort();
-  const domains: LifeOSBackup['domains'] = {};
+  const dynamicKeys = (await AsyncStorage.getAllKeys()).filter((key) => key.startsWith('jeevya:exercise-completed:')).sort();
+  const domains: JeevyaBackup['domains'] = {};
   for (const domain of DOMAIN_ORDER) {
     const payload: Record<string, unknown> = {};
     for (const key of BACKUP_DOMAIN_KEYS[domain]) {
@@ -144,7 +144,7 @@ export async function exportBackup(): Promise<LifeOSBackup> {
   };
 }
 
-export function serializeBackup(backup: LifeOSBackup): string {
+export function serializeBackup(backup: JeevyaBackup): string {
   return JSON.stringify(backup, null, 2);
 }
 
@@ -169,27 +169,27 @@ export function validateBackup(input: string | unknown): BackupValidationResult 
       if (!payload || typeof payload !== 'object' || Array.isArray(payload)) { addIssue(issues, { code: 'malformed_domain', domain, message: `Malformed ${domain} payload.` }); continue; }
       const allowed = new Set(BACKUP_DOMAIN_KEYS[domain as BackupDomainName]);
       for (const key of Object.keys(payload as object)) {
-        if (!allowed.has(key) && !(domain === 'workout' && key.startsWith('lifeos:exercise-completed:'))) addIssue(issues, { code: 'invalid_domain', domain, message: `Unsupported storage key ${key} in ${domain}.` });
+        if (!allowed.has(key) && !(domain === 'workout' && key.startsWith('jeevya:exercise-completed:'))) addIssue(issues, { code: 'invalid_domain', domain, message: `Unsupported storage key ${key} in ${domain}.` });
       }
       validateRecords(domain as BackupDomainName, payload as Record<string, unknown>, issues);
     }
-    validateRelationships({ ...root, domains } as LifeOSBackup, issues);
+    validateRelationships({ ...root, domains } as JeevyaBackup, issues);
   }
-  return { valid: issues.length === 0, backup: issues.length === 0 ? clone(parsed as LifeOSBackup) : null, issues };
+  return { valid: issues.length === 0, backup: issues.length === 0 ? clone(parsed as JeevyaBackup) : null, issues };
 }
 
-export async function restoreBackup(input: string | LifeOSBackup): Promise<{ success: boolean; message: string; validation: BackupValidationResult }> {
+export async function restoreBackup(input: string | JeevyaBackup): Promise<{ success: boolean; message: string; validation: BackupValidationResult }> {
   const validation = validateBackup(input);
   if (!validation.valid || !validation.backup) return { success: false, message: 'Backup validation failed. Existing data was preserved.', validation };
   const backup = validation.backup;
   const existingKeys = await AsyncStorage.getAllKeys();
   const lockKeys = [...new Set([
     ...BACKUP_STORAGE_KEYS,
-    ...existingKeys.filter((key) => key.startsWith('lifeos:exercise-completed:')),
+    ...existingKeys.filter((key) => key.startsWith('jeevya:exercise-completed:')),
   ])];
   return withStorageLock(lockKeys, async () => {
     const supportedKeys = new Set<string>(BACKUP_STORAGE_KEYS);
-    existingKeys.filter((key) => key.startsWith('lifeos:exercise-completed:')).forEach((key) => supportedKeys.add(key));
+    existingKeys.filter((key) => key.startsWith('jeevya:exercise-completed:')).forEach((key) => supportedKeys.add(key));
     const snapshot = await AsyncStorage.multiGet([...supportedKeys]);
     const writes: [string, string][] = [];
     const backupKeys = new Set<string>();
@@ -206,7 +206,7 @@ export async function restoreBackup(input: string | LifeOSBackup): Promise<{ suc
     } catch {
       try {
         const current = await AsyncStorage.getAllKeys();
-        const restoreKeys = [...new Set([...supportedKeys, ...current.filter((key) => key.startsWith('lifeos:exercise-completed:'))])];
+        const restoreKeys = [...new Set([...supportedKeys, ...current.filter((key) => key.startsWith('jeevya:exercise-completed:'))])];
         await AsyncStorage.multiRemove(restoreKeys);
         const originalWrites = snapshot.filter((entry): entry is [string, string] => entry[1] != null);
         if (originalWrites.length) await AsyncStorage.multiSet(originalWrites);
@@ -218,6 +218,6 @@ export async function restoreBackup(input: string | LifeOSBackup): Promise<{ suc
   });
 }
 
-export async function preflightBackup(input: string | LifeOSBackup): Promise<BackupValidationResult> {
+export async function preflightBackup(input: string | JeevyaBackup): Promise<BackupValidationResult> {
   return validateBackup(input);
 }

@@ -83,7 +83,7 @@ export function normalizeHealthActivity(record: HealthActivity): EnergyActivity 
 
 // ─── Sync State Storage ───────────────────────────────────────────────────────
 
-const HEALTH_SYNC_KEY = 'lifeos:nutrition:health-sync';
+const HEALTH_SYNC_KEY = 'jeevya:nutrition:health-sync';
 
 export async function getHealthSyncState(): Promise<HealthSyncState> {
   try {

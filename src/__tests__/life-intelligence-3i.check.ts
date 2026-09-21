@@ -1,9 +1,9 @@
 import { todayCivilDate } from '@/lib/date';
 import { buildLifeInsights } from '@/services/lifeIntelligence';
-import type { LifeOSDailyState } from '@/types/lifeosIntegration';
+import type { JeevyaDailyState } from '@/types/jeevyaIntegration';
 
 function assert(condition: unknown, message: string): asserts condition { if (!condition) throw new Error(message); }
-function state(): LifeOSDailyState { return {
+function state(): JeevyaDailyState { return {
   date: todayCivilDate(),
   tasks: { total: 3, dueToday: 2, overdue: 1, completedToday: 2, active: 3, overdueTasks: [], incompleteDueTodayTasks: [] },
   habits: { activeToday: 2, completedToday: 2, completionRate: 100, remainingToday: [] },
@@ -21,5 +21,5 @@ function state(): LifeOSDailyState { return {
   check('maximum insight count is bounded', () => assert(buildLifeInsights(state()).length <= 8, 'too many insights'));
   check('source state remains unchanged', () => { const source = state(); const before = JSON.stringify(source); buildLifeInsights(source); assert(JSON.stringify(source) === before, 'source mutated'); });
   check('positive signals appear from healthy recorded data', () => { const items = buildLifeInsights(state()); assert(items.some((item) => item.id === 'life-habits-strong') && items.some((item) => item.id === 'life-reading-active'), 'positive signals missing'); });
-  console.log(`LIFEOS 3I LIFE INTELLIGENCE: ${passed} passed, 0 failed`);
+  console.log(`JEEVYA 3I LIFE INTELLIGENCE: ${passed} passed, 0 failed`);
 })().catch((error) => { console.error(error); process.exitCode = 1; });

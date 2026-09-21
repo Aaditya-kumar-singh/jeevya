@@ -437,7 +437,7 @@ async function main() {
     assert(JSON.stringify(await getWorkout(third.id)) === before, 'summary changed history');
   });
   await check('canonical workout storage is still the sole history source', async () => {
-    assert(store.has(WORKOUTS_KEY) && !store.has('lifeos:workouts:history'), 'duplicate history storage found');
+    assert(store.has(WORKOUTS_KEY) && !store.has('jeevya:workouts:history'), 'duplicate history storage found');
   });
   await check('Phase 2B template changes do not rewrite historical sessions', async () => {
     const before = JSON.stringify(await getWorkout(programStarted.id));

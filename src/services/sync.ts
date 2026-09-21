@@ -15,20 +15,20 @@ import type {
   SyncStatus,
 } from '@/types/sync';
 
-const SYNC_METADATA_KEY = 'lifeos:sync:metadata';
-const SYNC_CONFLICTS_KEY = 'lifeos:sync:conflicts';
-const SYNC_STATE_KEY = 'lifeos:sync:status';
+const SYNC_METADATA_KEY = 'jeevya:sync:metadata';
+const SYNC_CONFLICTS_KEY = 'jeevya:sync:conflicts';
+const SYNC_STATE_KEY = 'jeevya:sync:status';
 const SYNC_KEYS = [...BACKUP_STORAGE_KEYS];
 const SYNC_DOMAIN_BY_KEY: Record<string, SyncDomain> = {
-  'lifeos:tasks': 'tasks', 'lifeos:labels': 'tasks', 'lifeos:habits': 'habits', 'lifeos:habit-logs': 'habits',
-  'lifeos:books': 'books', 'lifeos:book-goals': 'books', 'lifeos:book-progress': 'books', 'lifeos:journal': 'journal',
-  'lifeos:finance:accounts': 'finance', 'lifeos:finance:transactions': 'finance', 'lifeos:finance:categories': 'finance',
-  'lifeos:finance:budgets': 'finance', 'lifeos:finance:savings-goals': 'finance', 'lifeos:nutrition:foods': 'nutrition',
-  'lifeos:nutrition:food-logs': 'nutrition', 'lifeos:nutrition:recipes': 'nutrition', 'lifeos:nutrition:body-profile': 'nutrition',
-  'lifeos:nutrition:energy-activities': 'nutrition', 'lifeos:workouts:sessions': 'workout', 'lifeos:workouts:templates': 'workout',
-  'lifeos:workouts:programs': 'workout', 'lifeos:health:sleep': 'sleep',
+  'jeevya:tasks': 'tasks', 'jeevya:labels': 'tasks', 'jeevya:habits': 'habits', 'jeevya:habit-logs': 'habits',
+  'jeevya:books': 'books', 'jeevya:book-goals': 'books', 'jeevya:book-progress': 'books', 'jeevya:journal': 'journal',
+  'jeevya:finance:accounts': 'finance', 'jeevya:finance:transactions': 'finance', 'jeevya:finance:categories': 'finance',
+  'jeevya:finance:budgets': 'finance', 'jeevya:finance:savings-goals': 'finance', 'jeevya:nutrition:foods': 'nutrition',
+  'jeevya:nutrition:food-logs': 'nutrition', 'jeevya:nutrition:recipes': 'nutrition', 'jeevya:nutrition:body-profile': 'nutrition',
+  'jeevya:nutrition:energy-activities': 'nutrition', 'jeevya:workouts:sessions': 'workout', 'jeevya:workouts:templates': 'workout',
+  'jeevya:workouts:programs': 'workout', 'jeevya:health:sleep': 'sleep',
 };
-const SINGLETON_KEYS = new Set(['lifeos:nutrition:body-profile']);
+const SINGLETON_KEYS = new Set(['jeevya:nutrition:body-profile']);
 const SYNCABLE_DOMAINS = new Set(Object.values(SYNC_DOMAIN_BY_KEY));
 let syncPromise: { userId: string; promise: Promise<SyncResult> } | null = null;
 const resolvingConflictIds = new Set<string>();
@@ -62,11 +62,11 @@ function recordIdOf(value: unknown, fallback: string): string | null {
   return fallback;
 }
 function isObject(value: unknown): value is Record<string, unknown> { return !!value && typeof value === 'object' && !Array.isArray(value); }
-function dynamicCompletionKeys(keys: string[]): string[] { return keys.filter((key) => key.startsWith('lifeos:exercise-completed:')).sort(); }
+function dynamicCompletionKeys(keys: string[]): string[] { return keys.filter((key) => key.startsWith('jeevya:exercise-completed:')).sort(); }
 function metadataKey(record: Pick<LocalRecord, 'domain' | 'storageKey' | 'recordId'>): string { return `${record.domain}|${record.storageKey}|${record.recordId}`; }
 function remoteKey(row: Pick<SyncRecord, 'domain' | 'storage_key' | 'record_id'>): string { return `${row.domain}|${row.storage_key}|${row.record_id}`; }
 function conflictIdentity(conflict: Pick<SyncConflict, 'domain' | 'storageKey' | 'recordId'>): string { return `${conflict.domain}|${conflict.storageKey}|${conflict.recordId}`; }
-function conflictIdFor(key: string, baselineFingerprint: string | null): string { return `lifeos-conflict:${key}:${fingerprint(baselineFingerprint)}`; }
+function conflictIdFor(key: string, baselineFingerprint: string | null): string { return `jeevya-conflict:${key}:${fingerprint(baselineFingerprint)}`; }
 function isNetworkFailure(error: unknown): boolean { return /network|fetch|offline|failed to fetch|connection|timeout/i.test(error instanceof Error ? error.message : String(error ?? '')); }
 
 async function getCurrentSessionUserId(): Promise<string | null> {
@@ -100,17 +100,17 @@ async function snapshotLocal(): Promise<LocalSnapshot> {
     return { records, degradedDomains, errors };
   }
   for (const key of [...new Set([...SYNC_KEYS, ...dynamicCompletionKeys(allKeys)])]) {
-    const domain = key.startsWith('lifeos:exercise-completed:') ? 'workout' : SYNC_DOMAIN_BY_KEY[key];
+    const domain = key.startsWith('jeevya:exercise-completed:') ? 'workout' : SYNC_DOMAIN_BY_KEY[key];
     if (!domain) continue;
-    const fallback: unknown = key.startsWith('lifeos:exercise-completed:') ? false : SINGLETON_KEYS.has(key) ? null : [];
+    const fallback: unknown = key.startsWith('jeevya:exercise-completed:') ? false : SINGLETON_KEYS.has(key) ? null : [];
     const result = await readStorage<unknown>(key, fallback);
     if (result.status === 'missing') continue;
     if (result.status === 'malformed' || result.status === 'unavailable') {
       degradedDomains.add(domain); errors[domain] = result.status === 'malformed' ? `Malformed local payload for ${key}.` : `Local storage unavailable for ${key}.`; continue;
     }
-    if (key.startsWith('lifeos:exercise-completed:')) {
+    if (key.startsWith('jeevya:exercise-completed:')) {
       if (typeof result.value !== 'boolean') { degradedDomains.add(domain); errors[domain] = `Invalid exercise completion payload for ${key}.`; continue; }
-      records.push({ domain, storageKey: key, recordId: key.slice('lifeos:exercise-completed:'.length), payload: result.value, updatedAt: null, fingerprint: fingerprint(result.value) });
+      records.push({ domain, storageKey: key, recordId: key.slice('jeevya:exercise-completed:'.length), payload: result.value, updatedAt: null, fingerprint: fingerprint(result.value) });
     } else if (Array.isArray(result.value)) {
       for (const item of result.value) {
         if (!isObject(item)) { degradedDomains.add(domain); errors[domain] = `Malformed record in ${key}.`; continue; }
@@ -184,12 +184,12 @@ function validateRemoteRecord(row: unknown): row is SyncRecord {
   return isObject(row) && typeof row.domain === 'string' && SYNCABLE_DOMAINS.has(row.domain as SyncDomain)
     && typeof row.record_id === 'string' && !!row.record_id.trim() && typeof row.storage_key === 'string'
     && SYNC_DOMAIN_BY_KEY[row.storage_key] === row.domain && typeof row.updated_at === 'string' && Number.isFinite(Date.parse(row.updated_at))
-    && typeof row.deleted === 'boolean' && 'payload' in row && (row.deleted || row.storage_key.startsWith('lifeos:exercise-completed:') || isObject(row.payload));
+    && typeof row.deleted === 'boolean' && 'payload' in row && (row.deleted || row.storage_key.startsWith('jeevya:exercise-completed:') || isObject(row.payload));
 }
 function safeRemotePayload(row: SyncRecord | null): unknown | null {
   if (!row) return null;
   if (row.deleted) return null;
-  if (row.storage_key.startsWith('lifeos:exercise-completed:')) return typeof row.payload === 'boolean' ? row.payload : null;
+  if (row.storage_key.startsWith('jeevya:exercise-completed:')) return typeof row.payload === 'boolean' ? row.payload : null;
   return isObject(row.payload) ? row.payload : null;
 }
 function buildConflict(local: LocalRecord | null, remote: SyncRecord | null, baseline: SyncMetadata['records'][string] | undefined, reason: SyncConflict['reason'], detectedAt: string): SyncConflict {
@@ -211,7 +211,7 @@ function upsertConflict(list: SyncConflict[], conflict: SyncConflict): void {
   else list.push(conflict);
 }
 function applyRecordToValue(current: unknown, record: Pick<LocalRecord, 'storageKey' | 'recordId'>, payload: unknown, deleted: boolean): unknown {
-  if (record.storageKey.startsWith('lifeos:exercise-completed:')) return deleted ? false : payload;
+  if (record.storageKey.startsWith('jeevya:exercise-completed:')) return deleted ? false : payload;
   if (Array.isArray(current)) {
     const filtered = current.filter((item) => !(isObject(item) && item.id === record.recordId));
     return deleted ? filtered : [...filtered, payload];
@@ -220,11 +220,11 @@ function applyRecordToValue(current: unknown, record: Pick<LocalRecord, 'storage
 }
 async function applyRemoteRecord(record: LocalRecord, remote: SyncRecord): Promise<{ applied: boolean; concurrentChange: boolean }> {
   return withStorageLock([record.storageKey], async () => {
-    const fallback = record.storageKey.startsWith('lifeos:exercise-completed:') ? false : SINGLETON_KEYS.has(record.storageKey) ? null : [];
+    const fallback = record.storageKey.startsWith('jeevya:exercise-completed:') ? false : SINGLETON_KEYS.has(record.storageKey) ? null : [];
     const currentResult = await readStorage<unknown>(record.storageKey, fallback);
     if (currentResult.status === 'malformed' || currentResult.status === 'unavailable') return { applied: false, concurrentChange: false };
     const current = currentResult.value;
-    const currentPayload = record.storageKey.startsWith('lifeos:exercise-completed:') ? current : Array.isArray(current) ? current.find((item) => isObject(item) && item.id === record.recordId) : current;
+    const currentPayload = record.storageKey.startsWith('jeevya:exercise-completed:') ? current : Array.isArray(current) ? current.find((item) => isObject(item) && item.id === record.recordId) : current;
     if (fingerprint(currentPayload ?? null) !== record.fingerprint) return { applied: false, concurrentChange: true };
     const next = applyRecordToValue(current, record, safeRemotePayload(remote), remote.deleted);
     await AsyncStorage.setItem(record.storageKey, JSON.stringify(next));
@@ -261,7 +261,7 @@ async function performSynchronization(): Promise<SyncResult> {
   const conflicts = [...existingConflicts.filter((item) => item.status === 'pending' && !resolvingConflictIds.has(item.conflictId))];
   const domainResults = new Map<SyncDomain, SyncDomainResult>(); const uploadedRows: SyncRecord[] = []; let downloaded = 0; let unchanged = 0; let invalidRemoteCount = 0;
   try {
-    const { data: remoteRows, error } = await supabase.from('lifeos_sync_records').select('id,user_id,domain,record_id,storage_key,payload,updated_at,deleted,sync_version,device_updated_at').eq('user_id', sessionUserId);
+    const { data: remoteRows, error } = await supabase.from('jeevya_sync_records').select('id,user_id,domain,record_id,storage_key,payload,updated_at,deleted,sync_version,device_updated_at').eq('user_id', sessionUserId);
     if (error) throw error;
     if (!Array.isArray(remoteRows)) throw new Error('Malformed Supabase sync response.');
     if (!(await assertSessionIdentity(sessionUserId))) {
@@ -358,7 +358,7 @@ async function performSynchronization(): Promise<SyncResult> {
       if (safeRows.length) {
         if (!(await assertSessionIdentity(sessionUserId))) return staleSyncResult();
         if (safeRows.some((row) => row.user_id !== sessionUserId)) throw new Error('Refusing to upload a record outside the active authenticated identity.');
-        const { error: uploadError } = await supabase.from('lifeos_sync_records').upsert(safeRows, { onConflict: 'user_id,domain,storage_key,record_id' });
+        const { error: uploadError } = await supabase.from('jeevya_sync_records').upsert(safeRows, { onConflict: 'user_id,domain,storage_key,record_id' });
         if (uploadError) throw uploadError;
         if (!(await assertSessionIdentity(sessionUserId))) return staleSyncResult('Synchronization completed a remote request before the authenticated session changed. Local state was not committed from the stale operation.');
       }
@@ -374,7 +374,7 @@ async function performSynchronization(): Promise<SyncResult> {
     for (const conflict of conflicts) addDomain(domainResults, conflict.domain, 'conflicts');
     for (const [domain, message] of Object.entries(local.errors)) { const existing = domainResults.get(domain as SyncDomain) ?? emptyDomain(domain as SyncDomain); existing.degraded = true; existing.error = message; domainResults.set(domain as SyncDomain, existing); }
     const state: SyncState = invalidRemoteCount > 0 ? 'error' : conflicts.length ? 'conflict_pending' : local.degradedDomains.size ? 'error' : 'synced';
-    const message = invalidRemoteCount > 0 ? `${invalidRemoteCount} invalid remote record${invalidRemoteCount === 1 ? '' : 's'} were rejected safely.` : conflicts.length ? `${conflicts.length} conflict${conflicts.length === 1 ? '' : 's'} pending review.` : local.degradedDomains.size ? 'Synchronization completed with degraded local domains.' : 'LifeOS synchronization completed.';
+    const message = invalidRemoteCount > 0 ? `${invalidRemoteCount} invalid remote record${invalidRemoteCount === 1 ? '' : 's'} were rejected safely.` : conflicts.length ? `${conflicts.length} conflict${conflicts.length === 1 ? '' : 's'} pending review.` : local.degradedDomains.size ? 'Synchronization completed with degraded local domains.' : 'Jeevya synchronization completed.';
     await persistStatus({ state, lastSyncedAt: new Date().toISOString(), conflicts: conflicts.length, message });
     return { state, uploaded: uploadedRows.length, downloaded, unchanged, conflicts, domains: [...domainResults.values()], message };
   } catch (error) {
@@ -389,7 +389,7 @@ function baselineKeyRecordId(key: string): string { return key.split('|').slice(
 function emptyDomain(domain: SyncDomain): SyncDomainResult { return { domain, uploaded: 0, downloaded: 0, unchanged: 0, conflicts: 0, degraded: false }; }
 function addDomain(map: Map<SyncDomain, SyncDomainResult>, domain: SyncDomain, kind: 'uploaded' | 'downloaded' | 'unchanged' | 'conflicts'): void { const value = map.get(domain) ?? emptyDomain(domain); value[kind] += 1; map.set(domain, value); }
 
-export async function synchronizeLifeOS(): Promise<SyncResult> {
+export async function synchronizeJeevya(): Promise<SyncResult> {
   const currentUserId = await getCurrentSessionUserId();
   if (!currentUserId) {
     const message = 'Synchronization requires an authenticated Supabase session.';
@@ -418,7 +418,7 @@ async function resolveConflictInternal(conflictId: string, resolution: SyncResol
   const record: LocalRecord = { domain: conflict.domain, storageKey: conflict.storageKey, recordId: conflict.recordId, payload: targetPayload, updatedAt: resolution === 'keep_local' ? conflict.localUpdatedAt : conflict.remoteUpdatedAt, fingerprint: fingerprint(targetPayload) };
   try {
     await withStorageLock([conflict.storageKey], async () => {
-      const currentResult = await readStorage<unknown>(conflict.storageKey, conflict.storageKey.startsWith('lifeos:exercise-completed:') ? false : SINGLETON_KEYS.has(conflict.storageKey) ? null : []);
+      const currentResult = await readStorage<unknown>(conflict.storageKey, conflict.storageKey.startsWith('jeevya:exercise-completed:') ? false : SINGLETON_KEYS.has(conflict.storageKey) ? null : []);
       if (currentResult.status === 'malformed' || currentResult.status === 'unavailable') throw new Error(`Unable to safely resolve ${conflict.storageKey}.`);
       const next = applyRecordToValue(currentResult.value, record, targetPayload, targetDeleted);
       await AsyncStorage.setItem(conflict.storageKey, JSON.stringify(next));
@@ -436,7 +436,7 @@ async function resolveConflictInternal(conflictId: string, resolution: SyncResol
       },
     }));
     resolvingConflictIds.add(conflict.conflictId);
-    const syncResult = await synchronizeLifeOS();
+    const syncResult = await synchronizeJeevya();
     resolvingConflictIds.delete(conflict.conflictId);
     if (syncResult.state === 'offline' || syncResult.state === 'error' || syncResult.state === 'auth_required' || syncResult.conflicts.some((item) => item.conflictId === conflict.conflictId)) {
       await persistStatus({ state: syncResult.state, lastSyncedAt: null, conflicts: (await getPendingConflicts()).length, message: `Resolution saved locally but cloud synchronization is pending: ${syncResult.message}` });
@@ -464,4 +464,4 @@ function resolveConflictOnce(conflictId: string, resolution: SyncResolution): Pr
 export async function resolveConflictKeepLocal(conflictId: string): Promise<SyncConflictResolutionResult> { return resolveConflictOnce(conflictId, 'keep_local'); }
 export async function resolveConflictKeepRemote(conflictId: string): Promise<SyncConflictResolutionResult> { return resolveConflictOnce(conflictId, 'keep_remote'); }
 export async function resolveConflict(conflictId: string, resolution: SyncResolution): Promise<SyncConflictResolutionResult> { return resolveConflictOnce(conflictId, resolution); }
-export async function retrySync(): Promise<SyncResult> { return synchronizeLifeOS(); }
+export async function retrySync(): Promise<SyncResult> { return synchronizeJeevya(); }

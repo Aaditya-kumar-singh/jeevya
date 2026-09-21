@@ -1,6 +1,6 @@
 /**
- * LifeOS Theme System
- * Defines 11 themes spanning Classic, Simple, Advanced, and Animated aesthetics, including the Jeevya Nature brand theme.
+ * Jeevya Theme System
+ * Defines 12 themes spanning Classic, Simple, Advanced, and Animated aesthetics, including the Jeevya Nature brand theme.
  */
 
 import '@/global.css';
@@ -76,7 +76,8 @@ export type ThemeId =
   | 'sunset-horizon'
   | 'obsidian-stealth'
   | 'cosmic-nebula'
-  | 'champagne-luxe';
+  | 'champagne-luxe'
+  | 'testosterone-forge';
 
 export interface ThemeColors {
   background: string;
@@ -517,8 +518,43 @@ export const THEMES: ThemeDefinition[] = [
       gradient: ['#D97706', '#F59E0B', '#E11D48'],
     },
   },
+  {
+    id: 'testosterone-forge',
+    name: 'Testosterone Forge',
+    tagline: 'Grit, discipline, strength, and focused training energy',
+    category: 'advanced',
+    mode: 'dark',
+    isAnimated: false,
+    animationType: 'none',
+    accentBadge: 'Gym Focus',
+    previewCardBg: '#0D0D0D',
+    colors: {
+      background: '#090909',
+      backgroundElement: '#141414',
+      backgroundSelected: '#241012',
+      card: '#111111',
+      cardBorder: '#292929',
+      text: '#F5F5F5',
+      textSecondary: '#A3A3A3',
+      primary: '#EF2B2D',
+      primaryForeground: '#FFFFFF',
+      secondary: '#2A0D0E',
+      secondaryForeground: '#FCA5A5',
+      accent: '#FF6B35',
+      accentGlow: 'rgba(239, 43, 45, 0.32)',
+      border: '#292929',
+      success: '#22C55E',
+      warning: '#F59E0B',
+      danger: '#DC2626',
+      info: '#60A5FA',
+      health: '#EF2B2D',
+      finance: '#F59E0B',
+      productivity: '#FF6B35',
+      growth: '#FCA5A5',
+      gradient: ['#090909', '#1A0A0B', '#EF2B2D'],
+    },
+  },
 ];
-
 export const DEFAULT_THEME_ID: ThemeId = 'jeevya-nature';
 
 export function getThemeById(id: string): ThemeDefinition {

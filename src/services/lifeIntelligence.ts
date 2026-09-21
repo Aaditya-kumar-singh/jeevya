@@ -1,7 +1,7 @@
 import { isValidCivilDate, todayCivilDate, type CivilDate } from '@/lib/date';
-import { getLifeOSDailyState } from '@/services/lifeosIntegration';
+import { getJeevyaDailyState } from '@/services/jeevyaIntegration';
 import type { LifeInsight, LifeIntelligenceResult } from '@/types/lifeIntelligence';
-import type { LifeOSDailyState } from '@/types/lifeosIntegration';
+import type { JeevyaDailyState } from '@/types/jeevyaIntegration';
 
 const severityRank = { warning: 0, positive: 1, info: 2 } as const;
 
@@ -9,7 +9,7 @@ function insight(id: string, domain: LifeInsight['domain'], severity: LifeInsigh
   return { id: `life-${id}`, domain, severity, title, description, source, ...(value == null ? {} : { value, unit }) };
 }
 
-export function buildLifeInsights(state: LifeOSDailyState): LifeInsight[] {
+export function buildLifeInsights(state: JeevyaDailyState): LifeInsight[] {
   const items: LifeInsight[] = [];
   const add = (item: LifeInsight) => items.push(item);
 
@@ -45,9 +45,9 @@ export function buildLifeInsights(state: LifeOSDailyState): LifeInsight[] {
 
 export async function getLifeIntelligence(date: CivilDate = todayCivilDate()): Promise<LifeIntelligenceResult> {
   if (!isValidCivilDate(date)) throw new Error('Invalid intelligence date');
-  const state = await getLifeOSDailyState(date);
+  const state = await getJeevyaDailyState(date);
   const insights = buildLifeInsights(state);
   const warningCount = insights.filter((item) => item.severity === 'warning').length;
-  const summary = warningCount > 0 ? `${warningCount} area${warningCount === 1 ? '' : 's'} may need attention today.` : insights.length ? 'Your LifeOS signals are mostly positive or informational today.' : 'Not enough data is available for a useful daily signal yet.';
+  const summary = warningCount > 0 ? `${warningCount} area${warningCount === 1 ? '' : 's'} may need attention today.` : insights.length ? 'Your Jeevya signals are mostly positive or informational today.' : 'Not enough data is available for a useful daily signal yet.';
   return { date, insights, summary };
 }

@@ -13,8 +13,8 @@ import {
 } from '@/services/tasks';
 import { getTodayISO } from '@/types/tasks';
 
-const LEGACY_TASKS_KEY = '@lifeos/tasks/v1';
-const MIGRATION_KEY = 'lifeos:tasks:migration:v1';
+const LEGACY_TASKS_KEY = '@jeevya/tasks/v1';
+const MIGRATION_KEY = 'jeevya:tasks:migration:v1';
 
 function assert(condition: unknown, message: string): asserts condition {
   if (!condition) throw new Error(message);
@@ -47,7 +47,7 @@ async function reset() {
     console.log(`PASS ${name}`);
   };
 
-  await check('canonical storage is lifeos:tasks', async () => {
+  await check('canonical storage is jeevya:tasks', async () => {
     const task = await createTask({ title: 'Canonical task' });
     const stored = await loadData<unknown>(TASKS_KEY, null);
     const legacy = await loadData<unknown>(LEGACY_TASKS_KEY, null);

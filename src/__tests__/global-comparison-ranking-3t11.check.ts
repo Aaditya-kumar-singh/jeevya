@@ -102,7 +102,7 @@ async function main() {
 
   await check('global layer never reads private domain storage', () => {
     const source = read('src/services/globalData.ts');
-    for (const table of ['lifeos_sync_records', 'tasks', 'habits', 'books', 'journal', 'finance', 'nutrition', 'workout', 'sleep']) {
+    for (const table of ['jeevya_sync_records', 'tasks', 'habits', 'books', 'journal', 'finance', 'nutrition', 'workout', 'sleep']) {
       assert(!source.includes(`from('${table}')`), `private table ${table} accessed`);
     }
   });
@@ -134,14 +134,14 @@ async function main() {
   });
 
   await check('3T.9 and 3T.10 foundations remain authoritative', () => {
-    const sql = read('sql/lifeos-global-metrics.sql');
+    const sql = read('sql/jeevya-global-metrics.sql');
     const service = read('src/services/globalData.ts');
     assert(sql.includes('enable row level security') && sql.includes('for select') && sql.includes('to authenticated'), '3T.9 RLS changed');
     assert(!sql.includes('for insert') && !sql.includes('for update') && !sql.includes('for delete'), 'client write policy added');
-    assert(service.includes('LIFEOS_GLOBAL_METRIC_DEFINITIONS') && service.includes('readGlobalMetrics'), '3T.10 layer missing');
+    assert(service.includes('JEEVYA_GLOBAL_METRIC_DEFINITIONS') && service.includes('readGlobalMetrics'), '3T.10 layer missing');
   });
 
-  console.log(`LIFEOS 3T.11 GLOBAL COMPARISON + RANKING FOUNDATION: ${passed} passed, 0 failed`);
+  console.log(`JEEVYA 3T.11 GLOBAL COMPARISON + RANKING FOUNDATION: ${passed} passed, 0 failed`);
 }
 
 main().catch((error) => { console.error(error); process.exit(1); });

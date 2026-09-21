@@ -187,10 +187,10 @@ async function main() {
   await check('Phase 2C program subsystem remains available', async () => assert(Array.isArray(await listPrograms()), '2C'));
   await check('Phase 2D workout history remains available', async () => assert(Array.isArray((await getWorkoutHistory()).workouts), '2D'));
   await check('Phase 2E progression remains available', async () => assert(Array.isArray(await getExercisePRs('bench')), '2E'));
-  await check('sleep data uses only canonical sleep key', async () => assert(store.has(SLEEP_KEY) === false || [...store.keys()].every((key) => key === SLEEP_KEY || key.startsWith('lifeos:workouts') || key.startsWith('@lifeos')), 'scope'));
-  await check('no sleep analytics storage key exists', async () => assert(!store.has('lifeos:health:sleep:analytics'), 'analytics key'));
-  await check('no recovery storage key exists', async () => assert(!store.has('lifeos:health:recovery'), 'recovery key'));
-  await check('no sleep AI storage key exists', async () => assert(!store.has('lifeos:health:sleep:ai'), 'ai key'));
+  await check('sleep data uses only canonical sleep key', async () => assert(store.has(SLEEP_KEY) === false || [...store.keys()].every((key) => key === SLEEP_KEY || key.startsWith('jeevya:workouts') || key.startsWith('@jeevya')), 'scope'));
+  await check('no sleep analytics storage key exists', async () => assert(!store.has('jeevya:health:sleep:analytics'), 'analytics key'));
+  await check('no recovery storage key exists', async () => assert(!store.has('jeevya:health:recovery'), 'recovery key'));
+  await check('no sleep AI storage key exists', async () => assert(!store.has('jeevya:health:sleep:ai'), 'ai key'));
 
   console.log(`\nPhase 2F: ${passed} passed, ${failed} failed`);
   if (failed) process.exitCode = 1;

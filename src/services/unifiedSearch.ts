@@ -12,7 +12,7 @@ function matches(query: string, ...values: unknown[]) {
   return needle.length > 0 && values.some((value) => typeof value === 'string' && value.toLocaleLowerCase().includes(needle));
 }
 
-export async function searchLifeOS(query: string, date: CivilDate = todayCivilDate()): Promise<UnifiedSearchResponse> {
+export async function searchJeevya(query: string, date: CivilDate = todayCivilDate()): Promise<UnifiedSearchResponse> {
   const normalized = query.trim();
   if (!normalized) return { query: '', date, results: [] };
   const [tasks, habits, books, entries, transactions, goals] = await Promise.all([

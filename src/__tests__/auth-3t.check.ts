@@ -1,4 +1,4 @@
-// LIFEOS 3T.1 + 3T.2: optional auth foundation and guest/auth state coverage.
+// JEEVYA 3T.1 + 3T.2: optional auth foundation and guest/auth state coverage.
 // @ts-nocheck
 const assert = (condition, message) => { if (!condition) throw new Error(message); };
 
@@ -114,5 +114,5 @@ const assert = (condition, message) => { if (!condition) throw new Error(message
   Object.defineProperty(supabase.auth, 'getSession', { configurable: true, writable: true, value: originalGetSession });
   Object.defineProperty(supabase.auth, 'onAuthStateChange', { configurable: true, writable: true, value: originalOnAuthStateChange });
   Object.defineProperty(supabase.auth, 'signOut', { configurable: true, writable: true, value: originalSignOut });
-  console.log(`LIFEOS 3T.1 + 3T.2 AUTH: ${passed} passed, 0 failed`);
+  console.log(`JEEVYA 3T.1 + 3T.2 AUTH: ${passed} passed, 0 failed`);
 })().catch(() => process.exit(1));

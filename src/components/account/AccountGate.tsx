@@ -54,7 +54,7 @@ export function AccountGate({
             </View>
 
             <Text size="xs" className="mt-4 rounded-2xl bg-sky-500/5 p-3 text-muted-foreground">
-              Your local LifeOS data remains on this device.
+              Your local Jeevya data remains on this device.
             </Text>
 
             <View className="mt-4 gap-2.5">

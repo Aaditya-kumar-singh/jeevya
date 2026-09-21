@@ -18,7 +18,7 @@ export interface RawHealthConnectRecord {
   intensity?: number;
 }
 
-/** Map from HC exerciseType number to LifeOS ActivityType. */
+/** Map from HC exerciseType number to Jeevya ActivityType. */
 export const HC_EXERCISE_TYPE_MAP: Record<number, ActivityType> = {
   1: 'other',           // Aerobics
   2: 'other',           // Badminton
@@ -99,7 +99,7 @@ export const HC_EXERCISE_TYPE_MAP: Record<number, ActivityType> = {
   105: 'other',         // Wheelchair tennis
 };
 
-/** Map from HC intensity number to LifeOS ActivityIntensity. */
+/** Map from HC intensity number to Jeevya ActivityIntensity. */
 export function mapHCIntensity(intensity?: number): ActivityIntensity {
   if (intensity === 1) return 'light';
   if (intensity === 2) return 'moderate';
@@ -107,7 +107,7 @@ export function mapHCIntensity(intensity?: number): ActivityIntensity {
   return 'moderate'; // safe default
 }
 
-/** Map from HC exerciseType number to LifeOS ActivityType. */
+/** Map from HC exerciseType number to Jeevya ActivityType. */
 export function mapHCExerciseType(exerciseType: number): ActivityType {
   return HC_EXERCISE_TYPE_MAP[exerciseType] ?? 'other';
 }

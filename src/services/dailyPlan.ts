@@ -1,10 +1,10 @@
 import { todayCivilDate, isValidCivilDate, type CivilDate } from '@/lib/date';
-import { getLifeOSDailyState } from '@/services/lifeosIntegration';
+import { getJeevyaDailyState } from '@/services/jeevyaIntegration';
 import { buildDailyPulse } from '@/services/dailyPulse';
 import { getBudgetSpending, type BudgetSpending } from '@/services/finance';
 import { buildLifeInsights } from '@/services/lifeIntelligence';
 import type { DailyPlanItem, DailyPlanModel, DailyPlanPriority, DailyPlanItemState } from '@/types/dailyPlan';
-import type { LifeOSDailyState } from '@/types/lifeosIntegration';
+import type { JeevyaDailyState } from '@/types/jeevyaIntegration';
 
 const priorityRank: Record<DailyPlanPriority, number> = {
   critical: 0,
@@ -31,7 +31,7 @@ function monthOf(date: CivilDate): string {
   return date.slice(0, 7);
 }
 
-function pulsePriorityForSource(state: LifeOSDailyState): Record<string, DailyPlanPriority> {
+function pulsePriorityForSource(state: JeevyaDailyState): Record<string, DailyPlanPriority> {
   const pulse = buildDailyPulse(state);
   const result: Record<string, DailyPlanPriority> = {};
   for (const item of pulse.items) {
@@ -57,7 +57,7 @@ function addUnique(items: DailyPlanItem[], item: DailyPlanItem): void {
   if (!items.some((existing) => existing.id === item.id)) items.push(item);
 }
 
-function taskItems(state: LifeOSDailyState, priorities: ReturnType<typeof pulsePriorityForSource>): DailyPlanItem[] {
+function taskItems(state: JeevyaDailyState, priorities: ReturnType<typeof pulsePriorityForSource>): DailyPlanItem[] {
   const items: DailyPlanItem[] = [];
   for (const task of state.tasks.overdueTasks ?? []) {
     addUnique(items, {
@@ -78,7 +78,7 @@ function taskItems(state: LifeOSDailyState, priorities: ReturnType<typeof pulseP
   return items;
 }
 
-function habitItems(state: LifeOSDailyState, priorities: ReturnType<typeof pulsePriorityForSource>): DailyPlanItem[] {
+function habitItems(state: JeevyaDailyState, priorities: ReturnType<typeof pulsePriorityForSource>): DailyPlanItem[] {
   return (state.habits.remainingToday ?? []).map((habit) => ({
     id: `habits:habit:${habit.id}:complete`, source: 'habits', sourceRecordId: habit.id,
     title: habit.name, description: 'Scheduled today', priority: elevate('medium', priorities.habits), status: 'pending',
@@ -86,7 +86,7 @@ function habitItems(state: LifeOSDailyState, priorities: ReturnType<typeof pulse
   }));
 }
 
-function healthItems(state: LifeOSDailyState, priorities: ReturnType<typeof pulsePriorityForSource>): DailyPlanItem[] {
+function healthItems(state: JeevyaDailyState, priorities: ReturnType<typeof pulsePriorityForSource>): DailyPlanItem[] {
   const items: DailyPlanItem[] = [];
   if (state.health.activeWorkout) {
     const id = state.health.activeWorkoutId;
@@ -115,7 +115,7 @@ function healthItems(state: LifeOSDailyState, priorities: ReturnType<typeof puls
   return items;
 }
 
-function nutritionItems(state: LifeOSDailyState): DailyPlanItem[] {
+function nutritionItems(state: JeevyaDailyState): DailyPlanItem[] {
   const targets = state.nutrition.targets;
   const calories = state.nutrition.summary.totals.calories;
   if (!targets || !finite(calories) || !finite(targets.targetCalories) || targets.targetCalories <= 0) return [];
@@ -142,7 +142,7 @@ function financeItems(budgets: BudgetSpending[]): DailyPlanItem[] {
     }));
 }
 
-function bookItems(state: LifeOSDailyState): DailyPlanItem[] {
+function bookItems(state: JeevyaDailyState): DailyPlanItem[] {
   if (state.books.currentlyReading <= 0) return [];
   return [{
     id: 'books:reading:progress', source: 'books', title: 'Continue reading',
@@ -151,7 +151,7 @@ function bookItems(state: LifeOSDailyState): DailyPlanItem[] {
   }];
 }
 
-function journalItems(state: LifeOSDailyState): DailyPlanItem[] {
+function journalItems(state: JeevyaDailyState): DailyPlanItem[] {
   if (state.journal.hasEntryToday) return [];
   return [{
     id: 'journal:today:create', source: 'journal', title: 'Write today’s journal',
@@ -160,7 +160,7 @@ function journalItems(state: LifeOSDailyState): DailyPlanItem[] {
   }];
 }
 
-function goalItems(state: LifeOSDailyState): DailyPlanItem[] {
+function goalItems(state: JeevyaDailyState): DailyPlanItem[] {
   return state.goals
     .filter((goal) => goal.status === 'behind' || goal.status === 'active')
     .filter((goal) => goal.status === 'behind' || (finite(goal.progressPercentage) && goal.progressPercentage < 100))
@@ -175,7 +175,7 @@ function goalItems(state: LifeOSDailyState): DailyPlanItem[] {
 }
 
 export function buildDailyPlan(
-  state: LifeOSDailyState,
+  state: JeevyaDailyState,
   budgetSpending: BudgetSpending[] = [],
 ): DailyPlanModel {
   const priorities = pulsePriorityForSource(state);
@@ -228,7 +228,7 @@ export async function getDailyPlan(date: CivilDate = todayCivilDate()): Promise<
     };
   }
 
-  const state = await getLifeOSDailyState(date);
+  const state = await getJeevyaDailyState(date);
   let budgets: BudgetSpending[] = [];
   let budgetDegraded = false;
   try {

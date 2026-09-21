@@ -1,5 +1,5 @@
-// LifeOS 3L: deterministic daily planning and execution coverage.
-// The plan is tested as a projection of the existing LifeOS daily state.
+// Jeevya 3L: deterministic daily planning and execution coverage.
+// The plan is tested as a projection of the existing Jeevya daily state.
 // @ts-nocheck
 /* eslint-disable */
 const fs = require('fs');
@@ -165,7 +165,7 @@ function baseState(overrides = {}) {
   }
   passed++; console.log('PASS valid navigation destinations and safe action metadata');
 
-  console.log(`LIFEOS 3L DAILY PLAN: ${passed} passed, 0 failed`);
+  console.log(`JEEVYA 3L DAILY PLAN: ${passed} passed, 0 failed`);
 })().catch((error) => {
   console.error(error instanceof Error ? error.message : error);
   process.exitCode = 1;

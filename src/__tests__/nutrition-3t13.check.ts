@@ -1,4 +1,4 @@
-// LIFEOS 3T.13 focused tests: advanced nutrition + nutrient calculator.
+// JEEVYA 3T.13 focused tests: advanced nutrition + nutrient calculator.
 // Run: npx tsx --import ./src/__tests__/mock-setup.ts src/__tests__/nutrition-3t13.test.ts
 
 import { saveData } from '@/lib/storage';
@@ -210,7 +210,7 @@ void (async () => {
   try { calculateNutrition(base, { amount: 1, unit: 'piece' }); assert(false, 'incompatible piece quantity must be rejected'); } catch { assert(true, 'incompatible piece quantity is rejected'); }
 
   console.log('\n=== 9. Backward compatibility and persistence ===');
-  await saveData('lifeos:nutrition:foods', [{
+  await saveData('jeevya:nutrition:foods', [{
     id: 'legacy-food', name: 'Legacy Food', category: 'Legacy', source: 'custom', serving: { amount: 100, unit: 'g' },
     nutrition: { basis: 'per_100g', calories: 100, protein: 5, carbohydrates: 10, fat: 2, fiber: 1, sugar: 1, saturatedFat: 0.5, sodium: 10, micronutrients: { calcium: 0 } },
   }]);

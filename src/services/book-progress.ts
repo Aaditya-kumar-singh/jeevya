@@ -1,6 +1,6 @@
 // ─── Book Progress History Service (Phase 1D) ─────────────────────────────────
 // Local/offline append-only log of saved page milestones, stored separately
-// from books under `lifeos:book-progress`. Entries are never books and never
+// from books under `jeevya:book-progress`. Entries are never books and never
 // influence book validation. Malformed records are dropped on load — never crash.
 
 import { saveData, loadData } from '@/lib/storage';
@@ -9,7 +9,7 @@ import { getNowISO, type BookProgressEntry } from '@/types/books';
 
 // ─── Storage Key ──────────────────────────────────────────────────────────────
 
-const PROGRESS_KEY = 'lifeos:book-progress';
+const PROGRESS_KEY = 'jeevya:book-progress';
 
 // ─── Normalization ────────────────────────────────────────────────────────────
 

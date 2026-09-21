@@ -17,7 +17,7 @@ export default function DataQualityScreen() {
   const { data, loading, error, refresh } = useDataQuality();
 
   if (loading && !data) {
-    return <View className="flex-1 items-center justify-center bg-background"><ActivityIndicator size="large" className="text-primary" /><Text size="sm" className="mt-3 text-muted-foreground">Checking LifeOS data...</Text></View>;
+    return <View className="flex-1 items-center justify-center bg-background"><ActivityIndicator size="large" className="text-primary" /><Text size="sm" className="mt-3 text-muted-foreground">Checking Jeevya data...</Text></View>;
   }
 
   const status = data?.overallStatus ?? 'unavailable';
@@ -28,7 +28,7 @@ export default function DataQualityScreen() {
       <View className="gap-4 px-5 pt-14">
         <View className="flex-row items-center gap-3">
           <Button variant="ghost" size="icon" onPress={() => router.back()}><ArrowLeft size={20} /></Button>
-          <View className="flex-1"><Text size="sm" className="text-muted-foreground">LifeOS</Text><Heading size="xl" className="mt-1">Data Quality</Heading><Text size="sm" className="mt-1 text-muted-foreground">Diagnostics from existing LifeOS data</Text></View>
+          <View className="flex-1"><Text size="sm" className="text-muted-foreground">Jeevya</Text><Heading size="xl" className="mt-1">Data Quality</Heading><Text size="sm" className="mt-1 text-muted-foreground">Diagnostics from existing Jeevya data</Text></View>
           <CircleCheck size={24} className={status === 'healthy' ? 'text-emerald-500' : 'text-primary'} />
         </View>
 
@@ -72,7 +72,7 @@ export default function DataQualityScreen() {
           }) : <Card className="items-center p-6"><CircleCheck size={28} className="text-emerald-500" /><Heading size="md" className="mt-3">Everything looks healthy</Heading><Text size="sm" className="mt-1 text-center text-muted-foreground">No actionable data quality problems were detected from the current authoritative data.</Text></Card>}
         </View>
 
-        <Text size="xs" className="text-center text-muted-foreground">Diagnostics are read-only. LifeOS does not silently repair or modify your data.</Text>
+        <Text size="xs" className="text-center text-muted-foreground">Diagnostics are read-only. Jeevya does not silently repair or modify your data.</Text>
       </View>
     </ScrollView>
   );

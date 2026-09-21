@@ -2,9 +2,9 @@ import type { WidgetTaskHandlerProps } from 'react-native-android-widget';
 
 import { buildWidgetSnapshot, getWidgetConfigurations } from '@/services/widgets';
 import { getAndroidWidgetConfigurationId, removeAndroidWidgetInstance, setAndroidWidgetConfiguration } from '@/services/androidWidgetInstances';
-import { renderLifeOSAndroidWidget } from '@/widgets/LifeOSAndroidWidget';
+import { renderJeevyaAndroidWidget } from '@/widgets/JeevyaAndroidWidget';
 
-export const ANDROID_LIFEOS_WIDGET_NAME = 'LifeOSWidget';
+export const ANDROID_JEEVYA_WIDGET_NAME = 'JeevyaWidget';
 
 async function resolveConfiguration(widgetId: number) {
   const configurations = await getWidgetConfigurations();
@@ -16,7 +16,7 @@ async function renderCurrentWidget(props: WidgetTaskHandlerProps): Promise<void>
   const configuration = await resolveConfiguration(props.widgetInfo.widgetId);
   if (!configuration) {
     props.renderWidget(
-      renderLifeOSAndroidWidget(
+      renderJeevyaAndroidWidget(
         {
           configurationId: 'unavailable',
           date: new Date().toISOString().slice(0, 10),
@@ -34,7 +34,7 @@ async function renderCurrentWidget(props: WidgetTaskHandlerProps): Promise<void>
 
   await setAndroidWidgetConfiguration(props.widgetInfo.widgetId, configuration.id);
   const snapshot = await buildWidgetSnapshot(configuration, undefined, { authState: 'guest' });
-  props.renderWidget(renderLifeOSAndroidWidget(snapshot, props.widgetInfo.width, props.widgetInfo.height));
+  props.renderWidget(renderJeevyaAndroidWidget(snapshot, props.widgetInfo.width, props.widgetInfo.height));
 }
 
 export async function widgetTaskHandler(props: WidgetTaskHandlerProps): Promise<void> {
@@ -46,7 +46,7 @@ export async function widgetTaskHandler(props: WidgetTaskHandlerProps): Promise<
         await renderCurrentWidget(props);
       } catch {
         props.renderWidget(
-          renderLifeOSAndroidWidget(
+          renderJeevyaAndroidWidget(
             {
               configurationId: 'unavailable',
               date: new Date().toISOString().slice(0, 10),

@@ -1,5 +1,5 @@
 import { todayCivilDate } from '@/lib/date';
-import { getLifeOSDailyState } from '@/services/lifeosIntegration';
+import { getJeevyaDailyState } from '@/services/jeevyaIntegration';
 import { buildDailyPulse } from '@/services/dailyPulse';
 import { getDailyPlan } from '@/services/dailyPlan';
 import { getLifeIntelligence } from '@/services/lifeIntelligence';
@@ -9,7 +9,7 @@ import { canAccess } from '@/services/capabilities';
 import type { AuthState } from '@/types/auth';
 import type { DailyPlanModel } from '@/types/dailyPlan';
 import type { LifeIntelligenceResult } from '@/types/lifeIntelligence';
-import type { LifeOSDailyState } from '@/types/lifeosIntegration';
+import type { JeevyaDailyState } from '@/types/jeevyaIntegration';
 import {
   DEFAULT_WIDGET_CONFIGURATION,
   WIDGET_ACTIONS,
@@ -64,7 +64,7 @@ export async function deleteWidgetConfiguration(id: string): Promise<WidgetConfi
   return saveWidgetConfigurations(next);
 }
 
-function snapshotForModule(module: WidgetModule, state: LifeOSDailyState, plan: DailyPlanModel | null, intelligence: LifeIntelligenceResult | null, budgets: Awaited<ReturnType<typeof getBudgetSpending>>): WidgetModuleSnapshot | null {
+function snapshotForModule(module: WidgetModule, state: JeevyaDailyState, plan: DailyPlanModel | null, intelligence: LifeIntelligenceResult | null, budgets: Awaited<ReturnType<typeof getBudgetSpending>>): WidgetModuleSnapshot | null {
   const degraded = new Set(state.dataQuality?.degradedDomains ?? []);
   const action = WIDGET_ACTIONS[module];
   if (module === 'tasks') {
@@ -140,7 +140,7 @@ function snapshotForModule(module: WidgetModule, state: LifeOSDailyState, plan: 
 
 export async function buildWidgetSnapshot(configuration: WidgetConfiguration, date: string = todayCivilDate(), context: { authState?: AuthState } = {}): Promise<WidgetSnapshot> {
   const authState = context.authState ?? 'guest';
-  const state = await getLifeOSDailyState(date);
+  const state = await getJeevyaDailyState(date);
   let plan: DailyPlanModel | null = null;
   let intelligence: LifeIntelligenceResult | null = null;
   let budgets: Awaited<ReturnType<typeof getBudgetSpending>> = [];
@@ -160,6 +160,9 @@ export async function buildWidgetSnapshot(configuration: WidgetConfiguration, da
     date,
     generatedAt: now(),
     density: configuration.density,
+    ...(configuration.size ? { size: configuration.size } : {}),
+    ...(configuration.layout ? { layout: configuration.layout } : {}),
+    ...(configuration.theme ? { theme: configuration.theme } : {}),
     ...(configuration.title ? { title: configuration.title } : {}),
     modules,
     degradedDomains: [...new Set(state.dataQuality?.degradedDomains ?? [])].sort(),

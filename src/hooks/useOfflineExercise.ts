@@ -92,7 +92,7 @@ export function useOfflineExercise(
             ? mediaUri 
             : `https://raw.githubusercontent.com/hasaneyldrm/exercises-dataset/main/${mediaUri}`;
             
-          const destDir = new Directory(Paths.document, 'lifeos', 'exercises', exerciseId);
+          const destDir = new Directory(Paths.document, 'jeevya', 'exercises', exerciseId);
           destDir.create({ intermediates: true, idempotent: true });
           const ext = mediaUri.split('.').pop() ?? 'jpg';
           const dest = new File(destDir, `media.${ext}`);

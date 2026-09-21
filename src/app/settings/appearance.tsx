@@ -293,6 +293,13 @@ export default function AppearanceScreen() {
                             <Heading size="sm" className="font-bold" style={{ color: item.colors.text }}>
                               {item.name}
                             </Heading>
+                            {item.id === 'jeevya-nature' ? (
+                              <View className="rounded-md px-2 py-0.5" style={{ backgroundColor: item.colors.secondary }}>
+                                <Text size="xs" className="text-[10px] font-extrabold" style={{ color: item.colors.secondaryForeground }}>
+                                  Jeevya Default
+                                </Text>
+                              </View>
+                            ) : null}
 
                             {/* Mode badge */}
                             <View className="flex-row items-center gap-1 px-2 py-0.5 rounded-md bg-muted/60">

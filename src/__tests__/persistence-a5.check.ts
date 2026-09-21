@@ -4,9 +4,9 @@ import { taskRepository } from '@/services/repositories/tasks';
 import { loadData, saveData } from '@/lib/storage';
 import { createTask, getTasks, migrateLegacyTasks, updateTask } from '@/services/tasks';
 
-const TASKS_KEY = 'lifeos:tasks';
-const LEGACY_TASKS_KEY = '@lifeos/tasks/v1';
-const MIGRATION_KEY = 'lifeos:tasks:migration:v1';
+const TASKS_KEY = 'jeevya:tasks';
+const LEGACY_TASKS_KEY = '@jeevya/tasks/v1';
+const MIGRATION_KEY = 'jeevya:tasks:migration:v1';
 
 function assert(condition: unknown, message: string): asserts condition {
   if (!condition) throw new Error(message);

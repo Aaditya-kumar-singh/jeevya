@@ -1,5 +1,5 @@
 import { useCallback, useState } from 'react';
-import { searchLifeOS } from '@/services/unifiedSearch';
+import { searchJeevya } from '@/services/unifiedSearch';
 import type { UnifiedSearchResponse } from '@/types/unifiedSearch';
 import { todayCivilDate } from '@/lib/date';
 
@@ -10,7 +10,7 @@ export function useUnifiedSearch() {
   const search = useCallback(async (query: string) => {
     if (!query.trim()) { setData({ query: '', date: todayCivilDate(), results: [] }); setError(null); return; }
     setLoading(true); setError(null);
-    try { const result = await searchLifeOS(query); setData(result); return result; }
+    try { const result = await searchJeevya(query); setData(result); return result; }
     catch (cause) { const message = cause instanceof Error ? cause.message : 'Search failed'; setError(message); throw cause; }
     finally { setLoading(false); }
   }, []);

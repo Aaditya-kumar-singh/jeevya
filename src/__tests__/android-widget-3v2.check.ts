@@ -1,4 +1,4 @@
-// LIFEOS 3V.2 focused Android widget integration tests.
+// JEEVYA 3V.2 focused Android widget integration tests.
 import appConfig from '../../app.json';
 import { saveData } from '@/lib/storage';
 import {
@@ -34,7 +34,7 @@ function base(id: string, modules: WidgetConfiguration['modules']): WidgetConfig
 }
 
 void (async () => {
-  console.log('\n=== LIFEOS 3V.2 Android Widget ===');
+  console.log('\n=== JEEVYA 3V.2 Android Widget ===');
 
   await saveData(ANDROID_WIDGET_INSTANCE_STORAGE_KEY, {});
   await setAndroidWidgetConfiguration(101, 'widget_a');
@@ -50,7 +50,7 @@ void (async () => {
 
   const plugin = (appConfig.expo.plugins as unknown[]).find((item) => Array.isArray(item) && item[0] === 'react-native-android-widget') as [string, { widgets: Record<string, unknown>[] }] | undefined;
   const widgetConfig = plugin?.[1]?.widgets?.[0];
-  assert(!!widgetConfig && widgetConfig.name === 'LifeOSWidget', 'Android LifeOS widget is registered in Expo configuration');
+  assert(!!widgetConfig && widgetConfig.name === 'JeevyaWidget', 'Android Jeevya widget is registered in Expo configuration');
   assert(widgetConfig?.widgetFeatures === 'reconfigurable', 'widget instances can be independently reconfigured');
   assert(widgetConfig?.resizeMode === 'horizontal|vertical', 'widget supports launcher resizing in both directions');
   assert(widgetConfig?.updatePeriodMillis === 1800000, 'system refresh interval is the Android-safe 30 minute minimum');
@@ -72,7 +72,7 @@ void (async () => {
   const custom = base('widget_custom', ['protein', 'calories', 'fat']);
   custom.density = 'detailed';
   custom.selectedMetrics = ['protein'];
-  await saveData('lifeos:widgets:configurations', [custom]);
+  await saveData('jeevya:widgets:configurations', [custom]);
   const snapshot = await buildWidgetSnapshot(custom, '2026-09-15', { authState: 'guest' });
   assert(snapshot.configurationId === 'widget_custom', 'Android widget consumes the shared 3V.1 snapshot identity');
   assert(snapshot.density === 'detailed', 'Android widget snapshot preserves configured density');
@@ -80,13 +80,13 @@ void (async () => {
   assert(snapshot.modules.every((module) => Object.values(module.values).every((value) => value !== null && value !== undefined)), 'missing values are never fabricated as null or undefined');
 
   const empty = base('widget_empty', ['tasks', 'habits', 'calories', 'protein', 'finance_spending', 'books', 'goals']);
-  await saveData('lifeos:tasks', []);
-  await saveData('lifeos:habits', []);
-  await saveData('lifeos:habit-logs', []);
-  await saveData('lifeos:nutrition:food-logs', []);
-  await saveData('lifeos:finance:transactions', []);
-  await saveData('lifeos:books', []);
-  await saveData('lifeos:goals', []);
+  await saveData('jeevya:tasks', []);
+  await saveData('jeevya:habits', []);
+  await saveData('jeevya:habit-logs', []);
+  await saveData('jeevya:nutrition:food-logs', []);
+  await saveData('jeevya:finance:transactions', []);
+  await saveData('jeevya:books', []);
+  await saveData('jeevya:goals', []);
   const emptySnapshot = await buildWidgetSnapshot(empty, '2026-09-15', { authState: 'guest' });
   assert(emptySnapshot.modules.length === 0, 'missing domain data produces a safe empty widget state');
   assert(!JSON.stringify(emptySnapshot).includes('sync') && !JSON.stringify(emptySnapshot).includes('conflict'), 'widget snapshot contains no sync or conflict metadata');

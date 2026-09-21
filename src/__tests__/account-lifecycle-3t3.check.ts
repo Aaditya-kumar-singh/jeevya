@@ -1,4 +1,4 @@
-// LIFEOS 3T.3: account lifecycle and local-first safety coverage.
+// JEEVYA 3T.3: account lifecycle and local-first safety coverage.
 // @ts-nocheck
 const assert = (condition, message) => { if (!condition) throw new Error(message); };
 
@@ -168,5 +168,5 @@ const assert = (condition, message) => { if (!condition) throw new Error(message
   Object.defineProperty(AsyncStorage, 'getItem', { configurable: true, writable: true, value: original.getItem });
   Object.defineProperty(AsyncStorage, 'setItem', { configurable: true, writable: true, value: original.setItem });
   Object.defineProperty(AsyncStorage, 'removeItem', { configurable: true, writable: true, value: original.removeItem });
-  console.log(`LIFEOS 3T.3 ACCOUNT LIFECYCLE: ${passed} passed, 0 failed`);
+  console.log(`JEEVYA 3T.3 ACCOUNT LIFECYCLE: ${passed} passed, 0 failed`);
 })().catch(() => process.exit(1));

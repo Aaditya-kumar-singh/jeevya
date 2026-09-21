@@ -20,7 +20,7 @@ import type { Book } from '@/types/books';
 
 // ─── Storage Key ──────────────────────────────────────────────────────────────
 
-const GOALS_KEY = 'lifeos:book-goals';
+const GOALS_KEY = 'jeevya:book-goals';
 
 // ─── Date Helpers (civil YYYY-MM-DD only — no timezone math) ──────────────────
 

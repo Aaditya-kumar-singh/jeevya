@@ -1,7 +1,7 @@
 import { ActivityIndicator, ScrollView, View } from 'react-native';
 import { useState } from 'react';
 import { router } from 'expo-router';
-import { Bell, ChevronRight, Palette, User, Database, Settings as SettingsIcon, ShieldCheck, RefreshCw, Sparkles } from 'lucide-react-native';
+import { Bell, ChevronRight, Palette, User, Database, Settings as SettingsIcon, ShieldCheck, RefreshCw, Sparkles, SlidersHorizontal } from 'lucide-react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { Button, ButtonText, Card, Heading, Text } from '@/components/ui';
@@ -21,6 +21,7 @@ const icons: Record<string, typeof User> = {
   appearance: Palette,
   notifications: Bell,
   data: Database,
+  widgets: SlidersHorizontal,
 };
 
 const iconBgs: Record<string, string> = {
@@ -85,7 +86,7 @@ export default function SettingsScreen() {
             <View className="flex-row items-center justify-between">
               <View>
                 <Text size="xs" className="font-semibold text-sky-500 uppercase tracking-wider">
-                  LifeOS System Control
+                  Jeevya System Control
                 </Text>
                 <Heading size="xl" className="mt-1 font-bold tracking-tight text-foreground">
                   Preferences & Data
@@ -160,6 +161,23 @@ export default function SettingsScreen() {
             })}
           </View>
 
+          <FadeInView delay={240}>
+            <ScalePressable onPress={() => router.push('/settings/widgets' as never)}>
+              <Card className="w-full p-4 border border-indigo-500/20 bg-indigo-500/5 rounded-3xl">
+                <View className="flex-row items-center gap-3">
+                  <View className="h-11 w-11 items-center justify-center rounded-2xl bg-indigo-500/15">
+                    <SlidersHorizontal size={20} className="text-indigo-500" />
+                  </View>
+                  <View className="flex-1">
+                    <Heading size="sm" className="font-bold">Home-screen Widgets</Heading>
+                    <Text size="xs" className="text-muted-foreground font-medium mt-0.5">Add any Jeevya module, reorder blocks, choose size, layout, density, and theme.</Text>
+                  </View>
+                  <ChevronRight size={18} className="text-muted-foreground/60" />
+                </View>
+              </Card>
+            </ScalePressable>
+          </FadeInView>
+
           <FadeInView delay={260}>
             <Card className="w-full p-4 border border-border/60 bg-card/90 dark:bg-card/70 shadow-xs rounded-3xl">
               <View className="flex-row items-center gap-3">
@@ -218,7 +236,7 @@ export default function SettingsScreen() {
                 <ShieldCheck size={24} className="text-emerald-500" />
                 <View className="flex-1">
                   <Text size="xs" className="font-bold text-emerald-600 dark:text-emerald-400">
-                    LifeOS Security Core Active
+                    Jeevya Security Core Active
                   </Text>
                   <Text size="xs" className="text-muted-foreground mt-0.5">
                     Local offline sync • End-to-end device storage

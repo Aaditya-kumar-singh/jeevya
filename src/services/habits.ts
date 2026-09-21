@@ -4,8 +4,8 @@ import { uid } from '@/lib/uid';
 import type { Habit, HabitLog, HabitFrequency, Weekday } from '@/types/habit';
 import { getISODateString } from '@/types/habit';
 
-const HABITS_KEY = 'lifeos:habits';
-const HABIT_LOGS_KEY = 'lifeos:habit-logs';
+const HABITS_KEY = 'jeevya:habits';
+const HABIT_LOGS_KEY = 'jeevya:habit-logs';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 

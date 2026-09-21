@@ -2,14 +2,14 @@ import type { WidgetConfiguration, WidgetSnapshot } from '@/types/widgets';
 import { publishAndroidWidgetSnapshot } from '@/services/androidWidgetAdapter';
 
 /** Shared contract consumed by Android and future iOS native widget adapters. */
-export interface LifeOSWidgetPlatformAdapter {
+export interface JeevyaWidgetPlatformAdapter {
   readonly platform: 'android' | 'ios' | 'none';
   publish(snapshot: WidgetSnapshot, configuration: WidgetConfiguration): Promise<void>;
   remove(configurationId: string): Promise<void>;
 }
 
 /** Web/unsupported-platform adapter intentionally performs no native work. */
-export const androidWidgetPlatformAdapter: LifeOSWidgetPlatformAdapter = {
+export const androidWidgetPlatformAdapter: JeevyaWidgetPlatformAdapter = {
   platform: 'android',
   async publish(snapshot, configuration): Promise<void> {
     await publishAndroidWidgetSnapshot(snapshot, configuration);
@@ -20,7 +20,7 @@ export const androidWidgetPlatformAdapter: LifeOSWidgetPlatformAdapter = {
   },
 };
 
-export const unavailableWidgetPlatformAdapter: LifeOSWidgetPlatformAdapter = {
+export const unavailableWidgetPlatformAdapter: JeevyaWidgetPlatformAdapter = {
   platform: 'none',
   async publish(): Promise<void> { /* Native platform phase owns publishing. */ },
   async remove(): Promise<void> { /* Native platform phase owns removal. */ },

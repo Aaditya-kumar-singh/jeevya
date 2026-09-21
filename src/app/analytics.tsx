@@ -6,12 +6,12 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Heading } from '@/components/ui/heading';
 import { Text } from '@/components/ui/text';
-import { useLifeOSAnalytics } from '@/hooks/useLifeOSAnalytics';
+import { useJeevyaAnalytics } from '@/hooks/useJeevyaAnalytics';
 import { useHistoricalAnalytics } from '@/hooks/useHistoricalAnalytics';
-import type { LifeOSAnalyticsPeriod } from '@/types/lifeosAnalytics';
+import type { JeevyaAnalyticsPeriod } from '@/types/jeevyaAnalytics';
 import type { HistoricalAnalyticsFilter, HistoricalAnalyticsPeriod } from '@/types/historicalAnalytics';
 
-const PERIODS: LifeOSAnalyticsPeriod[] = [7, 30, 90];
+const PERIODS: JeevyaAnalyticsPeriod[] = [7, 30, 90];
 const HISTORICAL_PERIODS: HistoricalAnalyticsPeriod[] = [7, 30, 90];
 const HISTORICAL_FILTERS: HistoricalAnalyticsFilter[] = ['all', 'tasks', 'habits', 'health', 'nutrition', 'finance', 'books', 'journal', 'goals'];
 
@@ -43,7 +43,7 @@ function HistoricalMetricCard({ metric }: { metric: import('@/types/historicalAn
 
 export default function AnalyticsScreen() {
   const router = useRouter();
-  const { period, data, loading, refreshing, error, refresh, setPeriod } = useLifeOSAnalytics();
+  const { period, data, loading, refreshing, error, refresh, setPeriod } = useJeevyaAnalytics();
   const historical = useHistoricalAnalytics();
 
   if (loading && !data) {

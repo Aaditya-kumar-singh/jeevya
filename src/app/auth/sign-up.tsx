@@ -43,7 +43,7 @@ export default function SignUpScreen() {
               <Card className="w-full p-5 border border-border/60 bg-card/90 dark:bg-card/70 shadow-xs rounded-3xl">
                 <View className="flex-row items-center gap-3">
                   <View className="h-12 w-12 items-center justify-center rounded-2xl bg-indigo-500/15"><UserPlus size={24} className="text-indigo-500" /></View>
-                  <View className="flex-1"><Text size="xs" className="font-semibold text-indigo-500 uppercase tracking-wider">LifeOS Account</Text><Heading size="xl" className="mt-1 font-bold">Create account</Heading><Text size="sm" className="mt-1 text-muted-foreground">Create an account without changing your local data.</Text></View>
+                  <View className="flex-1"><Text size="xs" className="font-semibold text-indigo-500 uppercase tracking-wider">Jeevya Account</Text><Heading size="xl" className="mt-1 font-bold">Create account</Heading><Text size="sm" className="mt-1 text-muted-foreground">Create an account without changing your local data.</Text></View>
                 </View>
                 {authLoading ? <View className="mt-6"><ActivityIndicator /></View> : isAuthenticated ? <View className="mt-6 gap-3"><Text size="sm" className="font-semibold">An account is already active.</Text><Button variant="outline" onPress={() => router.replace('/auth/sign-in' as never)}><ButtonText>Back to account</ButtonText></Button></View> : (
                   <View className="mt-6 gap-3">

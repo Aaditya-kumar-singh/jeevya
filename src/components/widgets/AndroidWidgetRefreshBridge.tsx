@@ -7,7 +7,7 @@ export function AndroidWidgetRefreshBridge() {
 
     const refresh = () => {
       void import('@/services/androidWidgetAdapter')
-        .then(({ refreshAndroidLifeOSWidgets }) => refreshAndroidLifeOSWidgets())
+        .then(({ refreshAndroidJeevyaWidgets }) => refreshAndroidJeevyaWidgets())
         .catch(() => {
           // Android/system refresh remains responsible when local refresh is unavailable.
         });

@@ -1,12 +1,12 @@
-// LifeOS 3G: deterministic weekly review tests.
+// Jeevya 3G: deterministic weekly review tests.
 import { buildWeeklyReviewInsights } from '@/services/weeklyReview';
-import type { LifeOSAnalyticsResult } from '@/types/lifeosAnalytics';
+import type { JeevyaAnalyticsResult } from '@/types/jeevyaAnalytics';
 
 function assert(condition: unknown, message: string): asserts condition {
   if (!condition) throw new Error(message);
 }
 
-const analytics: LifeOSAnalyticsResult = {
+const analytics: JeevyaAnalyticsResult = {
   period: 7,
   startDate: '2026-09-08',
   endDate: '2026-09-14',
@@ -33,4 +33,4 @@ const a = JSON.stringify(buildWeeklyReviewInsights(analytics));
 const b = JSON.stringify(buildWeeklyReviewInsights(analytics));
 assert(a === b, 'review must be deterministic');
 
-console.log('LIFEOS 3G WEEKLY REVIEW: 6 passed, 0 failed');
+console.log('JEEVYA 3G WEEKLY REVIEW: 6 passed, 0 failed');

@@ -1,4 +1,4 @@
-import { canAccess, getFeatureAccess, requiresAuthentication, LIFEOS_CAPABILITY_REGISTRY } from '@/services/capabilities';
+import { canAccess, getFeatureAccess, requiresAuthentication, JEEVYA_CAPABILITY_REGISTRY } from '@/services/capabilities';
 
 function assertEqual(actual: unknown, expected: unknown, message = 'assertion failed'): void {
   if (actual !== expected) throw new Error(`${message}: expected ${String(expected)}, got ${String(actual)}`);
@@ -39,10 +39,10 @@ assertEqual(canAccess('unknown-feature', 'authenticated'), false);
 assertEqual(requiresAuthentication('unknown-feature'), false);
 console.log('PASS unknown capability fails safely');
 
-const first = JSON.stringify(LIFEOS_CAPABILITY_REGISTRY);
-const second = JSON.stringify(LIFEOS_CAPABILITY_REGISTRY);
+const first = JSON.stringify(JEEVYA_CAPABILITY_REGISTRY);
+const second = JSON.stringify(JEEVYA_CAPABILITY_REGISTRY);
 assertEqual(first, second);
-assertEqual(Object.keys(LIFEOS_CAPABILITY_REGISTRY).length, 26);
+assertEqual(Object.keys(JEEVYA_CAPABILITY_REGISTRY).length, 26);
 console.log('PASS capability registry is deterministic');
 
 assertEqual(getFeatureAccess('cloudSync')?.accessLevel, 'account');
@@ -54,4 +54,4 @@ assertEqual(canAccess('cloudSync', 'authenticated'), true);
 assertEqual(canAccess('cloudSync', 'guest'), false);
 console.log('PASS capability checks use only the supplied auth state and do not require a cached user ID');
 
-console.log('LIFEOS 3T.4 FEATURE ACCESS CONTROL: 10 passed, 0 failed');
+console.log('JEEVYA 3T.4 FEATURE ACCESS CONTROL: 10 passed, 0 failed');

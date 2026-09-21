@@ -16,9 +16,9 @@ for path in files:
     text = open(path, encoding='utf-8').read()
     def replace(match):
         quote, value = match.groups()
-        if 'lifeos:' in value.lower() or '@lifeos' in value.lower():
+        if 'jeevya:' in value.lower() or '@jeevya' in value.lower():
             return match.group(0)
-        return quote + value.replace('LifeOS', 'Jeevya') + quote
+        return quote + value.replace('Jeevya', 'Jeevya') + quote
     updated = pattern.sub(replace, text)
     if updated != text:
         open(path, 'w', encoding='utf-8').write(updated)

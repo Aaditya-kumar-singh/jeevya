@@ -1,4 +1,4 @@
-// LIFEOS 3V.1 focused tests.
+// JEEVYA 3V.1 focused tests.
 import { saveData } from '@/lib/storage';
 import { DEFAULT_WIDGET_CONFIGURATION, WIDGET_CONFIG_STORAGE_KEY, type WidgetConfiguration } from '@/types/widgets';
 import { buildWidgetSnapshot, deleteWidgetConfiguration, getWidgetConfigurations, saveWidgetConfigurations, upsertWidgetConfiguration } from '@/services/widgets';
@@ -8,7 +8,7 @@ function assert(ok: boolean, message: string) { total += 1; if (ok) { passed += 
 function base(id: string, modules: WidgetConfiguration['modules']): WidgetConfiguration { const t = '2026-09-15T00:00:00.000Z'; return { id, preset: 'custom', density: 'compact', modules, selectedMetrics: [], createdAt: t, updatedAt: t }; }
 
 void (async () => {
-  console.log('\n=== LIFEOS 3V.1 Widget Foundation ===');
+  console.log('\n=== JEEVYA 3V.1 Widget Foundation ===');
   await saveData(WIDGET_CONFIG_STORAGE_KEY, []);
   const defaults = await getWidgetConfigurations();
   assert(defaults.length === 1 && defaults[0].id === DEFAULT_WIDGET_CONFIGURATION.id, 'default widget configuration is available locally');
@@ -58,22 +58,22 @@ void (async () => {
   assert(localBoundary.degradedDomains.every((domain) => domain !== 'sync' && domain !== 'conflicts'), 'sync and conflict metadata are never exposed in snapshots');
 
   const noDomainData = base('empty_domains', ['tasks', 'habits', 'workout', 'sleep', 'recovery', 'calories', 'protein', 'carbohydrates', 'fat', 'finance_spending', 'finance_budget', 'savings', 'books', 'goals']);
-  await saveData('lifeos:tasks', []);
-  await saveData('lifeos:habits', []);
-  await saveData('lifeos:habit-logs', []);
-  await saveData('lifeos:finance:accounts', []);
-  await saveData('lifeos:finance:transactions', []);
-  await saveData('lifeos:finance:budgets', []);
-  await saveData('lifeos:finance:savings-goals', []);
-  await saveData('lifeos:books', []);
+  await saveData('jeevya:tasks', []);
+  await saveData('jeevya:habits', []);
+  await saveData('jeevya:habit-logs', []);
+  await saveData('jeevya:finance:accounts', []);
+  await saveData('jeevya:finance:transactions', []);
+  await saveData('jeevya:finance:budgets', []);
+  await saveData('jeevya:finance:savings-goals', []);
+  await saveData('jeevya:books', []);
   const emptySnapshot = await buildWidgetSnapshot(noDomainData, '2026-09-15', { authState: 'guest' });
   assert(emptySnapshot.modules.length === 0, 'missing domain data omits modules instead of fabricating zeros');
 
   const degraded = base('degraded', ['tasks']);
-  window.localStorage.setItem('lifeos:tasks', 'not-json');
+  window.localStorage.setItem('jeevya:tasks', 'not-json');
   const degradedSnapshot = await buildWidgetSnapshot(degraded, '2026-09-15', { authState: 'guest' });
   assert(degradedSnapshot.modules.length === 0 && degradedSnapshot.degradedDomains.includes('tasks'), 'degraded domain data produces a safe unavailable module state');
-  await saveData('lifeos:tasks', []);
+  await saveData('jeevya:tasks', []);
 
   const metricSelection = base('metric_selection', ['tasks']);
   metricSelection.selectedMetrics = ['dueToday'];

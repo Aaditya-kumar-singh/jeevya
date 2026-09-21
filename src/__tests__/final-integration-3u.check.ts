@@ -43,11 +43,11 @@ check('root stack registers nutrition and core detail routes', () => {
 check('global service remains read-only', () => {
   const source = read('src/services/globalData.ts');
   assert(!/\.insert\(|\.update\(|\.delete\(/.test(source), 'global service exposes client writes');
-  assert(!source.includes('lifeos:nutrition'), 'global service references nutrition storage');
+  assert(!source.includes('jeevya:nutrition'), 'global service references nutrition storage');
 });
 
 check('global metrics schema has authenticated reads and no client writes', () => {
-  const sql = read('sql/lifeos-global-metrics.sql');
+  const sql = read('sql/jeevya-global-metrics.sql');
   assert(sql.includes('enable row level security'), 'global metrics RLS missing');
   assert(sql.includes('to authenticated'), 'global metrics authenticated read boundary missing');
   assert(sql.includes('There is deliberately no INSERT, UPDATE, or DELETE policy'), 'global metrics write boundary missing');
@@ -55,8 +55,8 @@ check('global metrics schema has authenticated reads and no client writes', () =
 
 check('sync/conflict metadata is excluded from backup surface', () => {
   const backup = read('src/services/backup.ts');
-  assert(!backup.includes('lifeos:sync:metadata'), 'sync metadata enters backup');
-  assert(!backup.includes('lifeos:sync:conflicts'), 'conflict metadata enters backup');
+  assert(!backup.includes('jeevya:sync:metadata'), 'sync metadata enters backup');
+  assert(!backup.includes('jeevya:sync:conflicts'), 'conflict metadata enters backup');
 });
 
 check('client source contains no service-role credential reference', () => {
@@ -77,7 +77,7 @@ check('nutrition does not use global data layer', () => {
 });
 
 check('canonical date utility is used by integration boundary', () => {
-  const integration = read('src/services/lifeosIntegration.ts');
+  const integration = read('src/services/jeevyaIntegration.ts');
   assert(integration.includes("from '@/lib/date'"), 'integration bypasses canonical date utilities');
   assert(integration.includes('isValidCivilDate'), 'integration does not validate civil dates');
 });
@@ -97,4 +97,4 @@ check('3T.13 regression suite is present', () => {
   assert(fs.existsSync(path.join(root, 'src/__tests__/nutrition-3t13.check.ts')), '3T.13 suite missing');
 });
 
-console.log(`LIFEOS 3U FINAL INTEGRATION QA: ${passed} passed, 0 failed`);
+console.log(`JEEVYA 3U FINAL INTEGRATION QA: ${passed} passed, 0 failed`);

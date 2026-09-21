@@ -75,7 +75,7 @@ import {
 
 // ─── Storage Key ──────────────────────────────────────────────────────────────
 
-const FOODS_KEY = 'lifeos:nutrition:foods';
+const FOODS_KEY = 'jeevya:nutrition:foods';
 
 // ─── Validation Limits ────────────────────────────────────────────────────────
 
@@ -565,7 +565,7 @@ export async function deleteFood(id: string): Promise<boolean> {
 
 // ─── Food Logs (Phase 1D) ────────────────────────────────────────────────────
 
-const FOOD_LOGS_KEY = 'lifeos:nutrition:food-logs';
+const FOOD_LOGS_KEY = 'jeevya:nutrition:food-logs';
 
 function isValidMealType(value: unknown): value is MealType {
   return typeof value === 'string' && (MEAL_TYPES as string[]).includes(value);
@@ -756,7 +756,7 @@ export async function deleteFoodLog(id: string): Promise<boolean> {
 
 // ─── Recipes (Phase 1F) ──────────────────────────────────────────────────────
 
-const RECIPES_KEY = 'lifeos:nutrition:recipes';
+const RECIPES_KEY = 'jeevya:nutrition:recipes';
 const RECIPE_NAME_MAX = 200;
 const RECIPE_DESCRIPTION_MAX = 2000;
 const RECIPE_CATEGORY_MAX = 100;
@@ -1730,7 +1730,7 @@ export type { MicronutrientKey };
 
 // ─── Body Profile & BMR/TDEE (Phase 1G) ──────────────────────────────────────
 
-const BODY_PROFILE_KEY = 'lifeos:nutrition:body-profile';
+const BODY_PROFILE_KEY = 'jeevya:nutrition:body-profile';
 
 function isValidSex(value: unknown): value is Sex {
   return typeof value === 'string' && (value === 'male' || value === 'female');
@@ -1930,7 +1930,7 @@ export function calculateNutritionTargets(profile: BodyProfile): NutritionTarget
 
 // ─── Energy Activities (Phase 1H + 1I) ───────────────────────────────────────
 
-const ENERGY_ACTIVITIES_KEY = 'lifeos:nutrition:energy-activities';
+const ENERGY_ACTIVITIES_KEY = 'jeevya:nutrition:energy-activities';
 
 function isValidActivityType(value: unknown): value is ActivityType {
   return typeof value === 'string' && (ACTIVITY_TYPES as { value: string }[]).some((t) => t.value === value);

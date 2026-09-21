@@ -21,7 +21,7 @@ import { getTasks, updateTask } from '@/services/tasks';
 
 // ─── Storage Key ──────────────────────────────────────────────────────────────
 
-const LABELS_KEY = 'lifeos:labels';
+const LABELS_KEY = 'jeevya:labels';
 
 // ─── Normalization ────────────────────────────────────────────────────────────
 

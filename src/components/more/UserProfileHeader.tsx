@@ -21,7 +21,7 @@ export function UserProfileHeader() {
 
         <View className="flex-1">
           <View className="flex-row items-center gap-2">
-            <Heading size="md" className="font-bold">LifeOS Architect</Heading>
+            <Heading size="md" className="font-bold">Jeevya Architect</Heading>
             <ShieldCheck size={18} className="text-amber-500" fill="#F59E0B" />
           </View>
           <Text size="xs" className="text-muted-foreground font-medium mt-0.5">

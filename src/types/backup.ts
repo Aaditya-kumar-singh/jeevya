@@ -1,4 +1,4 @@
-export const BACKUP_FORMAT = 'lifeos-backup' as const;
+export const BACKUP_FORMAT = 'jeevya-backup' as const;
 export const BACKUP_VERSION = 1 as const;
 
 export type BackupDomainName =
@@ -18,7 +18,7 @@ export interface BackupDomainPayload {
   [storageKey: string]: unknown;
 }
 
-export interface LifeOSBackup {
+export interface JeevyaBackup {
   format: typeof BACKUP_FORMAT;
   version: typeof BACKUP_VERSION;
   createdAt: string;
@@ -46,64 +46,64 @@ export interface BackupValidationIssue {
 
 export interface BackupValidationResult {
   valid: boolean;
-  backup: LifeOSBackup | null;
+  backup: JeevyaBackup | null;
   issues: BackupValidationIssue[];
 }
 
 export interface BackupOperationResult {
   success: boolean;
   message: string;
-  backup?: LifeOSBackup;
+  backup?: JeevyaBackup;
   validation?: BackupValidationResult;
 }
 
 export const BACKUP_STORAGE_KEYS = [
-  'lifeos:tasks',
-  'lifeos:habits',
-  'lifeos:habit-logs',
-  'lifeos:labels',
-  'lifeos:books',
-  'lifeos:book-goals',
-  'lifeos:book-progress',
-  'lifeos:journal',
-  'lifeos:finance:accounts',
-  'lifeos:finance:transactions',
-  'lifeos:finance:categories',
-  'lifeos:finance:budgets',
-  'lifeos:finance:savings-goals',
-  'lifeos:nutrition:foods',
-  'lifeos:nutrition:food-logs',
-  'lifeos:nutrition:recipes',
-  'lifeos:nutrition:body-profile',
-  'lifeos:nutrition:energy-activities',
-  'lifeos:workouts:sessions',
-  'lifeos:workouts:templates',
-  'lifeos:workouts:programs',
-  'lifeos:health:sleep',
+  'jeevya:tasks',
+  'jeevya:habits',
+  'jeevya:habit-logs',
+  'jeevya:labels',
+  'jeevya:books',
+  'jeevya:book-goals',
+  'jeevya:book-progress',
+  'jeevya:journal',
+  'jeevya:finance:accounts',
+  'jeevya:finance:transactions',
+  'jeevya:finance:categories',
+  'jeevya:finance:budgets',
+  'jeevya:finance:savings-goals',
+  'jeevya:nutrition:foods',
+  'jeevya:nutrition:food-logs',
+  'jeevya:nutrition:recipes',
+  'jeevya:nutrition:body-profile',
+  'jeevya:nutrition:energy-activities',
+  'jeevya:workouts:sessions',
+  'jeevya:workouts:templates',
+  'jeevya:workouts:programs',
+  'jeevya:health:sleep',
 ] as const;
 
 export const BACKUP_DOMAIN_KEYS: Record<BackupDomainName, readonly string[]> = {
-  tasks: ['lifeos:tasks', 'lifeos:labels'],
-  habits: ['lifeos:habits', 'lifeos:habit-logs'],
-  books: ['lifeos:books', 'lifeos:book-goals', 'lifeos:book-progress'],
-  journal: ['lifeos:journal'],
+  tasks: ['jeevya:tasks', 'jeevya:labels'],
+  habits: ['jeevya:habits', 'jeevya:habit-logs'],
+  books: ['jeevya:books', 'jeevya:book-goals', 'jeevya:book-progress'],
+  journal: ['jeevya:journal'],
   finance: [
-    'lifeos:finance:accounts',
-    'lifeos:finance:transactions',
-    'lifeos:finance:categories',
-    'lifeos:finance:budgets',
-    'lifeos:finance:savings-goals',
+    'jeevya:finance:accounts',
+    'jeevya:finance:transactions',
+    'jeevya:finance:categories',
+    'jeevya:finance:budgets',
+    'jeevya:finance:savings-goals',
   ],
   nutrition: [
-    'lifeos:nutrition:foods',
-    'lifeos:nutrition:food-logs',
-    'lifeos:nutrition:recipes',
-    'lifeos:nutrition:body-profile',
-    'lifeos:nutrition:energy-activities',
+    'jeevya:nutrition:foods',
+    'jeevya:nutrition:food-logs',
+    'jeevya:nutrition:recipes',
+    'jeevya:nutrition:body-profile',
+    'jeevya:nutrition:energy-activities',
   ],
   health: [],
-  workout: ['lifeos:workouts:sessions', 'lifeos:workouts:templates', 'lifeos:workouts:programs'],
-  sleep: ['lifeos:health:sleep'],
+  workout: ['jeevya:workouts:sessions', 'jeevya:workouts:templates', 'jeevya:workouts:programs'],
+  sleep: ['jeevya:health:sleep'],
   recovery: [],
   goals: [],
 };

@@ -34,7 +34,7 @@ export function XPLevelCard({
               <Heading size="md" className="font-bold">Level {level}</Heading>
               <View className="rounded-full bg-amber-500/15 px-2 py-0.5 border border-amber-500/30">
                 <Text size="xs" className="font-bold text-amber-500">
-                  Pro LifeOS
+                  Pro Jeevya
                 </Text>
               </View>
             </View>

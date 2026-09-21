@@ -1,7 +1,7 @@
 /**
  * EmptyStateIllustration — Abstract blob + icon for empty state screens.
  * Reusable across Tasks, Journal, Books, and other empty states.
- * Uses the LifeOS secondary color (indigo-50/indigo-950).
+ * Uses the Jeevya secondary color (indigo-50/indigo-950).
  */
 import React from 'react';
 import { View , useColorScheme } from 'react-native';

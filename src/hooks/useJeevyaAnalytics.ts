@@ -1,24 +1,24 @@
 import { useCallback, useEffect, useState } from 'react';
 import { todayCivilDate, type CivilDate } from '@/lib/date';
-import { getLifeOSAnalytics } from '@/services/lifeosAnalytics';
-import type { LifeOSAnalyticsPeriod, LifeOSAnalyticsResult } from '@/types/lifeosAnalytics';
+import { getJeevyaAnalytics } from '@/services/jeevyaAnalytics';
+import type { JeevyaAnalyticsPeriod, JeevyaAnalyticsResult } from '@/types/jeevyaAnalytics';
 
-export function useLifeOSAnalytics(initialPeriod: LifeOSAnalyticsPeriod = 7, endDate: CivilDate = todayCivilDate()) {
-  const [period, setPeriod] = useState<LifeOSAnalyticsPeriod>(initialPeriod);
-  const [data, setData] = useState<LifeOSAnalyticsResult | null>(null);
+export function useJeevyaAnalytics(initialPeriod: JeevyaAnalyticsPeriod = 7, endDate: CivilDate = todayCivilDate()) {
+  const [period, setPeriod] = useState<JeevyaAnalyticsPeriod>(initialPeriod);
+  const [data, setData] = useState<JeevyaAnalyticsResult | null>(null);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const load = useCallback(async (nextPeriod: LifeOSAnalyticsPeriod = initialPeriod) => {
+  const load = useCallback(async (nextPeriod: JeevyaAnalyticsPeriod = initialPeriod) => {
     setError(null);
     try {
-      const result = await getLifeOSAnalytics(nextPeriod, endDate);
+      const result = await getJeevyaAnalytics(nextPeriod, endDate);
       setData(result);
       setPeriod(nextPeriod);
       return result;
     } catch (cause) {
-      const message = cause instanceof Error ? cause.message : 'Failed to load LifeOS analytics';
+      const message = cause instanceof Error ? cause.message : 'Failed to load Jeevya analytics';
       setError(message);
       throw cause;
     } finally {
@@ -38,7 +38,7 @@ export function useLifeOSAnalytics(initialPeriod: LifeOSAnalyticsPeriod = 7, end
     await load(period);
   }, [load, period]);
 
-  const changePeriod = useCallback((nextPeriod: LifeOSAnalyticsPeriod) => {
+  const changePeriod = useCallback((nextPeriod: JeevyaAnalyticsPeriod) => {
     setLoading(true);
     void load(nextPeriod);
   }, [load]);

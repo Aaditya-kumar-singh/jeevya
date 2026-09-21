@@ -40,7 +40,7 @@ src/
     index.tsx         <- Redirect to /(tabs)
     (tabs)/
       _layout.tsx     <- Home/Health/Tasks/Finance/More + Lucide icons
-      index.tsx       <- LifeOS dashboard (DailyPulse/Progress/Health/Tasks/Finance/QuickActions)
+      index.tsx       <- Jeevya dashboard (DailyPulse/Progress/Health/Tasks/Finance/QuickActions)
       health.tsx tasks.tsx finance.tsx more.tsx
     health/workout.tsx exercises.tsx sleep.tsx nutrition.tsx
     finance/transactions.tsx budget.tsx goals.tsx
@@ -51,7 +51,7 @@ src/
     ui/               <- gluestack components (badge button card heading input progress text ...)
     dashboard/        <- HomeHeader DailyPulse TodaysProgress HealthSnapshot TaskPreview FinanceSnapshot QuickActions
   constants/
-    colors.ts         <- LifeOS light/dark tokens
+    colors.ts         <- Jeevya light/dark tokens
     spacing.ts typography.ts
   hooks/
   lib/
@@ -148,7 +148,7 @@ Architecture:
 
 ```text
 src/types/workout.ts        <- Workout / WorkoutExercise / WorkoutSet / PersonalRecord
-src/services/workouts.ts    <- local-first repository over AsyncStorage (@lifeos/workouts/v1, @lifeos/prs/v1)
+src/services/workouts.ts    <- local-first repository over AsyncStorage (@jeevya/workouts/v1, @jeevya/prs/v1)
 src/hooks/useWorkout.ts     <- builder state (add/remove/duplicate/move/save/start)
 src/hooks/useWorkoutSession.ts  <- session (timestamp-based elapsed + rest, pause/resume, PRs)
 src/hooks/useWorkoutHistory.ts  <- completed history list

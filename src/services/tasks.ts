@@ -29,9 +29,9 @@ import { getTodayISO } from '@/types/tasks';
 
 // â”€â”€â”€ Storage Key â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
-export const TASKS_KEY = 'lifeos:tasks';
-const LEGACY_TASKS_KEY = '@lifeos/tasks/v1';
-const TASKS_MIGRATION_KEY = 'lifeos:tasks:migration:v1';
+export const TASKS_KEY = 'jeevya:tasks';
+const LEGACY_TASKS_KEY = '@jeevya/tasks/v1';
+const TASKS_MIGRATION_KEY = 'jeevya:tasks:migration:v1';
 let migrationPromise: Promise<void> | null = null;
 
 // â”€â”€â”€ Migration / Backward Compatibility â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€

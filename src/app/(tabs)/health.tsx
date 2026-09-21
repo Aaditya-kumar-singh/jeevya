@@ -40,6 +40,7 @@ interface HealthTile {
 }
 
 const tiles = (exerciseText: string): HealthTile[] => [
+  { label: 'Gym & Testosterone', value: 'Strength, recovery, and training focus', href: '/health/gym', icon: Dumbbell, iconBg: 'bg-red-500/15 text-red-500' },
   { label: 'Workout Plan', value: "Today's hyper-focus session", href: '/health/workout', icon: Dumbbell, iconBg: 'bg-rose-500/15 text-rose-500' },
   { label: 'Exercise Library', value: exerciseText, href: '/health/exercises', icon: Library, iconBg: 'bg-indigo-500/15 text-indigo-500' },
   { label: 'Sleep Quality', value: sleepTonight.lastNight, href: '/health/sleep', icon: BedDouble, iconBg: 'bg-sky-500/15 text-sky-500' },

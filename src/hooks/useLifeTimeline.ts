@@ -17,7 +17,7 @@ export function useLifeTimeline(initialQuery: LifeTimelineQuery = {}) {
       setQuery(nextQuery);
       return result;
     } catch (cause) {
-      const message = cause instanceof Error ? cause.message : 'Failed to load LifeOS timeline';
+      const message = cause instanceof Error ? cause.message : 'Failed to load Jeevya timeline';
       setError(message);
       throw cause;
     } finally {

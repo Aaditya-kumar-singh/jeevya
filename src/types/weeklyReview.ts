@@ -1,5 +1,5 @@
 import type { CivilDate } from '@/lib/date';
-import type { LifeOSAnalyticsResult } from '@/types/lifeosAnalytics';
+import type { JeevyaAnalyticsResult } from '@/types/jeevyaAnalytics';
 
 export type WeeklyReviewTone = 'positive' | 'attention' | 'neutral';
 
@@ -14,6 +14,6 @@ export interface WeeklyReviewInsight {
 export interface WeeklyReviewResult {
   startDate: CivilDate;
   endDate: CivilDate;
-  analytics: LifeOSAnalyticsResult;
+  analytics: JeevyaAnalyticsResult;
   insights: WeeklyReviewInsight[];
 }

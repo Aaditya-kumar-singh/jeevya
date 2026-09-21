@@ -4,7 +4,7 @@ import type { WidgetConfigurationScreenProps } from 'react-native-android-widget
 
 import { getAndroidWidgetConfigurationId, setAndroidWidgetConfiguration } from '@/services/androidWidgetInstances';
 import { buildWidgetSnapshot, getWidgetConfigurations } from '@/services/widgets';
-import { renderLifeOSAndroidWidget } from '@/widgets/LifeOSAndroidWidget';
+import { renderJeevyaAndroidWidget } from '@/widgets/JeevyaAndroidWidget';
 import type { WidgetConfiguration } from '@/types/widgets';
 
 const colors = {
@@ -16,7 +16,7 @@ const colors = {
   primary: '#6366F1',
 };
 
-export function LifeOSWidgetConfigurationScreen({ widgetInfo, renderWidget, setResult }: WidgetConfigurationScreenProps) {
+export function JeevyaWidgetConfigurationScreen({ widgetInfo, renderWidget, setResult }: WidgetConfigurationScreenProps) {
   const [configurations, setConfigurations] = useState<WidgetConfiguration[]>([]);
   const [selectedId, setSelectedId] = useState<string>('');
   const [loading, setLoading] = useState(true);
@@ -25,7 +25,7 @@ export function LifeOSWidgetConfigurationScreen({ widgetInfo, renderWidget, setR
     if (!configuration) return;
     try {
       const snapshot = await buildWidgetSnapshot(configuration, undefined, { authState: 'guest' });
-      renderWidget(renderLifeOSAndroidWidget(snapshot, widgetInfo.width, widgetInfo.height));
+      renderWidget(renderJeevyaAndroidWidget(snapshot, widgetInfo.width, widgetInfo.height));
     } catch {
       // The configuration screen remains usable if preview data is unavailable.
     }
@@ -64,8 +64,8 @@ export function LifeOSWidgetConfigurationScreen({ widgetInfo, renderWidget, setR
 
   return (
     <View style={styles.root}>
-      <Text style={styles.title}>LifeOS Widget</Text>
-      <Text style={styles.subtitle}>Choose the existing LifeOS widget configuration for this home-screen instance.</Text>
+      <Text style={styles.title}>Jeevya Widget</Text>
+      <Text style={styles.subtitle}>Choose the existing Jeevya widget configuration for this home-screen instance.</Text>
       <ScrollView contentContainerStyle={styles.list}>
         {loading ? <Text style={styles.secondary}>Loading configurations…</Text> : null}
         {!loading && configurations.length === 0 ? <Text style={styles.secondary}>No widget configuration is available.</Text> : null}
@@ -79,7 +79,7 @@ export function LifeOSWidgetConfigurationScreen({ widgetInfo, renderWidget, setR
               onPress={() => void choose(configuration)}
               style={[styles.card, selected ? styles.cardSelected : null]}
             >
-              <Text style={styles.cardTitle}>{configuration.title || 'LifeOS'}</Text>
+              <Text style={styles.cardTitle}>{configuration.title || 'Jeevya'}</Text>
               <Text style={styles.cardMeta}>{configuration.preset} · {configuration.density}</Text>
               <Text style={styles.modules}>{configuration.modules.join(' · ')}</Text>
             </Pressable>

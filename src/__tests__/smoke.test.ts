@@ -1,7 +1,7 @@
 import { canAccess, checkAccess } from '@/services/capabilities';
 import { todayCivilDate, isValidCivilDate } from '@/lib/date';
 
-describe('LifeOS production smoke checks', () => {
+describe('Jeevya production smoke checks', () => {
   it('allows local features for guests', () => {
     expect(canAccess('tasks', 'guest')).toBe(true);
     expect(checkAccess('tasks', 'guest').requiresAuthentication).toBe(false);

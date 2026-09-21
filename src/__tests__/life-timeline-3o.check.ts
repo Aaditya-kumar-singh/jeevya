@@ -1,4 +1,4 @@
-// LIFEOS 3O: deterministic cross-module historical timeline.
+// JEEVYA 3O: deterministic cross-module historical timeline.
 // @ts-nocheck
 const assert = (condition, message) => { if (!condition) throw new Error(message); };
 
@@ -42,7 +42,7 @@ const assert = (condition, message) => { if (!condition) throw new Error(message
   await check('empty timeline', async () => { await clear(); const result = await getLifeTimeline(); assert(result.events.length === 0, 'empty timeline should have no events'); assert(result.degradedDomains.length === 0, 'empty data is not degraded'); });
 
   await check('read-only projection does not persist timeline events', async () => {
-    await clear(); await saveData('lifeos:tasks', [task]);
+    await clear(); await saveData('jeevya:tasks', [task]);
     const before = (await AsyncStorage.getAllKeys()).slice().sort();
     await getLifeTimeline();
     const after = (await AsyncStorage.getAllKeys()).slice().sort();
@@ -51,21 +51,21 @@ const assert = (condition, message) => { if (!condition) throw new Error(message
   });
 
   await clear();
-  await saveData('lifeos:tasks', [task]);
-  await saveData('lifeos:habits', [habit]);
-  await saveData('lifeos:habit-logs', [habitLog]);
-  await saveData('lifeos:books', [book]);
-  await saveData('lifeos:book-progress', [progress]);
-  await saveData('lifeos:book-goals', [bookGoal]);
-  await saveData('lifeos:journal', [journal]);
-  await saveData('lifeos:finance:accounts', [account]);
-  await saveData('lifeos:finance:categories', [category]);
-  await saveData('lifeos:finance:transactions', [transaction]);
-  await saveData('lifeos:finance:savings-goals', [savingsGoal]);
-  await saveData('lifeos:nutrition:foods', [food]);
-  await saveData('lifeos:nutrition:food-logs', [foodLog]);
-  await saveData('lifeos:workouts:sessions', [workout]);
-  await saveData('lifeos:health:sleep', [sleep]);
+  await saveData('jeevya:tasks', [task]);
+  await saveData('jeevya:habits', [habit]);
+  await saveData('jeevya:habit-logs', [habitLog]);
+  await saveData('jeevya:books', [book]);
+  await saveData('jeevya:book-progress', [progress]);
+  await saveData('jeevya:book-goals', [bookGoal]);
+  await saveData('jeevya:journal', [journal]);
+  await saveData('jeevya:finance:accounts', [account]);
+  await saveData('jeevya:finance:categories', [category]);
+  await saveData('jeevya:finance:transactions', [transaction]);
+  await saveData('jeevya:finance:savings-goals', [savingsGoal]);
+  await saveData('jeevya:nutrition:foods', [food]);
+  await saveData('jeevya:nutrition:food-logs', [foodLog]);
+  await saveData('jeevya:workouts:sessions', [workout]);
+  await saveData('jeevya:health:sleep', [sleep]);
 
   await check('all authoritative domain event generation', async () => {
     const { events } = await getLifeTimeline();
@@ -124,24 +124,24 @@ const assert = (condition, message) => { if (!condition) throw new Error(message
   });
 
   await check('missing and deleted records fail safely', async () => {
-    await saveData('lifeos:habit-logs', [{ ...habitLog, habitId: 'deleted-habit' }]);
-    await saveData('lifeos:book-progress', [{ ...progress, bookId: 'deleted-book' }]);
+    await saveData('jeevya:habit-logs', [{ ...habitLog, habitId: 'deleted-habit' }]);
+    await saveData('jeevya:book-progress', [{ ...progress, bookId: 'deleted-book' }]);
     const result = await getLifeTimeline();
     assert(!result.events.some(e => e.id === 'habits:habit-1:completion:hlog-1'), 'deleted habit record became an event');
     assert(!result.events.some(e => e.id === 'books:book-1:progress:progress-1'), 'deleted book progress became an event');
   });
 
   await check('invalid records are skipped', async () => {
-    await saveData('lifeos:finance:transactions', [transaction, { id: '', createdAt: 'bad', date: 'not-a-date' }]);
+    await saveData('jeevya:finance:transactions', [transaction, { id: '', createdAt: 'bad', date: 'not-a-date' }]);
     const result = await getLifeTimeline({ filter: 'finance' });
     assert(result.events.length === 1 && result.events[0].sourceId === 'txn-1', 'invalid finance record was not skipped');
   });
 
   await check('current-state-only values do not fabricate history', async () => {
     await clear();
-    await saveData('lifeos:books', [{ ...book, id: 'current-only-book', title: 'Current only', currentPage: 210, completedAt: null, startedAt: null, createdAt: iso(day), updatedAt: iso(day) }]);
-    await saveData('lifeos:book-progress', []);
-    await saveData('lifeos:book-goals', [{ ...bookGoal, id: 'current-only-goal', updatedAt: iso(day), createdAt: iso(day) }]);
+    await saveData('jeevya:books', [{ ...book, id: 'current-only-book', title: 'Current only', currentPage: 210, completedAt: null, startedAt: null, createdAt: iso(day), updatedAt: iso(day) }]);
+    await saveData('jeevya:book-progress', []);
+    await saveData('jeevya:book-goals', [{ ...bookGoal, id: 'current-only-goal', updatedAt: iso(day), createdAt: iso(day) }]);
     const result = await getLifeTimeline();
     assert(!result.events.some(e => e.type === 'progress'), 'fake book progress history created');
     assert(!result.events.some(e => e.sourceId === 'current-only-goal' && e.type === 'milestone'), 'fake goal milestone created');
@@ -154,18 +154,18 @@ const assert = (condition, message) => { if (!condition) throw new Error(message
 
   await check('single-domain failure isolation and degraded reporting', async () => {
     await clear();
-    await saveData('lifeos:tasks', [task]);
-    await AsyncStorage.setItem('lifeos:finance:transactions', '{bad-json');
+    await saveData('jeevya:tasks', [task]);
+    await AsyncStorage.setItem('jeevya:finance:transactions', '{bad-json');
     const result = await getLifeTimeline();
     assert(result.events.some(e => e.domain === 'tasks'), 'healthy domain was lost');
     assert(result.degradedDomains.includes('finance'), 'finance degradation not reported');
   });
 
   await check('pagination is bounded after deterministic projection', async () => {
-    await clear(); await saveData('lifeos:tasks', [task]);
+    await clear(); await saveData('jeevya:tasks', [task]);
     const result = await getLifeTimeline({ limit: 1, offset: 1 });
     assert(result.events.length <= 1 && result.total >= result.events.length, 'pagination failed');
   });
 
-  console.log(`LIFEOS 3O TIMELINE: ${passed} passed, 0 failed`);
+  console.log(`JEEVYA 3O TIMELINE: ${passed} passed, 0 failed`);
 })().catch(() => process.exit(1));

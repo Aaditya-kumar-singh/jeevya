@@ -1,6 +1,6 @@
 import { readStorage, updateStorage } from '@/services/storageReliability';
 
-export const ANDROID_WIDGET_INSTANCE_STORAGE_KEY = 'lifeos:widgets:android-instances';
+export const ANDROID_WIDGET_INSTANCE_STORAGE_KEY = 'jeevya:widgets:android-instances';
 
 export type AndroidWidgetInstanceMap = Record<string, string>;
 

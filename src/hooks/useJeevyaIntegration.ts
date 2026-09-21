@@ -1,11 +1,11 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { getLifeOSDailyState } from '@/services/lifeosIntegration';
-import type { LifeOSDailyState } from '@/types/lifeosIntegration';
+import { getJeevyaDailyState } from '@/services/jeevyaIntegration';
+import type { JeevyaDailyState } from '@/types/jeevyaIntegration';
 import { todayCivilDate } from '@/lib/date';
 
-export function useLifeOSIntegration(initialDate: string = todayCivilDate()) {
+export function useJeevyaIntegration(initialDate: string = todayCivilDate()) {
   const [date, setDate] = useState(initialDate);
-  const [data, setData] = useState<LifeOSDailyState | null>(null);
+  const [data, setData] = useState<JeevyaDailyState | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -16,14 +16,14 @@ export function useLifeOSIntegration(initialDate: string = todayCivilDate()) {
     setLoading(true);
     setError(null);
     try {
-      const result = await getLifeOSDailyState(nextDate);
+      const result = await getJeevyaDailyState(nextDate);
       if (requestId !== requestIdRef.current) return result;
       setData(result);
       setDate(nextDate);
       return result;
     } catch (cause) {
       if (requestId !== requestIdRef.current) throw cause;
-      const message = cause instanceof Error ? cause.message : 'Failed to load LifeOS state';
+      const message = cause instanceof Error ? cause.message : 'Failed to load Jeevya state';
       setError(message);
       throw cause;
     } finally {

@@ -1,4 +1,4 @@
-// ─── LIFEOS A2: Health/Nutrition Boundary Regression Tests ───────────────────
+// ─── JEEVYA A2: Health/Nutrition Boundary Regression Tests ───────────────────
 // Run: npx tsx --import ./src/__tests__/mock-setup.ts src/__tests__/health-nutrition-a2.test.ts
 
 import {
@@ -13,7 +13,7 @@ import type { ActivityIntensity, ActivityType, BodyProfile, EnergyActivity, Food
 import type { HealthActivity, HealthProvider, HealthProviderAdapter, HealthSyncStatus } from '@/types/health';
 import { loadData, saveData } from '@/lib/storage';
 
-const ENERGY_KEY = 'lifeos:nutrition:energy-activities';
+const ENERGY_KEY = 'jeevya:nutrition:energy-activities';
 
 let passed = 0;
 let failed = 0;

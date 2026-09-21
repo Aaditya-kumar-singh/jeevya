@@ -1,4 +1,4 @@
-// LIFEOS 3T.8: Supabase security + production authentication audit.
+// JEEVYA 3T.8: Supabase security + production authentication audit.
 // Static and implementation-backed checks only. No credentials are printed.
 // @ts-nocheck
 import fs from 'node:fs';
@@ -84,9 +84,9 @@ check('account switching cannot reuse prior sync identity', () => {
   assert(syncSource.includes('active for a different authenticated account'), 'cross-account active sync is not rejected safely');
 });
 
-check('RLS ownership policy exists for lifeos_sync_records', () => {
-  const sql = read('sql/lifeos-sync.sql');
-  assert(sql.includes('alter table public.lifeos_sync_records enable row level security'), 'sync RLS is not enabled');
+check('RLS ownership policy exists for jeevya_sync_records', () => {
+  const sql = read('sql/jeevya-sync.sql');
+  assert(sql.includes('alter table public.jeevya_sync_records enable row level security'), 'sync RLS is not enabled');
   assert(sql.includes('using (auth.uid() = user_id)'), 'sync SELECT/UPDATE ownership policy missing');
   assert(sql.includes('with check (auth.uid() = user_id)'), 'sync INSERT/UPDATE ownership check missing');
   assert(!sql.match(/for\s+(select|insert|update|delete)[^\n]*\n?\s*(using|with check)\s*\([^)]*true/i), 'unrestricted sync policy detected');
@@ -104,7 +104,7 @@ check('all user-owned workout tables have owner-scoped RLS', () => {
 
 check('backup excludes sync and conflict metadata and contains no auth primitives', () => {
   assert(backupSource.includes('BACKUP_STORAGE_KEYS'), 'backup key allowlist missing');
-  assert(!backupSource.includes('lifeos:sync:metadata') && !backupSource.includes('lifeos:sync:conflicts'), 'sync/conflict metadata entered backup allowlist');
+  assert(!backupSource.includes('jeevya:sync:metadata') && !backupSource.includes('jeevya:sync:conflicts'), 'sync/conflict metadata entered backup allowlist');
   assert(!backupSource.includes('access_token') && !backupSource.includes('refresh_token'), 'auth token fields entered backup service');
   assert(!backupSource.includes('password'), 'password entered backup service');
 });
@@ -148,5 +148,5 @@ check('production environment keeps privileged secret out of tracked repository'
   assert(ignore.includes('.env') && ignore.includes('.env.local'), 'environment files are not ignored');
 });
 
-console.log(`LIFEOS 3T.8 SUPABASE SECURITY + PRODUCTION AUTH AUDIT: ${passed} passed, 0 failed`);
+console.log(`JEEVYA 3T.8 SUPABASE SECURITY + PRODUCTION AUTH AUDIT: ${passed} passed, 0 failed`);
 

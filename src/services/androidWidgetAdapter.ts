@@ -1,8 +1,8 @@
 import { requestWidgetUpdateById } from 'react-native-android-widget';
 
 import { getAndroidWidgetInstances } from '@/services/androidWidgetInstances';
-import { ANDROID_LIFEOS_WIDGET_NAME } from '@/widgets/lifeosWidgetTaskHandler';
-import { renderLifeOSAndroidWidget } from '@/widgets/LifeOSAndroidWidget';
+import { ANDROID_JEEVYA_WIDGET_NAME } from '@/widgets/jeevyaWidgetTaskHandler';
+import { renderJeevyaAndroidWidget } from '@/widgets/JeevyaAndroidWidget';
 import type { WidgetConfiguration, WidgetSnapshot } from '@/types/widgets';
 
 export async function publishAndroidWidgetSnapshot(snapshot: WidgetSnapshot, configuration: WidgetConfiguration): Promise<void> {
@@ -13,13 +13,13 @@ export async function publishAndroidWidgetSnapshot(snapshot: WidgetSnapshot, con
     .filter((widgetId) => Number.isInteger(widgetId));
 
   await Promise.all(widgetIds.map((widgetId) => requestWidgetUpdateById({
-    widgetName: ANDROID_LIFEOS_WIDGET_NAME,
+    widgetName: ANDROID_JEEVYA_WIDGET_NAME,
     widgetId,
-    renderWidget: (widgetInfo) => renderLifeOSAndroidWidget(snapshot, widgetInfo.width, widgetInfo.height),
+    renderWidget: (widgetInfo) => renderJeevyaAndroidWidget(snapshot, widgetInfo.width, widgetInfo.height),
   })));
 }
 
-export async function refreshAndroidLifeOSWidgets(): Promise<void> {
+export async function refreshAndroidJeevyaWidgets(): Promise<void> {
   const instances = await getAndroidWidgetInstances();
   const configurationIds = [...new Set(Object.values(instances))];
   const { getWidgetConfigurations, buildWidgetSnapshot } = await import('@/services/widgets');

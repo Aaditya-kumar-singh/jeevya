@@ -1,12 +1,12 @@
 import { buildDailyPulse } from '@/services/dailyPulse';
-import type { LifeOSDailyState } from '@/types/lifeosIntegration';
+import type { JeevyaDailyState } from '@/types/jeevyaIntegration';
 
 function assert(condition: unknown, message: string): asserts condition { if (!condition) throw new Error(message); }
 function equal(actual: unknown, expected: unknown, message: string): void {
   if (JSON.stringify(actual) !== JSON.stringify(expected)) throw new Error(`${message}: ${JSON.stringify(actual)} !== ${JSON.stringify(expected)}`);
 }
 
-const base = (): LifeOSDailyState => ({
+const base = (): JeevyaDailyState => ({
   date: '2026-09-14',
   tasks: { total: 0, dueToday: 0, overdue: 0, completedToday: 0, active: 0 },
   habits: { activeToday: 0, completedToday: 0, completionRate: null },
@@ -24,8 +24,8 @@ const base = (): LifeOSDailyState => ({
   journal: { entryCountToday: 0, hasEntryToday: false, latestEntry: null },
   goals: [],
 });
-const item = (state: LifeOSDailyState, id: string) => buildDailyPulse(state).items.find((entry) => entry.id === id);
-const withState = (changes: Partial<LifeOSDailyState>): LifeOSDailyState => ({ ...base(), ...changes });
+const item = (state: JeevyaDailyState, id: string) => buildDailyPulse(state).items.find((entry) => entry.id === id);
+const withState = (changes: Partial<JeevyaDailyState>): JeevyaDailyState => ({ ...base(), ...changes });
 
 async function run(): Promise<void> {
   let passed = 0;

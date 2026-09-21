@@ -5,7 +5,7 @@ import type { WidgetModule, WidgetModuleSnapshot, WidgetSnapshot } from '@/types
 
 type WidgetSize = 'small' | 'medium' | 'large';
 
-interface LifeOSAndroidWidgetProps {
+interface JeevyaAndroidWidgetProps {
   snapshot: WidgetSnapshot;
   width: number;
   height: number;
@@ -100,13 +100,18 @@ function moduleText(module: WidgetModuleSnapshot): string {
 }
 
 function renderWidget(snapshot: WidgetSnapshot, width: number, height: number, dark: boolean): React.JSX.Element {
-  const size = getSize(width, height);
+  const size = snapshot.size ?? getSize(width, height);
   const modules = snapshot.modules.slice(0, maxModules(size, snapshot.density));
-  const background = dark ? '#12141F' : '#FFFFFF';
+  const configuredTheme = snapshot.theme;
+  const background = dark ? '#12141F' : (configuredTheme?.backgroundColor ?? '#FFFFFF');
   const border = dark ? '#232840' : '#E2E3F0';
-  const text = dark ? '#F1F5F9' : '#0F0F19';
+  const text = dark ? '#F1F5F9' : (configuredTheme?.textColor ?? '#0F0F19');
   const secondary = dark ? '#94A3B8' : '#6B7280';
-  const primary = dark ? '#00F5D4' : '#6366F1';
+  const primary = configuredTheme?.accentColor ?? (dark ? '#00F5D4' : '#6366F1');
+  const layout = snapshot.layout ?? 'stack';
+  const textColor = text as any;
+  const secondaryColor = secondary as any;
+  const primaryColor = primary as any;
   const padding = size === 'small' ? 10 : 14;
   const titleSize = size === 'small' ? 14 : 16;
   const valueSize = snapshot.density === 'detailed' ? 12 : 11;
@@ -116,6 +121,7 @@ function renderWidget(snapshot: WidgetSnapshot, width: number, height: number, d
       key={module.module}
       style={{
         width: 'match_parent',
+        flex: layout === 'split' || layout === 'grid' ? 1 : undefined,
         paddingVertical: 5,
         paddingHorizontal: 2,
         borderBottomWidth: 1,
@@ -130,7 +136,7 @@ function renderWidget(snapshot: WidgetSnapshot, width: number, height: number, d
         maxLines={snapshot.density === 'detailed' ? 2 : 1}
         truncate="END"
         style={{
-          color: text,
+          color: textColor,
           fontSize: valueSize,
           fontWeight: '500',
           width: 'match_parent',
@@ -145,35 +151,39 @@ function renderWidget(snapshot: WidgetSnapshot, width: number, height: number, d
         width: 'match_parent',
         height: 'match_parent',
         padding,
-        backgroundColor: background,
+        backgroundColor: background as any,
         borderRadius: 18,
         borderWidth: 1,
-        borderColor: border,
+        borderColor: border as any,
         flexGap: 2,
       }}
       clickAction="OPEN_APP"
-      accessibilityLabel="LifeOS widget"
+      accessibilityLabel="Jeevya widget"
     >
       <FlexWidget style={{ width: 'match_parent', paddingBottom: 4, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
         <TextWidget
-          text={snapshot.title || 'LifeOS'}
+          text={snapshot.title || 'Jeevya'}
           maxLines={1}
           truncate="END"
-          style={{ color: text, fontSize: titleSize, fontWeight: '700' }}
+          style={{ color: textColor, fontSize: titleSize, fontWeight: '700' }}
         />
         <TextWidget
           text={snapshot.date}
           maxLines={1}
-          style={{ color: secondary, fontSize: 9, textAlign: 'right' }}
+          style={{ color: secondaryColor, fontSize: 9, textAlign: 'right' }}
         />
       </FlexWidget>
-      {rows.length > 0 ? rows : (
+      {rows.length > 0 ? (
+        <FlexWidget style={{ width: 'match_parent', flex: 1, flexDirection: layout === 'split' || layout === 'grid' ? 'row' : 'column', justifyContent: 'space-between' }}>
+          {rows}
+        </FlexWidget>
+      ) : (
         <FlexWidget style={{ width: 'match_parent', flex: 1, alignItems: 'center', justifyContent: 'center' }}>
           <TextWidget
             text={snapshot.degradedDomains.length ? 'Some data is unavailable' : 'No selected data available'}
             maxLines={2}
             truncate="END"
-            style={{ color: secondary, fontSize: 11, textAlign: 'center' }}
+            style={{ color: secondaryColor, fontSize: 11, textAlign: 'center' }}
           />
         </FlexWidget>
       )}
@@ -181,18 +191,18 @@ function renderWidget(snapshot: WidgetSnapshot, width: number, height: number, d
         <TextWidget
           text="Some data unavailable"
           maxLines={1}
-          style={{ color: primary, fontSize: 9, fontWeight: '600', paddingTop: 2 }}
+          style={{ color: primaryColor, fontSize: 9, fontWeight: '600', paddingTop: 2 }}
         />
       ) : null}
     </FlexWidget>
   );
 }
 
-export function LifeOSAndroidWidget({ snapshot, width, height, dark = false }: LifeOSAndroidWidgetProps) {
+export function JeevyaAndroidWidget({ snapshot, width, height, dark = false }: JeevyaAndroidWidgetProps) {
   return renderWidget(snapshot, width, height, dark);
 }
 
-export function renderLifeOSAndroidWidget(snapshot: WidgetSnapshot, width: number, height: number): { light: React.JSX.Element; dark: React.JSX.Element } {
+export function renderJeevyaAndroidWidget(snapshot: WidgetSnapshot, width: number, height: number): { light: React.JSX.Element; dark: React.JSX.Element } {
   return {
     light: renderWidget(snapshot, width, height, false),
     dark: renderWidget(snapshot, width, height, true),

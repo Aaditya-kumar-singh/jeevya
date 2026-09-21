@@ -1,6 +1,6 @@
 import { addDays, isValidCivilDate, inclusiveDateRange, todayCivilDate, type CivilDate } from '@/lib/date';
-import { getLifeOSDailyState } from '@/services/lifeosIntegration';
-import type { LifeOSAnalyticsPeriod, LifeOSAnalyticsPoint, LifeOSAnalyticsResult, LifeOSAnalyticsSummary } from '@/types/lifeosAnalytics';
+import { getJeevyaDailyState } from '@/services/jeevyaIntegration';
+import type { JeevyaAnalyticsPeriod, JeevyaAnalyticsPoint, JeevyaAnalyticsResult, JeevyaAnalyticsSummary } from '@/types/jeevyaAnalytics';
 
 function finite(value: unknown): value is number {
   return typeof value === 'number' && Number.isFinite(value);
@@ -10,7 +10,7 @@ function average(values: number[]): number | null {
   return values.length ? Math.round((values.reduce((sum, value) => sum + value, 0) / values.length) * 10) / 10 : null;
 }
 
-export function summarizeLifeOSAnalytics(points: LifeOSAnalyticsPoint[]): LifeOSAnalyticsSummary {
+export function summarizeJeevyaAnalytics(points: JeevyaAnalyticsPoint[]): JeevyaAnalyticsSummary {
   const sleep = points.flatMap((point) => finite(point.sleepMinutes) ? [point.sleepMinutes] : []);
   const readiness = points.flatMap((point) => finite(point.readinessScore) ? [point.readinessScore] : []);
   const calories = points.map((point) => point.caloriesIn).filter(finite);
@@ -43,26 +43,26 @@ export function summarizeLifeOSAnalytics(points: LifeOSAnalyticsPoint[]): LifeOS
 
 const DAILY_STATE_BATCH_SIZE = 6;
 
-export async function loadLifeOSDailyStates(dates: CivilDate[], batchSize = DAILY_STATE_BATCH_SIZE) {
+export async function loadJeevyaDailyStates(dates: CivilDate[], batchSize = DAILY_STATE_BATCH_SIZE) {
   const safeBatchSize = Number.isInteger(batchSize) && batchSize > 0 ? batchSize : DAILY_STATE_BATCH_SIZE;
-  const states = [] as Awaited<ReturnType<typeof getLifeOSDailyState>>[];
+  const states = [] as Awaited<ReturnType<typeof getJeevyaDailyState>>[];
   for (let index = 0; index < dates.length; index += safeBatchSize) {
     const batch = dates.slice(index, index + safeBatchSize);
-    states.push(...await Promise.all(batch.map((date) => getLifeOSDailyState(date))));
+    states.push(...await Promise.all(batch.map((date) => getJeevyaDailyState(date))));
   }
   return states;
 }
 
-export async function getLifeOSAnalytics(
-  period: LifeOSAnalyticsPeriod = 7,
+export async function getJeevyaAnalytics(
+  period: JeevyaAnalyticsPeriod = 7,
   endDate: CivilDate = todayCivilDate(),
-): Promise<LifeOSAnalyticsResult> {
+): Promise<JeevyaAnalyticsResult> {
   if (!isValidCivilDate(endDate)) throw new Error('Invalid analytics end date');
   const startDate = addDays(endDate, -(period - 1));
   if (!startDate) throw new Error('Unable to calculate analytics start date');
   const dates = inclusiveDateRange(startDate, endDate);
-  const states = await loadLifeOSDailyStates(dates);
-  const points: LifeOSAnalyticsPoint[] = states.map((state) => ({
+  const states = await loadJeevyaDailyStates(dates);
+  const points: JeevyaAnalyticsPoint[] = states.map((state) => ({
     date: state.date as CivilDate,
     tasksDue: state.tasks.dueToday,
     tasksCompleted: state.tasks.completedToday,
@@ -84,5 +84,5 @@ export async function getLifeOSAnalytics(
     goalsBehind: state.goals.filter((goal) => goal.status === 'behind').length,
   }));
 
-  return { period, startDate, endDate, points, summary: summarizeLifeOSAnalytics(points) };
+  return { period, startDate, endDate, points, summary: summarizeJeevyaAnalytics(points) };
 }
