@@ -98,6 +98,13 @@ jobs:
           mkdir -p "$HOME/.ssh"
           chmod 700 "$HOME/.ssh"
 
+          if [ ! -f "$HOME/.ssh/codespaces.auto" ]; then
+            echo "Creating dedicated Codespaces SSH key..."
+            ssh-keygen -t ed25519 -N "" -f "$HOME/.ssh/codespaces.auto" -C "jeevya-github-actions"
+          fi
+          chmod 600 "$HOME/.ssh/codespaces.auto"
+          chmod 644 "$HOME/.ssh/codespaces.auto.pub"
+
           echo "Generating Codespaces SSH configuration..."
           gh codespace ssh -c "$CODESPACE_NAME" --config > "$HOME/.ssh/jeevya-codespace-config"
           chmod 600 "$HOME/.ssh/jeevya-codespace-config"
