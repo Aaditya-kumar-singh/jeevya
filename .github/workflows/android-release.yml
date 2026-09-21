@@ -121,7 +121,7 @@ jobs:
           CODESPACE_NAME: ${{ steps.codespace.outputs.name }}
         run: |
           set -euo pipefail
-          gh codespace ssh -c "$CODESPACE_NAME" -- 'bash -lc '"'"'cd /workspaces/jeevya && set -euo pipefail && echo "=== Jeevya automated Codespace release ===" && echo "Commit: $(git rev-parse HEAD)" && echo "Branch: $(git branch --show-current)" && echo "Node: $(node --version)" && echo "Java:" && java -version && echo "Android SDK: $ANDROID_HOME" && npm ci && JEEVYA_AUTOMATED_RELEASE=true npm run ship'"'"''
+          gh codespace ssh -c "$CODESPACE_NAME" -- 'bash -lc '"'"'cd /workspaces/jeevya && set -euo pipefail && echo "=== Jeevya automated Codespace release ===" && echo "Commit: $(git rev-parse HEAD)" && echo "Branch: $(git branch --show-current)" && echo "Node: $(node --version)" && echo "Java:" && java -version && echo "Android SDK: $ANDROID_HOME" && rm -rf node_modules && npm ci && JEEVYA_AUTOMATED_RELEASE=true npm run ship'"'"''
       - name: Stop release Codespace
         if: always()
         env:
