@@ -5,7 +5,7 @@ import path from 'node:path';
 const root = process.cwd();
 
 function run(command, args, options = {}) {
-  console.log(`\\n$ ${command} ${args.join(' ')}`);
+  console.log(`\n$ ${command} ${args.join(' ')}`);
   execFileSync(command, args, {
     cwd: root,
     stdio: 'inherit',
@@ -45,49 +45,43 @@ const buildScript = path.join(root, 'scripts', 'build-android-codespace.mjs');
 run('node', [buildScript]);
 
 const releasesDir = path.join(root, 'dist', 'releases');
-const metadataFiles = fs
-  .readdirSync(releasesDir)
-  .filter((name) => name.endsWith('.apk.json'));
-
 const currentCommit = output('git', ['rev-parse', '--short=12', 'HEAD']);
+const packageJson = JSON.parse(
+  fs.readFileSync(path.join(root, 'package.json'), 'utf8'),
+);
+const assetName = `Jeevya-${packageJson.version}-${currentCommit}-android.apk`;
+const metadataPath = path.join(releasesDir, `${assetName}.json`);
 
-if (metadataFiles.length === 0) {
-  throw new Error('Build metadata was not found.');
+if (!fs.existsSync(metadataPath)) {
+  throw new Error(`Build metadata was not found: ${metadataPath}`);
 }
 
-const metadataCandidates = metadataFiles
-  .map((name) => {
-    const metadataPath = path.join(releasesDir, name);
-    const content = fs.readFileSync(metadataPath, 'utf8').trim();
+const metadata = JSON.parse(fs.readFileSync(metadataPath, 'utf8'));
 
-    try {
-      const metadata = JSON.parse(content);
-      return { metadataPath, metadata };
-    } catch {
-      return null;
-    }
-  })
-  .filter(Boolean);
-
-const selected = metadataCandidates.find(
-  ({ metadata }) => metadata.commit === currentCommit,
-);
-
-if (!selected) {
+if (metadata.commit !== currentCommit) {
   throw new Error(
-    `No valid release metadata found for current commit ${currentCommit}.`,
+    `Build metadata commit mismatch: expected ${currentCommit}, got ${metadata.commit}.`,
   );
 }
 
-const { metadataPath, metadata } = selected;
-const apkPath = path.join(path.dirname(metadataPath), metadata.assetName);
+if (metadata.assetName !== assetName) {
+  throw new Error(
+    `Build metadata asset mismatch: expected ${assetName}, got ${metadata.assetName}.`,
+  );
+}
+
+const apkPath = path.join(releasesDir, metadata.assetName);
+
+if (!fs.existsSync(apkPath)) {
+  throw new Error(`Release APK was not found: ${apkPath}`);
+}
 
 const now = new Date();
-const timestamp = now.toISOString().replace(/[-:]/g, '').replace(/\\.\\d{3}Z$/, 'Z');
+const timestamp = now.toISOString().replace(/[-:]/g, '').replace(/\.\d{3}Z$/, 'Z');
 const tag = `android-v${metadata.version}-${timestamp}`;
 
 const notes = [
-  `Automated Codespace Android release.`,
+  'Automated Codespace Android release.',
   '',
   `Version: ${metadata.version}`,
   `Android versionCode: ${metadata.versionCode}`,
@@ -97,9 +91,9 @@ const notes = [
   'Build environment: GitHub Codespaces',
   'Build system: Expo prebuild + Gradle',
   'Signing: Jeevya local release keystore stored as Codespaces secrets',
-].join('\\n');
+].join('\n');
 
-console.log(`\\nPublishing GitHub release: ${tag}`);
+console.log(`\nPublishing GitHub release: ${tag}`);
 
 const ghEnv = {
   ...process.env,
@@ -131,11 +125,11 @@ run(
   { env: ghEnv },
 );
 
-console.log('\\nRelease published successfully.');
+console.log('\nRelease published successfully.');
 console.log(`https://github.com/Aaditya-kumar-singh/jeevya/releases/tag/${tag}`);
 
 if (process.env.CODESPACE_NAME && process.env.JEEVYA_AUTOMATED_RELEASE !== 'true') {
-  console.log('\\nScheduling this Codespace to stop in 5 seconds...');
+  console.log('\nScheduling this Codespace to stop in 5 seconds...');
 
   const stopper = spawn(
     'bash',

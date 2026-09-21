@@ -127,14 +127,17 @@ const metadata = {
   sha256,
 };
 
+const metadataPath = path.join(outputDir, `${assetName}.json`);
+
 fs.writeFileSync(
-  path.join(outputDir, `${assetName}.json`),
-  JSON.stringify(metadata, null, 2) + '\\n',
+  metadataPath,
+  JSON.stringify(metadata, null, 2) + '\n',
 );
 
 console.log('\\nRelease APK ready:');
 console.log(assetPath);
+console.log(`Metadata: ${metadataPath}`);
 console.log(`SHA-256: ${sha256}`);
 
-export { assetPath, metadata };
+export { assetPath, metadata, metadataPath };
 
