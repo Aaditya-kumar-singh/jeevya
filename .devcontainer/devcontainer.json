@@ -1,6 +1,6 @@
 {
   "name": "Jeevya Android Codespace",
-  "image": "mcr.microsoft.com/devcontainers/javascript-node:1-24-bookworm",
+  "image": "mcr.microsoft.com/devcontainers/base:bookworm",
   "features": {
     "ghcr.io/devcontainers/features/node:1": {
       "version": "24"
@@ -18,6 +18,8 @@
       "build_tools": "36.0.0"
     }
   },
+  "remoteUser": "vscode",
+  "containerUser": "vscode",
   "customizations": {
     "vscode": {
       "extensions": [
