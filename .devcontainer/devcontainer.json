@@ -7,6 +7,9 @@
       "installGradle": false
     },
     "ghcr.io/devcontainers/features/github-cli:1": {},
+    "ghcr.io/devcontainers/features/sshd:1": {
+      "version": "latest"
+    },
     "ghcr.io/nordcominc/devcontainer-features/android-sdk:1.2.0": {
       "platform": "36",
       "build_tools": "36.0.0"
