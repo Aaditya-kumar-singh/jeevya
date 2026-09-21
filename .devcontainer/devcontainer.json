@@ -1,0 +1,30 @@
+{
+  "name": "Jeevya Development",
+  "image": "mcr.microsoft.com/devcontainers/javascript-node:1-24-bookworm",
+  "features": {
+    "ghcr.io/devcontainers/features/git:1": {},
+    "ghcr.io/devcontainers/features/github-cli:1": {}
+  },
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "expo.vscode-expo-tools",
+        "dbaeumer.vscode-eslint",
+        "esbenp.prettier-vscode",
+        "bradlc.vscode-tailwindcss"
+      ],
+      "settings": {
+        "editor.formatOnSave": true,
+        "typescript.tsdk": "node_modules/typescript/lib"
+      }
+    }
+  },
+  "postCreateCommand": "npm ci",
+  "forwardPorts": [8081, 19000, 19001, 19002],
+  "portsAttributes": {
+    "8081": {
+      "label": "Metro",
+      "onAutoForward": "notify"
+    }
+  }
+}

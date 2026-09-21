@@ -72,7 +72,8 @@
                     "exercises:import":  "node --env-file-if-exists=.env scripts/import-exercises.ts",
                     "test":  "jest --runInBand",
                     "test:checks":  "node scripts/run-checks.mjs",
-                    "test:all":  "npm run test \u0026\u0026 npm run test:checks"
+                    "test:all":  "npm run test \u0026\u0026 npm run test:checks",
+                    "ship":  "bash scripts/ship.sh"
                 },
     "overrides":  {
                       "lightningcss":  "1.30.1"

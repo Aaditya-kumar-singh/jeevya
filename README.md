@@ -311,3 +311,31 @@ Jeevya 1.1.0 was validated with:
 ## License
 
 See the repository license file for licensing information.
+
+## GitHub Codespaces and automatic releases
+
+Jeevya includes a ready-to-use GitHub Codespaces development environment in `.devcontainer/` and automated GitHub Actions workflows in `.github/workflows/`.
+
+### Development flow
+
+```text
+GitHub Codespace
+      ?
+Edit + test
+      ?
+git push origin master
+      ?
+GitHub Actions
+      +-- CI validation
+      +-- Android APK release
+              ?
+         GitHub Releases
+```
+
+The Codespace is disposable: source code is stored in GitHub, validation runs in GitHub Actions, and Android release builds run on EAS Build. You do not need to keep the Codespace running after pushing your changes.
+
+The complete setup, secret configuration, release strategy, rollback process, and production AAB workflow are documented in [`RELEASE_SETUP.md`](./RELEASE_SETUP.md).
+
+### Download Android builds
+
+Stable and automated Android builds are published under [GitHub Releases](https://github.com/Aaditya-kumar-singh/jeevya/releases). GitHub release builds use an APK so normal Android users can install them directly. The `production` EAS profile remains configured for Google Play AAB builds.
