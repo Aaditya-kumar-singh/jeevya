@@ -32,6 +32,15 @@
     },
     "ANDROID_KEY_PASSWORD": {
       "description": "Password for the Jeevya Android release signing key."
+    },
+    "SUPABASE_URL": {
+      "description": "Jeevya Supabase project URL. Safe to use as app configuration."
+    },
+    "SUPABASE_ANON_KEY": {
+      "description": "Jeevya Supabase anon/publishable key for the mobile app. Never use the service-role key here."
+    },
+    "SUPABASE_SERVICE_ROLE_KEY": {
+      "description": "Jeevya Supabase service-role key for server-side use only. Never embed this in the Android app."
     }
   },
   "customizations": {

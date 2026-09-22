@@ -33,6 +33,8 @@ const required = [
   'ANDROID_KEYSTORE_PASSWORD',
   'ANDROID_KEY_ALIAS',
   'ANDROID_KEY_PASSWORD',
+  'SUPABASE_URL',
+  'SUPABASE_ANON_KEY',
 ];
 
 for (const name of required) {
@@ -56,6 +58,22 @@ const versionCode = 100000 + commitCount;
 console.log(`Jeevya ${version}`);
 console.log(`Commit: ${commit}`);
 console.log(`Android versionCode: ${versionCode}`);
+
+const productionEnvPath = path.join(root, '.env.production');
+fs.writeFileSync(
+  productionEnvPath,
+  [
+    `EXPO_PUBLIC_SUPABASE_URL=${process.env.SUPABASE_URL}`,
+    `EXPO_PUBLIC_SUPABASE_KEY=${process.env.SUPABASE_ANON_KEY}`,
+    '',
+  ].join('\n'),
+  { mode: 0o600 },
+);
+
+console.log('Supabase production environment prepared from Codespaces secrets.');
+process.on('exit', () => {
+  fs.rmSync(productionEnvPath, { force: true });
+});
 
 run('npx', ['expo', 'prebuild', '--platform', 'android', '--clean', '--no-install'], {
   env: {
