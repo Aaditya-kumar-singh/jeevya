@@ -94,7 +94,7 @@ run('./gradlew', [
   '--no-daemon',
   '--max-workers=2',
   '--stacktrace',
-  '-PreactNativeArchitectures=arm64-v8a',
+  '-PreactNativeArchitectures=armeabi-v7a,arm64-v8a,x86,x86_64',
 ], {
   cwd: path.join(root, 'android'),
   env: {
