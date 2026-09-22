@@ -51,8 +51,6 @@ jobs:
             ANDROID_KEYSTORE_PASSWORD
             ANDROID_KEY_ALIAS
             ANDROID_KEY_PASSWORD
-            SUPABASE_URL
-            SUPABASE_ANON_KEY
           )
 
           AVAILABLE="$(gh secret list --user --app codespaces --repo Aaditya-kumar-singh/jeevya --json name --jq '.[].name')"
