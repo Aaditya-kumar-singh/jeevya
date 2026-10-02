@@ -5,7 +5,9 @@ node_modules/
 
 # Expo
 .expo/
+.expo*
 dist/
+dist*/
 web-build/
 expo-env.d.ts
 
@@ -47,9 +49,12 @@ example
 /ios
 /android
 
-widget-check.log
-dist-check/
+# build & audit artifacts
+*.log
+*.out
+.artemis/
 graphify-out/
+performance-audit.json
 
 # Android release signing
 *.keystore
