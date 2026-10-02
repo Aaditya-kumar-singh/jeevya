@@ -5,9 +5,10 @@ import { Heading, Text, Card } from '@/components/ui';
 import { AnimatedCheckbox } from '@/components/motion/AnimatedCheckbox';
 import { ScalePressable } from '@/components/motion/ScalePressable';
 import type { Habit } from '@/types/habit';
+import type { DashboardHabitState } from '@/types/dashboard';
 
 interface HabitPreviewProps {
-  habits: (Habit & { isCompleted: boolean })[];
+  habits: DashboardHabitState['todayHabits'];
   onComplete?: (habitId: string) => void;
 }
 

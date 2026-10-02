@@ -1,0 +1,15 @@
+{
+  "generatedAt": "2026-09-25T11:06:36.622Z",
+  "javascriptBytes": 11574696,
+  "sourceMapBytes": 0,
+  "apkBytes": 0,
+  "aabBytes": 0,
+  "artifacts": [
+    {
+      "file": "dist-performance\\_expo\\static\\js\\android\\index-3104b592e543ae64a6c536a5eb453f56.hbc",
+      "bytes": 11574696
+    }
+  ],
+  "coldStart": "requires instrumented Android/iOS runtime measurement",
+  "memory": "requires Android Studio profiler or equivalent runtime measurement"
+}

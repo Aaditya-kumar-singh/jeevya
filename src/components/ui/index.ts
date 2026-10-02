@@ -5,3 +5,4 @@ export { Heading } from './heading';
 export { Input, InputField, InputIcon, InputSlot } from './input';
 export { Progress, ProgressFilledTrack } from './progress';
 export { Text } from './text';
+export { AccessiblePressable } from './AccessiblePressable';

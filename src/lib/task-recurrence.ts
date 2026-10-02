@@ -305,6 +305,11 @@ export function createNextOccurrence(task: Task, nextDueDate: string): Task | nu
     // Phase 1G-B: occurrences reference the SAME label IDs — label entities
     // are never duplicated. Renames/deletes propagate via the shared entity.
     labelIds: [...task.labelIds],
+    estimatedMinutes: task.estimatedMinutes,
+    energy: task.energy,
+    context: task.context,
+    dependencyIds: [...task.dependencyIds],
+    templateId: task.templateId,
   };
 }
 

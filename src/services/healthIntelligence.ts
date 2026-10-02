@@ -11,6 +11,8 @@ import {
 import { getRecoveryForDate } from '@/services/recovery';
 import { getExerciseProgression, getExercisePRs } from '@/services/workoutProgression';
 import type { WorkoutPR } from '@/types/workout';
+import { loadSharedAnalyticsData } from '@/services/sharedAnalyticsData';
+import type { AnalyticsSourceRef } from '@/types/analyticsCore';
 
 export type HealthInsightSeverity = 'positive' | 'info' | 'warning';
 export type HealthInsightType = 'sleep' | 'recovery' | 'training' | 'consistency' | 'progression' | 'balance' | 'missing_data';
@@ -32,6 +34,7 @@ export interface HealthInsight {
   metric?: string;
   createdForDate: string;
   priority: number;
+  sourceRefs: AnalyticsSourceRef[];
 }
 
 const SEVERITY_RANK: Record<HealthInsightSeverity, number> = { warning: 0, positive: 1, info: 2 };
@@ -66,7 +69,7 @@ function makeInsight(
   evidence: HealthInsightEvidence[], date: string, priority: number, metric?: string,
 ): HealthInsight {
   const id = `health-${date}-${type}-${priority}`;
-  return { id, type, severity, title, message, evidence: clone(evidence), ...(metric ? { metric } : {}), createdForDate: date, priority };
+  return { id, type, severity, title, message, evidence: clone(evidence), ...(metric ? { metric } : {}), createdForDate: date, priority, sourceRefs: [] };
 }
 
 function periodLabel(period: HealthAnalyticsPeriod): string { return period === 'all' ? 'all available data' : period; }
@@ -162,6 +165,24 @@ function addMissingDataInsights(result: HealthAnalyticsResult, date: string, ins
   if (!result.dataAvailability.hasRecoveryData) insights.push(makeInsight('missing_data', 'info', 'Recovery data is insufficient', 'No available readiness measurements are present for the selected period.', [{ metric: 'readiness days', currentValue: 0, period: periodLabel(result.period) }], date, 7));
 }
 
+async function attachSourceRefs(insights: HealthInsight[], start: string | null, end: string): Promise<HealthInsight[]> {
+  const shared = await loadSharedAnalyticsData();
+  const workouts = shared.data.workouts.filter((item) => item.status === 'completed' && (item.completedAt ?? item.startedAt)?.slice(0, 10) >= (start ?? '0000-00-00') && (item.completedAt ?? item.startedAt)?.slice(0, 10) <= end).map((item) => item.id);
+  const sleep = shared.data.sleep.filter((item) => item.date >= (start ?? '0000-00-00') && item.date <= end).map((item) => item.id);
+  const refsFor = (item: HealthInsight): AnalyticsSourceRef[] => {
+    if (item.type === 'sleep') return sleep.length ? [{ domain: 'sleep', recordIds: sleep }] : [];
+    if (item.type === 'recovery' || item.type === 'consistency' || item.type === 'balance') {
+      const refs: AnalyticsSourceRef[] = [];
+      if (sleep.length) refs.push({ domain: 'sleep', recordIds: sleep });
+      if (workouts.length) refs.push({ domain: 'workout', recordIds: workouts });
+      return refs;
+    }
+    if (item.type === 'training' || item.type === 'progression') return workouts.length ? [{ domain: 'workout', recordIds: workouts }] : [];
+    return [];
+  };
+  return insights.map((item) => ({ ...item, sourceRefs: refsFor(item) })).filter((item) => item.sourceRefs.length > 0 || item.type === 'missing_data');
+}
+
 function finalize(insights: HealthInsight[]): HealthInsight[] {
   const unique = [...new Map(insights.map((item) => [item.id, item])).values()];
   unique.sort((a, b) => SEVERITY_RANK[a.severity] - SEVERITY_RANK[b.severity] || a.priority - b.priority || TYPE_RANK[a.type] - TYPE_RANK[b.type] || a.id.localeCompare(b.id));
@@ -219,7 +240,8 @@ export async function getHealthInsights(period: HealthAnalyticsPeriod = '30d', a
       }
     }
   }
-  return finalize(insights);
+  const linked = await attachSourceRefs(insights, result.dateRange.start, date);
+  return finalize(linked);
 }
 
 export async function getHealthInsightsForDate(date: string, period: HealthAnalyticsPeriod = '7d'): Promise<HealthInsight[]> {

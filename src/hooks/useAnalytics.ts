@@ -9,6 +9,7 @@ import {
   computeAccountAnalysis,
   computeSavingsAnalysis,
   computeInsights,
+  computeSpendHeatmap,
   getHighestExpenseTransaction,
   getHighestIncomeTransaction,
   getPeriodRange,
@@ -46,6 +47,7 @@ export interface UseAnalyticsResult {
   savingsAnalysis: SavingsAnalysisSummary;
   insights: Insight[];
   highestExpense: ReturnType<typeof getHighestExpenseTransaction>;
+  spendHeatmap: ReturnType<typeof computeSpendHeatmap>;
   highestIncome: ReturnType<typeof getHighestIncomeTransaction>;
 
   // Loading state
@@ -53,7 +55,9 @@ export interface UseAnalyticsResult {
   error: string | null;
 }
 
-export function useAnalytics(): UseAnalyticsResult {
+export function useAnalyticsFromFinance(
+  finance: ReturnType<typeof useFinance>,
+): UseAnalyticsResult {
   const {
     accounts,
     transactions,
@@ -62,7 +66,7 @@ export function useAnalytics(): UseAnalyticsResult {
     savingsGoals,
     loading,
     error,
-  } = useFinance();
+  } = finance;
 
   const [periodType, setPeriodType] = useState<PeriodType>('month');
   const [periodDate, setPeriodDate] = useState<Date>(() => new Date());
@@ -148,6 +152,11 @@ export function useAnalytics(): UseAnalyticsResult {
   const highestIncome = useMemo(
     () => getHighestIncomeTransaction(transactions, periodRange),
     [transactions, periodRange],
+
+  );
+  const spendHeatmap = useMemo(
+    () => computeSpendHeatmap(transactions, periodRange),
+    [transactions, periodRange],
   );
 
   // Insights
@@ -189,8 +198,13 @@ export function useAnalytics(): UseAnalyticsResult {
     savingsAnalysis,
     insights,
     highestExpense,
+    spendHeatmap,
     highestIncome,
     loading,
     error,
   };
+}
+
+export function useAnalytics(): UseAnalyticsResult {
+  return useAnalyticsFromFinance(useFinance());
 }

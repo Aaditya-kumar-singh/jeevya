@@ -1,4 +1,4 @@
-import { Alert, ScrollView, View } from 'react-native';
+﻿import { Alert, ScrollView, View } from 'react-native';
 import { Link, router } from 'expo-router';
 import { BarChart3, Brain, BookOpen, ChevronRight, ClipboardCheck, NotebookPen, Settings, ListChecks, CheckSquare, Layers, Search, Target, ShieldCheck, Download, Upload, Clock3 } from 'lucide-react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -14,18 +14,24 @@ import { FloatingBlobsSVG } from '@/components/visuals/FloatingBlobsSVG';
 import { useBackup } from '@/hooks/useBackup';
 
 const links = [
-  { label: 'Tasks & Action Items', value: 'Stay organized daily with high-priority actions', href: '/tasks', icon: CheckSquare, iconBg: 'bg-violet-500/15 text-violet-500', badge: '12 Due' },
-  { label: 'Habit Routines', value: 'Build long-term streak habits & routines', href: '/habits', icon: ListChecks, iconBg: 'bg-indigo-500/15 text-indigo-500', badge: '7d Streak' },
-  { label: 'Reading Library', value: 'Book list, goals & reading analytics', href: '/books', icon: BookOpen, iconBg: 'bg-amber-500/15 text-amber-500', badge: '3 Active' },
+  { label: 'Advanced Task Center', value: 'Recurrence, analytics, bulk actions and reminders', href: '/tasks/advanced', icon: Layers, iconBg: 'bg-violet-500/15 text-violet-500', badge: 'Advanced' },
+  { label: 'Tasks & Action Items', value: 'Stay organized daily with high-priority actions', href: '/tasks', icon: CheckSquare, iconBg: 'bg-violet-500/15 text-violet-500', badge: 'Tasks' },
+  { label: 'Advanced Habit Center', value: 'Quantity, consistency, templates, skip mode and notes', href: '/habits/advanced', icon: ListChecks, iconBg: 'bg-indigo-500/15 text-indigo-500', badge: 'Advanced' },
+  { label: 'Habit Routines', value: 'Build long-term streak habits & routines', href: '/habits', icon: ListChecks, iconBg: 'bg-indigo-500/15 text-indigo-500', badge: 'Habits' },
+  { label: 'Reading Library', value: 'Book list, goals & reading analytics', href: '/books', icon: BookOpen, iconBg: 'bg-amber-500/15 text-amber-500', badge: 'Books' },
+  { label: 'Advanced Reading', value: 'Sessions, streaks, notes, advanced goals & yearly review', href: '/books/advanced', icon: BookOpen, iconBg: 'bg-amber-500/15 text-amber-500', badge: 'Advanced' },
   { label: 'Goals & Progress', value: 'One view across your Jeevya goals', href: '/goals', icon: Target, iconBg: 'bg-rose-500/15 text-rose-500', badge: 'Unified' },
+  { label: 'Goal Command Center', value: 'Cross-domain links, weekly review & at-risk goals', href: '/goals/advanced', icon: Target, iconBg: 'bg-rose-500/15 text-rose-500', badge: 'Advanced' },
   { label: 'Life Intelligence', value: 'Deterministic signals across your Jeevya data', href: '/insights', icon: Brain, iconBg: 'bg-fuchsia-500/15 text-fuchsia-500', badge: 'Signals' },
   { label: 'Search Everything', value: 'Find records across your Jeevya modules', href: '/search', icon: Search, iconBg: 'bg-cyan-500/15 text-cyan-500', badge: 'Global' },
   { label: 'Jeevya Analytics', value: 'Cross-module activity and progress overview', href: '/analytics', icon: BarChart3, iconBg: 'bg-sky-500/15 text-sky-500', badge: '7d' },
   { label: 'Data Quality', value: 'Check cross-module data integrity and diagnostics', href: '/data-quality', icon: ShieldCheck, iconBg: 'bg-emerald-500/15 text-emerald-500', badge: 'Diagnostics' },
   { label: 'Life Timeline', value: 'Review historical activity across your Jeevya domains', href: '/life-timeline', icon: Clock3, iconBg: 'bg-sky-500/15 text-sky-500', badge: 'History' },
+  { label: 'Timeline Explorer', value: 'Day, week, month, search, filters & deterministic history', href: '/life-timeline-advanced', icon: Clock3, iconBg: 'bg-sky-500/15 text-sky-500', badge: 'Advanced' },
   { label: 'Weekly Review', value: 'Review patterns, wins, and areas needing attention', href: '/weekly-review', icon: ClipboardCheck, iconBg: 'bg-emerald-500/15 text-emerald-500', badge: 'Weekly' },
   { label: 'Daily Reflection Journal', value: 'Reflect daily with mood logs', href: '/journal', icon: NotebookPen, iconBg: 'bg-emerald-500/15 text-emerald-500', badge: 'Today' },
-  { label: 'Settings & Preferences', value: 'Profile, theme, & data preferences', href: '/settings', icon: Settings, iconBg: 'bg-sky-500/15 text-sky-500', badge: 'Jeevya v2.4' },
+  { label: 'Advanced Journal', value: 'Energy, gratitude, search, heatmap, privacy & optional AI', href: '/journal/advanced', icon: NotebookPen, iconBg: 'bg-emerald-500/15 text-emerald-500', badge: 'Advanced' },
+  { label: 'Settings & Preferences', value: 'Profile, theme, & data preferences', href: '/settings', icon: Settings, iconBg: 'bg-sky-500/15 text-sky-500', badge: 'Settings' },
 ];
 
 export default function MoreScreen() {
@@ -162,4 +168,6 @@ export default function MoreScreen() {
     </View>
   );
 }
+
+
 

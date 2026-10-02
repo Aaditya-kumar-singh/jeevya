@@ -1,4 +1,4 @@
-import "@/global.css";
+﻿import "@/global.css";
 import { useEffect } from "react";
 import { DarkTheme, DefaultTheme, ThemeProvider, Stack } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
@@ -21,6 +21,8 @@ import { GluestackUIProvider } from "@/components/ui/gluestack-ui-provider";
 import { JeevyaThemeProvider } from "@/lib/themeContext";
 import { useTheme } from "@/hooks/use-theme";
 import { AndroidWidgetRefreshBridge } from "@/components/widgets/AndroidWidgetRefreshBridge";
+import { consumeShareIntent } from "@/services/shareIntent";
+import { initAccessibilityPreferences } from "@/lib/accessibility";
 
 SplashScreen.preventAutoHideAsync();
 
@@ -41,6 +43,22 @@ export default function RootLayout() {
       SplashScreen.hideAsync();
     }
   }, [fontsLoaded, fontError]);
+
+  useEffect(() => {
+    void initAccessibilityPreferences();
+  }, []);
+
+  useEffect(() => {
+    if (!fontsLoaded) return;
+    void consumeShareIntent().then((share) => {
+      const text = share?.text?.trim();
+      if (text) {
+        const encoded = encodeURIComponent(text);
+        // The import screen consumes this one-time handoff and lets the user review it.
+        import("expo-router").then(({ router }) => router.push(`/finance/import-payments?sharedText=${encoded}`));
+      }
+    });
+  }, [fontsLoaded]);
 
   if (!fontsLoaded && !fontError) {
     return null;
@@ -112,6 +130,8 @@ function ThemeShell() {
             <Stack.Screen name="journal/[id]/edit" options={{ headerShown: false }} />
             <Stack.Screen name="settings/index" options={{ headerShown: false }} />
             <Stack.Screen name="settings/appearance" options={{ headerShown: false }} />
+            <Stack.Screen name="settings/accessibility" options={{ headerShown: false }} />
+            <Stack.Screen name="settings/data" options={{ headerShown: false }} />
             <Stack.Screen name="habits/index" options={{ headerShown: false }} />
             <Stack.Screen name="habits/new" options={{ headerShown: false }} />
             <Stack.Screen name="habits/[id]" options={{ headerShown: false }} />
@@ -127,3 +147,5 @@ function ThemeShell() {
     </GluestackUIProvider>
   );
 }
+
+

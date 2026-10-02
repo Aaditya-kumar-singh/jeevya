@@ -1,13 +1,14 @@
-import { saveData, loadData } from '@/lib/storage';
+﻿import { saveData, loadData } from '@/lib/storage';
 import { updateStorage } from '@/services/storageReliability';
 import { uid } from '@/lib/uid';
 import type { Habit, HabitLog, HabitFrequency, Weekday } from '@/types/habit';
 import { getISODateString } from '@/types/habit';
 
+
 const HABITS_KEY = 'jeevya:habits';
 const HABIT_LOGS_KEY = 'jeevya:habit-logs';
 
-// ─── Types ────────────────────────────────────────────────────────────────────
+// â”€â”€â”€ Types â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 export interface CreateHabitInput {
   name: string;
@@ -19,6 +20,10 @@ export interface CreateHabitInput {
   targetCount?: number;
   reminderTime?: string | null;
   startDate?: string;
+  unit?: string;
+  skipMode?: boolean;
+  vacationWindows?: Array<{ startDate: string; endDate: string; reason?: string }>;
+  notesEnabled?: boolean;
 }
 
 export interface UpdateHabitInput {
@@ -31,12 +36,16 @@ export interface UpdateHabitInput {
   targetCount?: number;
   reminderTime?: string | null;
   startDate?: string;
+  unit?: string;
+  skipMode?: boolean;
+  vacationWindows?: Array<{ startDate: string; endDate: string; reason?: string }>;
+  notesEnabled?: boolean;
   endDate?: string | null;
   isActive?: boolean;
   isArchived?: boolean;
 }
 
-// ─── Habits CRUD ──────────────────────────────────────────────────────────────
+// â”€â”€â”€ Habits CRUD â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 export async function getHabits(): Promise<Habit[]> {
   return loadData<Habit[]>(HABITS_KEY, []);
@@ -160,7 +169,7 @@ export async function restoreHabit(id: string): Promise<Habit | null> {
   return updateHabit(id, { isArchived: false });
 }
 
-// ─── Habit Logs ───────────────────────────────────────────────────────────────
+// â”€â”€â”€ Habit Logs â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 export async function getHabitLogs(habitId: string): Promise<HabitLog[]> {
   const logs = await loadData<HabitLog[]>(HABIT_LOGS_KEY, []);
@@ -228,7 +237,7 @@ export async function toggleHabitCompletion(
   return result;
 }
 
-// ─── Today's Habits ───────────────────────────────────────────────────────────
+// â”€â”€â”€ Today's Habits â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 export async function getTodayHabits(): Promise<(Habit & { isCompleted: boolean })[]> {
   const habits = await getActiveHabits();
@@ -270,7 +279,7 @@ export async function getTodayHabits(): Promise<(Habit & { isCompleted: boolean 
     }));
 }
 
-// ─── Helpers ──────────────────────────────────────────────────────────────────
+// â”€â”€â”€ Helpers â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 export async function getHabitWithLogs(
   habitId: string,
@@ -279,4 +288,7 @@ export async function getHabitWithLogs(
   const logs = habit ? await getHabitLogs(habitId) : [];
   return { habit, logs };
 }
+
+
+
 

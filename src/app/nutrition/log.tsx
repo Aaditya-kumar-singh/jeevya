@@ -37,6 +37,7 @@ import type {
 } from '@/types/nutrition';
 import { MEAL_TYPES, MEAL_TYPE_LABELS, getTodayDate } from '@/types/nutrition';
 import type { ScaledNutrients } from '@/services/nutrition';
+import { getServingPresets, saveServingPreset, recordRecentFood, type ServingPreset } from '@/services/nutritionAdvanced';
 
 // ─── Display Helpers ──────────────────────────────────────────────────────────
 
@@ -116,6 +117,9 @@ export default function MealLogScreen() {
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const [preview, setPreview] = useState<ScaledNutrients | NutrientTotals | null>(null);
+  const [presets, setPresets] = useState<ServingPreset[]>([]);
+
+  useEffect(() => { if (!isRecipe && itemId) void getServingPresets(itemId).then(setPresets); }, [isRecipe, itemId]);
 
   // Sync unit when food changes
   useEffect(() => {
@@ -213,6 +217,7 @@ export default function MealLogScreen() {
     setSaving(true);
     setError(null);
     try {
+      await recordRecentFood(itemId);
       await addFoodLog({
         foodId: itemId,
         quantity: amount,
@@ -221,6 +226,7 @@ export default function MealLogScreen() {
         date,
         itemType: isRecipe ? 'recipe' : 'food',
       });
+      if (!isRecipe) { await recordRecentFood(itemId); }
       router.back();
     } catch (e: unknown) {
       const msg = e instanceof Error ? e.message : 'Failed to save';
@@ -396,6 +402,9 @@ export default function MealLogScreen() {
             </ScrollView>
           </View>
         ) : null}
+
+        {!isRecipe && presets.length ? (<View><Text size="sm" className="mb-2 font-medium">Serving presets</Text><ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{gap:6}}>{presets.map((p)=><Pressable key={p.id} onPress={()=>{setQty(String(p.amount));setUnit(p.unit)}} className="rounded-lg bg-muted px-3 py-2"><Text size="xs" className="font-medium">{p.name} A� {p.amount} {p.unit}</Text></Pressable>)}</ScrollView></View>) : null}
+        {!isRecipe ? (<Button variant="outline" size="sm" onPress={async()=>{const amount=Number(qty);if(!Number.isFinite(amount)||amount<=0)return;const preset=await saveServingPreset({foodId:itemId,name:amount+" "+unit,amount,unit});setPresets((x)=>[preset,...x])}}><ButtonText>Save current serving as preset</ButtonText></Button>) : null}
 
         {/* Meal type */}
         <View>

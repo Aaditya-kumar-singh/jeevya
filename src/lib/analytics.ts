@@ -139,12 +139,52 @@ export function formatCurrencySigned(amount: number): string {
   return `${prefix}₹${Math.abs(amount).toLocaleString('en-IN')}`;
 }
 
+
+// --- Spend Heatmap ------------------------------------------------------------
+
+export interface SpendHeatmapDay {
+  date: string;
+  dayOfMonth: number;
+  amount: number;
+  transactionCount: number;
+  intensity: number;
+}
+
+export function computeSpendHeatmap(
+  transactions: FinanceTransaction[],
+  range: PeriodRange,
+): SpendHeatmapDay[] {
+  const start = new Date(range.start + 'T00:00:00');
+  const end = new Date(range.end + 'T00:00:00');
+  const totals = new Map<string, { amount: number; transactionCount: number }>();
+
+  for (const tx of transactions) {
+    if (tx.type !== 'expense' || tx.paymentStatus === 'failed' || tx.date < range.start || tx.date > range.end) continue;
+    const current = totals.get(tx.date) ?? { amount: 0, transactionCount: 0 };
+    current.amount += tx.amount;
+    current.transactionCount += 1;
+    totals.set(tx.date, current);
+  }
+
+  const days: SpendHeatmapDay[] = [];
+  for (let cursor = new Date(start); cursor <= end; cursor.setDate(cursor.getDate() + 1)) {
+    const date = formatDateISO(cursor);
+    const total = totals.get(date) ?? { amount: 0, transactionCount: 0 };
+    days.push({ date, dayOfMonth: cursor.getDate(), amount: Math.round(total.amount * 100) / 100, transactionCount: total.transactionCount, intensity: 0 });
+  }
+
+  const max = Math.max(0, ...days.map((day) => day.amount));
+  return days.map((day) => ({ ...day, intensity: max > 0 ? Math.min(4, Math.max(0, Math.ceil((day.amount / max) * 4))) : 0 }));
+}
+
 // ─── Period Summary ───────────────────────────────────────────────────────────
 
 export interface PeriodSummary {
   totalIncome: number;
   totalExpenses: number;
   netCashFlow: number;
+  /** Percentage of income remaining after expenses for the selected period. */
+  savingsRate: number;
   transactionCount: number;
   averageExpense: number;
   averageIncome: number;
@@ -159,7 +199,7 @@ export function computePeriodSummary(
   range: PeriodRange,
 ): PeriodSummary {
   const filtered = transactions.filter(
-    (tx) => tx.date >= range.start && tx.date <= range.end,
+    (tx) => tx.date >= range.start && tx.date <= range.end && tx.paymentStatus !== 'failed',
   );
 
   let totalIncome = 0;
@@ -182,6 +222,7 @@ export function computePeriodSummary(
     totalIncome,
     totalExpenses,
     netCashFlow: totalIncome - totalExpenses,
+    savingsRate: safePercentage(totalIncome - totalExpenses, totalIncome),
     transactionCount: filtered.length,
     averageExpense: safeDivide(totalExpenses, expenseCount),
     averageIncome: safeDivide(totalIncome, incomeCount),
@@ -620,7 +661,7 @@ export function computeInsights(
     if (change > 10) {
       insights.push({
         type: 'negative',
-        message: `Expenses increased by ${change}% compared to ${previousRange.label}.`,
+        message: `You spent more than usual: expenses increased by ${change}% compared to ${previousRange.label}.`,
       });
     } else if (change < -10) {
       insights.push({

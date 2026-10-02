@@ -67,6 +67,7 @@ export interface WorkoutSet {
   distanceKm?: number | null;
   distanceUnit: string | null;
   rpe: number | null;
+  rir?: number | null;
   completed: boolean;
   completedAt: string | null;
   createdAt: string;
@@ -279,6 +280,7 @@ export interface WorkoutHistoryExerciseEntry {
   durationSeconds: number | null;
   distanceKm: number | null;
   rpe: number | null;
+  rir?: number | null;
   completed: boolean;
 }
 

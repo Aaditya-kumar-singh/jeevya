@@ -4,6 +4,8 @@
 
 import { File, Paths } from 'expo-file-system';
 import { Linking } from 'react-native';
+import * as FileSystem from 'expo-file-system/legacy';
+import * as XLSX from 'xlsx';
 import type {
   FinanceAccount,
   FinanceTransaction,
@@ -91,7 +93,96 @@ function formatMonthKey(): string {
 
 // ─── Transaction CSV Export ───────────────────────────────────────────────────
 
-export type TransactionFilter = 'all' | 'current-month' | 'selected-month';
+export type TransactionFilter = 'all' | 'current-month' | 'selected-month';export interface TransactionExportFilters {
+  type?: 'income' | 'expense' | 'transfer';
+  source?: string;
+  provider?: string;
+  categoryId?: string;
+  minAmount?: number;
+  maxAmount?: number;
+  startDate?: string;
+  endDate?: string;
+  purpose?: string;
+}
+
+export function filterFinanceTransactions(transactions: FinanceTransaction[], filters: TransactionExportFilters = {}): FinanceTransaction[] {
+  return transactions.filter((tx) =>
+    (!filters.type || tx.type === filters.type) &&
+    (!filters.source || tx.source === filters.source) &&
+    (!filters.provider || tx.provider === filters.provider) &&
+    (!filters.categoryId || tx.categoryId === filters.categoryId) &&
+    (filters.minAmount === undefined || tx.amount >= filters.minAmount) &&
+    (filters.maxAmount === undefined || tx.amount <= filters.maxAmount) &&
+    (!filters.startDate || tx.date >= filters.startDate) &&
+    (!filters.endDate || tx.date <= filters.endDate) &&
+    (!filters.purpose || tx.purpose?.toLowerCase() === filters.purpose.toLowerCase())
+  );
+}
+
+export function generateFilteredTransactionsExcel(
+  transactions: FinanceTransaction[],
+  accounts: FinanceAccount[],
+  categories: FinanceCategory[],
+  filters: TransactionExportFilters = {},
+): { base64: string; filename: string } {
+  const filtered = filterFinanceTransactions(transactions, filters).sort((a, b) => b.date.localeCompare(a.date));
+  const accountMap = buildAccountMap(accounts);
+  const categoryMap = buildCategoryMap(categories);
+  const rows = filtered.map((tx) => ({
+    ID: tx.id,
+    Type: tx.type,
+    Title: tx.title,
+    Amount: tx.amount,
+    Account: accountMap.get(tx.accountId) || tx.accountId,
+    Category: categoryMap.get(tx.categoryId) || 'Uncategorized',
+    Date: tx.date,
+    Source: tx.source || '',
+    Provider: tx.provider || '',
+    Merchant: tx.merchant || '',
+    Purpose: tx.purpose || '',
+    'Payment Status': tx.paymentStatus || '',
+    'Reference ID': tx.referenceId || '',
+    Note: tx.note,
+  }));
+  const workbook = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(workbook, XLSX.utils.json_to_sheet(rows), 'Transactions');
+  return {
+    base64: XLSX.write(workbook, { bookType: 'xlsx', type: 'base64' }),
+    filename: `jeevya-finance-filtered-${formatDateKey()}.xlsx`,
+  };
+}
+
+export async function writeBase64FileAndShare(base64: string, filename: string): Promise<string> {
+  const uri = FileSystem.documentDirectory + filename;
+  await FileSystem.writeAsStringAsync(uri, base64, { encoding: FileSystem.EncodingType.Base64 });
+  try {
+    const Sharing = require('expo-sharing');
+    if (await Sharing.isAvailableAsync()) {
+      await Sharing.shareAsync(uri, {
+        mimeType: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        dialogTitle: `Export ${filename}`,
+      });
+      return uri;
+    }
+  } catch {
+    // Fall through to the system file handler.
+  }
+  try {
+    await Linking.openURL(uri);
+  } catch {
+    // Return the URI when no system handler is available.
+  }
+  return uri;
+}
+
+export function generateFilteredTransactionsCsv(transactions: FinanceTransaction[], accounts: FinanceAccount[], categories: FinanceCategory[], filters: TransactionExportFilters = {}): { csv: string; filename: string } {
+  const filtered = filterFinanceTransactions(transactions, filters).sort((a, b) => b.date.localeCompare(a.date));
+  const accountMap = buildAccountMap(accounts);
+  const categoryMap = buildCategoryMap(categories);
+  const headers = ['ID', 'Type', 'Title', 'Amount', 'Account', 'Category', 'Date', 'Source', 'Provider', 'Merchant', 'Purpose', 'Payment Status', 'Reference ID', 'Note'];
+  const rows = filtered.map((tx) => [tx.id, tx.type, tx.title, tx.amount, accountMap.get(tx.accountId) || tx.accountId, categoryMap.get(tx.categoryId) || 'Uncategorized', tx.date, tx.source || '', tx.provider || '', tx.merchant || '', tx.purpose || '', tx.paymentStatus || '', tx.referenceId || '', tx.note]);
+  return { csv: buildCsv(headers, rows), filename: `jeevya-finance-filtered-${formatDateKey()}.csv` };
+}
 
 export function generateTransactionsCsv(
   transactions: FinanceTransaction[],

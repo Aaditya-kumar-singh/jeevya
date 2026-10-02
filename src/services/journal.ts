@@ -1,4 +1,4 @@
-// ─── Journal Service (Phase 1A) ───────────────────────────────────────────────
+﻿// â”€â”€â”€ Journal Service (Phase 1A) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 // Local-first AsyncStorage CRUD, mirroring the Books/Tasks service
 // architecture: same storage.ts helpers, same uid() IDs, same normalize-on-load
 // pattern, plain JSON records (Supabase-row compatible). No network, no auth,
@@ -6,6 +6,7 @@
 
 import { saveData, loadData } from '@/lib/storage';
 import { uid } from '@/lib/uid';
+import { invalidateUnifiedSearchIndex } from '@/services/searchIndex';
 import {
   JOURNAL_MOODS,
   getNowISO,
@@ -16,16 +17,16 @@ import {
   type UpdateJournalEntryInput,
 } from '@/types/journal';
 
-// ─── Storage Key ──────────────────────────────────────────────────────────────
+// â”€â”€â”€ Storage Key â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 const JOURNAL_KEY = 'jeevya:journal';
 
-// ─── Validation Limits ────────────────────────────────────────────────────────
+// â”€â”€â”€ Validation Limits â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 export const JOURNAL_TITLE_MAX = 200;
 export const JOURNAL_CONTENT_MAX = 50000;
 
-// ─── Civil Date Handling (YYYY-MM-DD only — no locale parsing) ────────────────
+// â”€â”€â”€ Civil Date Handling (YYYY-MM-DD only â€” no locale parsing) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
 
@@ -43,7 +44,7 @@ function daysInMonth(year: number, month: number): number {
 
 /**
  * True for well-formed, real calendar YYYY-MM-DD strings. Pure civil
- * arithmetic on raw numbers — no Date objects, no locale parsing, no
+ * arithmetic on raw numbers â€” no Date objects, no locale parsing, no
  * timezone round-tripping.
  */
 export function isValidJournalDate(value: unknown): value is string {
@@ -52,7 +53,7 @@ export function isValidJournalDate(value: unknown): value is string {
   return m >= 1 && m <= 12 && d >= 1 && d <= daysInMonth(y, m);
 }
 
-// ─── Tag Normalization ────────────────────────────────────────────────────────
+// â”€â”€â”€ Tag Normalization â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 /**
  * Normalize a tag list: keep strings only, trim, collapse internal whitespace,
@@ -76,7 +77,7 @@ export function normalizeTags(raw: unknown): string[] {
   return out;
 }
 
-// ─── Normalization ────────────────────────────────────────────────────────────
+// â”€â”€â”€ Normalization â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 function isValidMood(value: unknown): value is JournalMood {
   return (
@@ -104,7 +105,7 @@ function toISOWithFallback(value: unknown): string {
  */
 function normalizeEntry(raw: Record<string, unknown>): JournalEntry {
   // Invalid entry dates fall back to the record's own creation day, then
-  // today — the entry always stays sortable and renderable, never crashes.
+  // today â€” the entry always stays sortable and renderable, never crashes.
   const createdRaw = toISOWithFallback(raw.createdAt);
   const createdDay = createdRaw.slice(0, 10);
   const date =
@@ -140,7 +141,7 @@ async function loadNormalized(): Promise<JournalEntry[]> {
   }
 }
 
-// ─── Validation ───────────────────────────────────────────────────────────────
+// â”€â”€â”€ Validation â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 /**
  * Validate a candidate entry shape (create or merged update). Throws with a
@@ -171,7 +172,7 @@ function assertValidEntry(candidate: {
   }
 }
 
-// ─── Write Serialization ──────────────────────────────────────────────────────
+// â”€â”€â”€ Write Serialization â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 // Mutations are read-modify-write cycles on one AsyncStorage key. Without
 // ordering, two concurrent saves can each read the same list and the second
 // write silently drops the first entry. This promise chain serializes creates,
@@ -189,7 +190,7 @@ function serialize<T>(fn: () => Promise<T>): Promise<T> {
   return run;
 }
 
-// ─── CRUD ─────────────────────────────────────────────────────────────────────
+// â”€â”€â”€ CRUD â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 /**
  * Get all entries, newest first (entry date desc, then creation time desc).
@@ -299,6 +300,9 @@ export async function deleteEntry(id: string): Promise<boolean> {
     if (filtered.length === entries.length) return false;
 
     await saveData(JOURNAL_KEY, filtered);
+    invalidateUnifiedSearchIndex();
     return true;
   });
 }
+
+

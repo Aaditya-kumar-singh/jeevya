@@ -1,4 +1,4 @@
-import { ActivityIndicator, ScrollView, View } from 'react-native';
+﻿import { ActivityIndicator, ScrollView, View } from 'react-native';
 import { useState } from 'react';
 import { router } from 'expo-router';
 import { Bell, ChevronRight, Palette, User, Database, Settings as SettingsIcon, ShieldCheck, RefreshCw, Sparkles, SlidersHorizontal } from 'lucide-react-native';
@@ -8,7 +8,13 @@ import { Button, ButtonText, Card, Heading, Text } from '@/components/ui';
 import { FadeInView } from '@/components/motion/FadeInView';
 import { ScalePressable } from '@/components/motion/ScalePressable';
 import { FloatingBlobsSVG } from '@/components/visuals/FloatingBlobsSVG';
-import { settingsSections } from '@/lib/mockData';
+const settingsSections = [
+  { id: 'profile', title: 'Profile', subtitle: 'Name, goals, reminders' },
+  { id: 'appearance', title: 'Appearance', subtitle: 'Light / dark theme' },
+  { id: 'notifications', title: 'Notifications', subtitle: 'Habits, tasks, budget alerts' },
+  { id: 'data', title: 'Data & Privacy', subtitle: 'Export and local data controls' },
+  { id: 'accessibility', title: 'Accessibility', subtitle: 'Motion, font scale, screen reader & touch support' },
+];
 import { useSync } from '@/hooks/useSync';
 import { useAuth } from '@/hooks/useAuth';
 import { useCapabilities } from '@/hooks/useCapabilities';
@@ -21,6 +27,7 @@ const icons: Record<string, typeof User> = {
   appearance: Palette,
   notifications: Bell,
   data: Database,
+  accessibility: SlidersHorizontal,
   widgets: SlidersHorizontal,
 };
 
@@ -34,7 +41,7 @@ const iconBgs: Record<string, string> = {
 export default function SettingsScreen() {
   const insets = useSafeAreaInsets();
   const topPadding = Math.max(insets.top + 12, 48);
-  const { status, conflicts, sync, resolveKeepLocal, resolveKeepRemote } = useSync();
+  const { status, conflicts, sync, retry, resolveKeepLocal, resolveKeepRemote } = useSync();
   const { authState, user, signOut } = useAuth();
   const { checkAccess } = useCapabilities();
   const { gate, attempt, dismiss, signIn, createAccount } = useAccountGate();
@@ -107,17 +114,20 @@ export default function SettingsScreen() {
               const bgStyle = iconBgs[section.id] ?? 'bg-sky-500/15 text-sky-500';
               const isProfile = section.id === 'profile';
               const isAppearance = section.id === 'appearance';
+              const isAccessibility = section.id === 'accessibility';
               const onPress = isProfile && authState !== 'authenticated'
                 ? openProfile
                 : isAppearance
                   ? () => router.push('/settings/appearance' as never)
-                  : undefined;
+                  : isAccessibility
+                    ? () => router.push('/settings/accessibility' as never)
+                    : undefined;
               const subtitleText = isProfile && authState === 'authenticated'
                 ? user?.email ?? 'Authenticated account'
                 : isProfile
                   ? 'Sign in or create an account'
                   : isAppearance
-                    ? `${theme.name} • ${theme.isAnimated ? 'Live Animated' : theme.mode === 'dark' ? 'Dark' : 'Light'} (10 Themes)`
+                    ? `${theme.name} â€¢ ${theme.isAnimated ? 'Live Animated' : theme.mode === 'dark' ? 'Dark' : 'Light'} (10 Themes)`
                     : section.subtitle;
               return (
                 <FadeInView key={section.id} delay={60 + index * 50}>
@@ -161,7 +171,24 @@ export default function SettingsScreen() {
             })}
           </View>
 
-          <FadeInView delay={240}>
+          <FadeInView delay={235}>
+            <ScalePressable onPress={() => router.push('/settings/data' as never)}>
+              <Card className="w-full p-4 border border-emerald-500/20 bg-emerald-500/5 rounded-3xl">
+                <View className="flex-row items-center gap-3">
+                  <View className="h-11 w-11 items-center justify-center rounded-2xl bg-emerald-500/15">
+                    <Database size={20} className="text-emerald-500" />
+                  </View>
+                  <View className="flex-1">
+                    <Heading size="sm" className="font-bold">Data & Privacy Center</Heading>
+                    <Text size="xs" className="text-muted-foreground font-medium mt-0.5">Encrypted backups, restore preview, selective restore, retention and sensitive-data audit.</Text>
+                  </View>
+                  <ChevronRight size={18} className="text-muted-foreground/60" />
+                </View>
+              </Card>
+            </ScalePressable>
+          </FadeInView>
+
+          <FadeInView delay={250}>
             <ScalePressable onPress={() => router.push('/settings/widgets' as never)}>
               <Card className="w-full p-4 border border-indigo-500/20 bg-indigo-500/5 rounded-3xl">
                 <View className="flex-row items-center gap-3">
@@ -206,7 +233,7 @@ export default function SettingsScreen() {
                   {conflicts.map((conflict) => (
                     <View key={conflict.conflictId} className="rounded-2xl border border-border/60 bg-background/50 p-3">
                       <Text size="xs" className="font-semibold text-foreground">
-                        {conflict.domain} • {conflict.recordId}
+                        {conflict.domain} â€¢ {conflict.recordId}
                       </Text>
                       <Text size="xs" className="mt-1 text-muted-foreground">
                         {conflict.reason === 'deletion_conflict' ? 'Local and remote deletion/update differ.' : 'Both local and remote versions changed.'}
@@ -239,7 +266,7 @@ export default function SettingsScreen() {
                     Jeevya Security Core Active
                   </Text>
                   <Text size="xs" className="text-muted-foreground mt-0.5">
-                    Local offline sync • End-to-end device storage
+                    Local offline sync â€¢ End-to-end device storage
                   </Text>
                 </View>
               </View>
@@ -258,3 +285,4 @@ export default function SettingsScreen() {
     </View>
   );
 }
+

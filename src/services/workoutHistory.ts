@@ -41,7 +41,7 @@ function compareHistory(a: WorkoutSession, b: WorkoutSession, newestFirst: boole
 }
 
 function completedSessions(sessions: WorkoutSession[]): WorkoutSession[] {
-  return sessions.filter((session) => session.status === 'completed').map(clone);
+  return sessions.filter((session): session is WorkoutSession => !!session && session.status === 'completed').map(clone);
 }
 
 function matchesDate(session: WorkoutSession, fromDate?: string, toDate?: string): boolean {

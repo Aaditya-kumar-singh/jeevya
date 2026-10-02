@@ -1,5 +1,4 @@
 import { supabase } from '@/lib/supabase';
-import { exerciseLibrary } from '@/lib/mockData';
 import type {
   Exercise,
   ExerciseFilter,
@@ -26,43 +25,6 @@ const LOCAL_TO_BODY_PART: Record<string, string> = {
   Core: 'waist',
   Cardio: 'cardio',
 };
-
-const FALLBACK_OPTIONS: ExerciseFilterOptions = {
-  bodyParts: [
-    'back',
-    'cardio',
-    'chest',
-    'lower arms',
-    'lower legs',
-    'neck',
-    'shoulders',
-    'upper arms',
-    'upper legs',
-    'waist',
-  ],
-  equipment: [
-    'assisted',
-    'band',
-    'barbell',
-    'body weight',
-    'cable',
-    'dumbbell',
-    'kettlebell',
-    'leverage machine',
-  ],
-  targets: [
-    'abs',
-    'biceps',
-    'calves',
-    'delts',
-    'glutes',
-    'lats',
-    'pectorals',
-    'quads',
-    'triceps',
-  ],
-};
-
 function toExercise(row: { id: string; name: string; category: string }): Exercise {
   const bodyPart = LOCAL_TO_BODY_PART[row.category] ?? row.category;
   return {
@@ -81,18 +43,6 @@ function toExercise(row: { id: string; name: string; category: string }): Exerci
     gif_url: null,
     created_at: null,
   };
-}
-
-function fallbackRows(filter: ExerciseFilter = {}): Exercise[] {
-  const q = filter.query?.trim().toLowerCase() ?? '';
-  return exerciseLibrary
-    .filter((row) => {
-      const bodyPart = LOCAL_TO_BODY_PART[row.category] ?? row.category;
-      const matchesQuery = q.length === 0 || row.name.toLowerCase().includes(q);
-      const matchesBodyPart = !filter.body_part || bodyPart === filter.body_part;
-      return matchesQuery && matchesBodyPart;
-    })
-    .map(toExercise);
 }
 
 /**
@@ -140,15 +90,7 @@ export async function getExercises(
       hasMore: rows.length === pageSize && (count ?? 0) > from + rows.length,
       source: 'supabase',
     };
-  } catch {
-    const rows = fallbackRows(filter);
-    const slice = rows.slice(from, from + pageSize);
-    return {
-      data: slice,
-      count: rows.length,
-      hasMore: from + slice.length < rows.length,
-      source: 'fallback',
-    };
+  } catch {    return { data: [], count: 0, hasMore: false, source: 'supabase' };
   }
 }
 
@@ -161,8 +103,7 @@ export async function getExerciseById(id: string): Promise<Exercise | null> {
       .maybeSingle();
     if (error) throw error;
     return (data ?? null) as Exercise | null;
-  } catch {
-    return fallbackRows().find((row) => row.id === id) ?? null;
+  } catch {    return null;
   }
 }
 
@@ -175,13 +116,7 @@ export async function getExercisesByIds(ids: string[]): Promise<Map<string, Exer
       .in('id', ids);
     if (error) throw error;
     return new Map((data ?? []).map((row) => [row.id, row as unknown as Exercise]));
-  } catch {
-    return new Map(
-      fallbackRows()
-        .filter((row) => ids.includes(row.id))
-        .map((row) => [row.id, row]),
-    );
-  }
+  } catch { return new Map(); }
 }
 
 export async function getExerciseCount(): Promise<number> {
@@ -191,9 +126,7 @@ export async function getExerciseCount(): Promise<number> {
       .select('id', { count: 'exact', head: true });
     if (error) throw error;
     return count ?? 0;
-  } catch {
-    return exerciseLibrary.length;
-  }
+  } catch { return 0; }
 }
 
 async function distinctValues(column: string): Promise<string[]> {
@@ -221,7 +154,5 @@ export async function getExerciseFilterOptions(): Promise<ExerciseFilterOptions>
       distinctValues('target'),
     ]);
     return { bodyParts, equipment, targets };
-  } catch {
-    return FALLBACK_OPTIONS;
-  }
+  } catch { return { bodyParts: [], equipment: [], targets: [] }; }
 }

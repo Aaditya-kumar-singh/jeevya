@@ -18,6 +18,8 @@ import { FloatingBlobsSVG } from '@/components/visuals/FloatingBlobsSVG';
 import { WeeklyStreakMatrix } from '@/components/tasks/WeeklyStreakMatrix';
 import { ListChecks } from 'lucide-react-native';
 import { useTasks } from '@/hooks/useTasks';
+import { parseNaturalTask } from '@/services/taskIntelligence';
+import { todayCivilDate } from '@/lib/date';
 type TaskFilter = 'All' | 'Today' | 'Done';
 
 const filters: TaskFilter[] = ['All', 'Today', 'Done'];
@@ -42,11 +44,9 @@ export default function TasksScreen() {
     if (!title || saving) return;
     setSaving(true);
     try {
-      await createTask({
-        title,
-        priority: 'medium',
-        dueDate: 'Today',
-      });
+      const parsed = parseNaturalTask(title, todayCivilDate());
+      if (!parsed.title) return;
+      await createTask(parsed);
       setNewTitle('');
     } finally {
       setSaving(false);
@@ -55,7 +55,7 @@ export default function TasksScreen() {
 
   const visible = tasks.filter((t) => {
     if (filter === 'Done') return t.completed;
-    if (filter === 'Today') return (t.dueDate ?? '').startsWith('Today');
+    if (filter === 'Today') return t.dueDate === todayCivilDate();
     return true;
   });
 

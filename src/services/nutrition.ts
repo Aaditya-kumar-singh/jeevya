@@ -1,4 +1,4 @@
-// ─── Nutrition Service (Phase 1A) ─────────────────────────────────────────────
+﻿// ΓöÇΓöÇΓöÇ Nutrition Service (Phase 1A) ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
 // Local-first AsyncStorage CRUD for custom/system foods, mirroring the
 // Journal/Books service architecture: same storage.ts helpers, same uid()
 // IDs, same normalize-on-load pattern, same write-serialization reliability,
@@ -6,11 +6,10 @@
 //
 // Also home to the pure quantity calculation engine (no storage, no JSX):
 // scale any food's profile to an arbitrary valid quantity. Internal math stays
-// precise — rounding is a presentation concern for later phases.
+// precise ΓÇö rounding is a presentation concern for later phases.
 
 import { saveData, loadData } from '@/lib/storage';
 import { uid } from '@/lib/uid';
-import { SYSTEM_FOODS } from '@/lib/system-foods';
 import {
   ACTIVITY_INTENSITIES,
   ACTIVITY_LEVELS,
@@ -73,11 +72,11 @@ import {
   type UpdateRecipeInput,
 } from '@/types/nutrition';
 
-// ─── Storage Key ──────────────────────────────────────────────────────────────
+// ΓöÇΓöÇΓöÇ Storage Key ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
 
 const FOODS_KEY = 'jeevya:nutrition:foods';
 
-// ─── Validation Limits ────────────────────────────────────────────────────────
+// ΓöÇΓöÇΓöÇ Validation Limits ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
 
 export const FOOD_NAME_MAX = 200;
 export const FOOD_BRAND_MAX = 200;
@@ -85,7 +84,7 @@ export const FOOD_CATEGORY_MAX = 100;
 export const FOOD_DESCRIPTION_MAX = 2000;
 export const FOOD_SOURCE_DETAIL_MAX = 500;
 
-// ─── Unit System ──────────────────────────────────────────────────────────────
+// ΓöÇΓöÇΓöÇ Unit System ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
 
 type UnitFamily = 'mass' | 'volume' | 'count';
 
@@ -109,9 +108,9 @@ function isValidUnit(value: unknown): value is ServingUnit {
 
 /**
  * Return the unit vocabulary compatible with a food's nutrition basis.
- * - per_100g  → mass units
- * - per_100ml → volume units
- * - per_serving → depends on the serving unit's family
+ * - per_100g  ΓåÆ mass units
+ * - per_100ml ΓåÆ volume units
+ * - per_serving ΓåÆ depends on the serving unit's family
  *
  * Count families (piece/serving) only allow their exact matching unit.
  */
@@ -155,7 +154,7 @@ function isValidAmount(value: unknown): value is number {
   return typeof value === 'number' && Number.isFinite(value) && value >= 0;
 }
 
-// ─── Normalization (malformed/legacy records degrade, never crash) ────────────
+// ΓöÇΓöÇΓöÇ Normalization (malformed/legacy records degrade, never crash) ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
 
 function toAmount(value: unknown, fallback: number): number {
   return isValidAmount(value) ? value : fallback;
@@ -171,7 +170,7 @@ function normalizeMicros(raw: unknown): Micronutrients {
   const record = raw as Record<string, unknown>;
   for (const key of MICRONUTRIENT_KEYS) {
     const v = record[key];
-    // Invalid micro values are dropped (unknown), never zero-filled — a
+    // Invalid micro values are dropped (unknown), never zero-filled ΓÇö a
     // missing key means "unknown", which downstream math must respect.
     if (isValidAmount(v)) out[key] = v;
   }
@@ -290,7 +289,7 @@ async function loadNormalized(): Promise<FoodItem[]> {
   }
 }
 
-// ─── Validation ───────────────────────────────────────────────────────────────
+// ΓöÇΓöÇΓöÇ Validation ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
 
 function assertValidServing(serving: ServingInfo): void {
   if (!isValidUnit(serving.unit)) throw new Error('Invalid serving unit');
@@ -399,7 +398,7 @@ function buildProfile(input: NutritionProfileInput): NutritionProfile {
   };
 }
 
-// ─── Write Serialization (Journal reliability standard) ───────────────────────
+// ΓöÇΓöÇΓöÇ Write Serialization (Journal reliability standard) ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
 
 let writeQueue: Promise<void> = Promise.resolve();
 
@@ -412,7 +411,7 @@ function serialize<T>(fn: () => Promise<T>): Promise<T> {
   return run;
 }
 
-// ─── CRUD ─────────────────────────────────────────────────────────────────────
+// ΓöÇΓöÇΓöÇ CRUD ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
 
 /**
  * Get all foods, alphabetical by name (stable for future search UI).
@@ -449,7 +448,7 @@ export async function createFood(input: CreateFoodInput): Promise<FoodItem> {
 
     const foods = await loadNormalized();
 
-    // IDs must be unique — regenerate on the (near-impossible) collision.
+    // IDs must be unique ΓÇö regenerate on the (near-impossible) collision.
     let id = uid('food_');
     let guard = 0;
     while (foods.some((f) => f.id === id) && guard++ < 5) {
@@ -563,7 +562,7 @@ export async function deleteFood(id: string): Promise<boolean> {
   });
 }
 
-// ─── Food Logs (Phase 1D) ────────────────────────────────────────────────────
+// ΓöÇΓöÇΓöÇ Food Logs (Phase 1D) ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
 
 const FOOD_LOGS_KEY = 'jeevya:nutrition:food-logs';
 
@@ -754,14 +753,14 @@ export async function deleteFoodLog(id: string): Promise<boolean> {
   });
 }
 
-// ─── Recipes (Phase 1F) ──────────────────────────────────────────────────────
+// ΓöÇΓöÇΓöÇ Recipes (Phase 1F) ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
 
 const RECIPES_KEY = 'jeevya:nutrition:recipes';
 const RECIPE_NAME_MAX = 200;
 const RECIPE_DESCRIPTION_MAX = 2000;
 const RECIPE_CATEGORY_MAX = 100;
 
-// ─── Recipe Normalization ─────────────────────────────────────────────────────
+// ΓöÇΓöÇΓöÇ Recipe Normalization ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
 
 function normalizeRecipeIngredient(raw: Record<string, unknown>): RecipeIngredient {
   return {
@@ -825,7 +824,7 @@ function serializeRecipe<T>(fn: () => Promise<T>): Promise<T> {
   return run;
 }
 
-// ─── Recipe Validation ────────────────────────────────────────────────────────
+// ΓöÇΓöÇΓöÇ Recipe Validation ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
 
 function assertValidRecipeInput(input: CreateRecipeInput | UpdateRecipeInput): void {
   if ('name' in input && input.name !== undefined) {
@@ -861,7 +860,7 @@ function assertValidRecipeInput(input: CreateRecipeInput | UpdateRecipeInput): v
   }
 }
 
-// ─── Recipe CRUD ──────────────────────────────────────────────────────────────
+// ΓöÇΓöÇΓöÇ Recipe CRUD ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
 
 export async function getRecipes(): Promise<Recipe[]> {
   const recipes = await loadRecipesNormalized();
@@ -972,7 +971,7 @@ export async function deleteRecipe(id: string): Promise<boolean> {
   });
 }
 
-// ─── Recipe Search ────────────────────────────────────────────────────────────
+// ΓöÇΓöÇΓöÇ Recipe Search ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
 
 export function searchRecipes(recipes: Recipe[], query: string): Recipe[] {
   const q = normalizeQuery(query);
@@ -1013,7 +1012,7 @@ export function searchRecipes(recipes: Recipe[], query: string): Recipe[] {
     .map((s) => s.recipe);
 }
 
-// ─── Recipe Nutrition Calculation (pure) ──────────────────────────────────────
+// ΓöÇΓöÇΓöÇ Recipe Nutrition Calculation (pure) ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
 
 export interface RecipeNutritionResult {
   totals: NutrientTotals;
@@ -1025,7 +1024,7 @@ export interface RecipeNutritionResult {
 
 /**
  * Calculate total recipe nutrition by summing all ingredient nutrition.
- * Pure — no storage access. Operates on provided recipe, foods, and the
+ * Pure ΓÇö no storage access. Operates on provided recipe, foods, and the
  * calculateNutrition engine. Missing foods increment unavailableCount.
  */
 export function calculateRecipeNutrition(
@@ -1128,7 +1127,7 @@ function divideTotals(totals: NutrientTotals, divisor: number): NutrientTotals {
   };
 }
 
-// ─── System Foods: Seed / Query / Search (Phase 1B) ───────────────────────────
+// ΓöÇΓöÇΓöÇ System Foods: Seed / Query / Search (Phase 1B) ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
 
 export interface SeedResult {
   added: number;
@@ -1141,7 +1140,7 @@ export interface SeedResult {
  * - existing IDs are skipped untouched (system records are never rewritten,
  *   user custom/imported/recipe records are never touched),
  * - raw store rows are preserved byte-for-byte except appended defs.
- * Returns counts for observability. Never throws on corrupt payloads —
+ * Returns counts for observability. Never throws on corrupt payloads ΓÇö
  * a non-array store is treated as empty.
  */
 export async function seedSystemFoods(): Promise<SeedResult> {
@@ -1158,9 +1157,10 @@ export async function seedSystemFoods(): Promise<SeedResult> {
 
     const now = getNowISO();
     let added = 0;
+    const { SYSTEM_FOODS } = await import('@/lib/system-foods');
     for (const def of SYSTEM_FOODS) {
       if (ids.has(def.id)) continue;
-      // Same validators as createFood — a bad dataset row fails loudly here
+      // Same validators as createFood ΓÇö a bad dataset row fails loudly here
       // (programmer error) instead of persisting silently.
       const name = def.name.trim();
       if (!name) throw new Error(`System food ${def.id} has no name`);
@@ -1233,7 +1233,7 @@ export async function getFoodsBySource(source: FoodSource): Promise<FoodItem[]> 
     );
 }
 
-// ─── Pure Search (no storage — works on any food list) ────────────────────────
+// ΓöÇΓöÇΓöÇ Pure Search (no storage ΓÇö works on any food list) ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
 
 function normalizeQuery(value: string): string {
   return value.trim().toLowerCase().replace(/\s+/g, ' ');
@@ -1253,7 +1253,7 @@ function foodName(food: FoodItem): string {
  * Ranked food search over an in-memory list (no external API):
  * 1. exact name match
  * 2. name prefix match (whole query)
- * 3. every query token present (name/brand/category/preparation) —
+ * 3. every query token present (name/brand/category/preparation) ΓÇö
  *    so "chicken cooked" prefers cooked-chicken records over raw ones
  * 4. any single token present
  * Ties break by earliest match position, then name. Empty query returns the
@@ -1301,10 +1301,10 @@ export function searchFoods(foods: FoodItem[], query: string): FoodItem[] {
     .map((s) => s.food);
 }
 
-// ─── Quantity Calculation Engine (pure — no storage) ──────────────────────────
+// ΓöÇΓöÇΓöÇ Quantity Calculation Engine (pure ΓÇö no storage) ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
 
 export interface ScaledNutrients {
-  /** Exact scale factor applied (requested ÷ reference). Unrounded. */
+  /** Exact scale factor applied (requested ├╖ reference). Unrounded. */
   factor: number;
   source?: NutritionSourceMetadata;
   calories: number;
@@ -1351,14 +1351,14 @@ function scaleProfile(profile: NutritionProfile, factor: number): ScaledNutrient
 /**
  * Scale a food's nutrition to an arbitrary valid quantity.
  *
- * Compatibility rules (no density assumptions — mass and volume never mix):
+ * Compatibility rules (no density assumptions ΓÇö mass and volume never mix):
  * - per_100g basis: quantity must be a mass unit (g/kg/mg).
  * - per_100ml basis: quantity must be a volume unit (ml/l/cup/tbsp/tsp).
  * - per_serving basis: quantity must share the serving unit's family; discrete
  *   `piece`/`serving` units must match exactly.
  *
  * Throws on invalid quantities, unknown units, or incompatible unit/basis
- * pairs. Values stay precise — callers round for presentation.
+ * pairs. Values stay precise ΓÇö callers round for presentation.
  */
 export function calculateNutrition(
   food: Pick<FoodItem, 'nutrition' | 'quantityConversions'>,
@@ -1407,7 +1407,7 @@ export function calculateNutrition(
       if (UNIT_FAMILY[servingUnit] === 'count' || qtyFamily === 'count') {
         // Discrete units combine only with their exact match.
         if (quantity.unit !== servingUnit) {
-          throw new Error(`This food is portioned in ${servingUnit} — quantity must match`);
+          throw new Error(`This food is portioned in ${servingUnit} ΓÇö quantity must match`);
         }
         return scaleProfile(nutrition, quantity.amount / (nutrition.servingAmount as number));
       }
@@ -1460,7 +1460,7 @@ export function calculateFoodQuantity(food: FoodItem, quantity: FoodQuantity): F
   };
 }
 
-// ─── Daily Nutrition Aggregation (Phase 1E) ─────────────────────────────────
+// ΓöÇΓöÇΓöÇ Daily Nutrition Aggregation (Phase 1E) ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
 
 /** Zero-valued nutrient totals. */
 function emptyTotals(): NutrientTotals {
@@ -1540,7 +1540,7 @@ function scaledToTotals(scaled: ScaledNutrients): NutrientTotals {
 
 /**
  * Calculate nutrition totals for one meal type on a given day.
- * Pure — no storage access. Operates on the provided logs, foods, and recipes.
+ * Pure ΓÇö no storage access. Operates on the provided logs, foods, and recipes.
  * Handles both food and recipe log entries.
  */
 export function calculateMealNutrition(
@@ -1665,7 +1665,7 @@ export function calculateMealNutritionDetailed(
 
 /**
  * Calculate full daily nutrition summary for a YYYY-MM-DD date.
- * Pure — no storage access. Operates on the provided logs, foods, and recipes.
+ * Pure ΓÇö no storage access. Operates on the provided logs, foods, and recipes.
  */
 export function calculateDailyNutrition(
   date: string,
@@ -1728,7 +1728,7 @@ export function calculateDailyNutrition(
 /** Re-exported so future consumers discover the supported unit vocabulary. */
 export type { MicronutrientKey };
 
-// ─── Body Profile & BMR/TDEE (Phase 1G) ──────────────────────────────────────
+// ΓöÇΓöÇΓöÇ Body Profile & BMR/TDEE (Phase 1G) ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
 
 const BODY_PROFILE_KEY = 'jeevya:nutrition:body-profile';
 
@@ -1770,7 +1770,7 @@ function normalizeBodyProfile(raw: Record<string, unknown>): BodyProfile {
   };
 }
 
-// ─── Body Profile CRUD ────────────────────────────────────────────────────────
+// ΓöÇΓöÇΓöÇ Body Profile CRUD ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
 
 export async function getBodyProfile(): Promise<BodyProfile | null> {
   try {
@@ -1845,14 +1845,14 @@ export async function clearBodyProfile(): Promise<boolean> {
   }
 }
 
-// ─── Pure BMR/TDEE Calculations ──────────────────────────────────────────────
+// ΓöÇΓöÇΓöÇ Pure BMR/TDEE Calculations ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
 
 /**
  * Calculate Basal Metabolic Rate using Mifflin-St Jeor equation.
- * - Male:   10 × weight(kg) + 6.25 × height(cm) − 5 × age(y) + 5
- * - Female: 10 × weight(kg) + 6.25 × height(cm) − 5 × age(y) − 161
+ * - Male:   10 ├ù weight(kg) + 6.25 ├ù height(cm) ΓêÆ 5 ├ù age(y) + 5
+ * - Female: 10 ├ù weight(kg) + 6.25 ├ù height(cm) ΓêÆ 5 ├ù age(y) ΓêÆ 161
  *
- * Pure — no storage access.
+ * Pure ΓÇö no storage access.
  */
 export function calculateBMR(params: { sex: Sex; weightKg: number; heightCm: number; age: number }): number {
   const { sex, weightKg, heightCm, age } = params;
@@ -1865,9 +1865,9 @@ export function calculateBMR(params: { sex: Sex; weightKg: number; heightCm: num
 
 /**
  * Calculate Total Daily Energy Expenditure.
- * TDEE = BMR × activity multiplier.
+ * TDEE = BMR ├ù activity multiplier.
  *
- * Pure — no storage access.
+ * Pure ΓÇö no storage access.
  */
 export function calculateTDEE(params: { sex: Sex; weightKg: number; heightCm: number; age: number; activityLevel: ActivityLevel }): number {
   const bmr = calculateBMR(params);
@@ -1878,12 +1878,12 @@ export function calculateTDEE(params: { sex: Sex; weightKg: number; heightCm: nu
 
 /**
  * Calculate target calories based on goal.
- * - lose:  TDEE − 500
+ * - lose:  TDEE ΓêÆ 500
  * - maintain: TDEE
  * - gain:  TDEE + 300
  * - custom: TDEE + calorieAdjustment
  *
- * Pure — no storage access.
+ * Pure ΓÇö no storage access.
  */
 export function calculateTargetCalories(params: { tdee: number; goal: NutritionGoal; calorieAdjustment?: number }): number {
   const goalDef = NUTRITION_GOALS.find((g) => g.value === params.goal);
@@ -1898,7 +1898,7 @@ export function calculateTargetCalories(params: { tdee: number; goal: NutritionG
  * Defaults: protein 1.6 g/kg, fat 0.8 g/kg, carbs fill remaining.
  * Fiber: 14 g per 1000 kcal.
  *
- * Pure — no storage access.
+ * Pure ΓÇö no storage access.
  */
 export function calculateNutritionTargets(profile: BodyProfile): NutritionTargets {
   const bmr = calculateBMR(profile);
@@ -1928,7 +1928,7 @@ export function calculateNutritionTargets(profile: BodyProfile): NutritionTarget
   };
 }
 
-// ─── Energy Activities (Phase 1H + 1I) ───────────────────────────────────────
+// ΓöÇΓöÇΓöÇ Energy Activities (Phase 1H + 1I) ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
 
 const ENERGY_ACTIVITIES_KEY = 'jeevya:nutrition:energy-activities';
 
@@ -2055,12 +2055,12 @@ export async function importEnergyActivities(
   });
 }
 
-// ─── Activity Calorie Estimation (Phase 1I) ──────────────────────────────────
+// ΓöÇΓöÇΓöÇ Activity Calorie Estimation (Phase 1I) ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
 
 /**
  * Estimate calories burned using MET formula.
- * calories = MET × weightKg × durationHours
- * Pure — no storage access.
+ * calories = MET ├ù weightKg ├ù durationHours
+ * Pure ΓÇö no storage access.
  */
 export function estimateActivityCalories(input: ActivityEstimateInput): number {
   const metRow = MET_TABLE[input.activityType];
@@ -2077,7 +2077,7 @@ export function estimateActivityCalories(input: ActivityEstimateInput): number {
   return met * input.weightKg * durationHours;
 }
 
-// ─── Activity CRUD ────────────────────────────────────────────────────────────
+// ΓöÇΓöÇΓöÇ Activity CRUD ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
 
 export async function getEnergyActivities(): Promise<EnergyActivity[]> {
   const activities = await loadEnergyActivitiesNormalized();
@@ -2255,11 +2255,11 @@ export async function deleteEnergyActivity(id: string): Promise<boolean> {
   });
 }
 
-// ─── Energy Balance Calculation (Phase 1H + 1I) ──────────────────────────────
+// ΓöÇΓöÇΓöÇ Energy Balance Calculation (Phase 1H + 1I) ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
 
 /**
  * Calculate daily energy balance summary.
- * Pure — no storage access. Reuses existing calculateDailyNutrition and calculateBMR.
+ * Pure ΓÇö no storage access. Reuses existing calculateDailyNutrition and calculateBMR.
  * Activity calories: manual uses stored value; estimated calculated from profile + MET.
  */
 export function calculateDailyEnergy(
@@ -2297,10 +2297,10 @@ export function calculateDailyEnergy(
           weightKg: bodyProfile.weightKg,
         });
       } catch {
-        // estimation failed — skip this activity's calories
+        // estimation failed ΓÇö skip this activity's calories
       }
     } else {
-      // manual or estimated without profile — use stored calories
+      // manual or estimated without profile ΓÇö use stored calories
       activityCalories += a.calories;
     }
   }
@@ -2342,7 +2342,7 @@ export function calculateDailyEnergy(
   };
 }
 
-// ─── Nutrition & Energy Analytics (Phase 1K) ─────────────────────────────────
+// ΓöÇΓöÇΓöÇ Nutrition & Energy Analytics (Phase 1K) ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
 // Historical analytics from persisted records. One date-loop reuses
 // calculateDailyNutrition(), calculateDailyEnergy() and calculateBMR().
 // Civil-date math is UTC-noon based (timezone-safe); never uses
@@ -2718,7 +2718,7 @@ function calorieProteinEnergyInsights(
         start, end, { metric: 'avgNetCalories', value: round1(avgNet) }));
     } else {
       out.push(mkInsight('energy_balance', goal === 'maintain' ? 'positive' : 'info', 'Energy roughly balanced',
-        `Average net ${round1(avgNet)} kcal is within ±${BAL} kcal across ${s.daysWithData} days with data.`,
+        `Average net ${round1(avgNet)} kcal is within ┬▒${BAL} kcal across ${s.daysWithData} days with data.`,
         'Keep logging intake and activity consistently.',
         start, end, { metric: 'avgNetCalories', value: round1(avgNet) }));
     }
@@ -2889,5 +2889,6 @@ export function generateNutritionInsights(
   ];
   return sortNutritionInsights(dedupeNutritionInsights(all));
 }
+
 
 

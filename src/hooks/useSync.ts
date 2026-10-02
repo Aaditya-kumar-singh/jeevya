@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
-import { getPendingConflicts, getSyncStatus, resolveConflictKeepLocal, resolveConflictKeepRemote, synchronizeJeevya } from '@/services/sync';
+import { getPendingConflicts, getSyncStatus, resolveConflictKeepLocal, resolveConflictKeepRemote, retrySync, synchronizeJeevya } from '@/services/sync';
 import type { SyncConflict, SyncConflictResolutionResult, SyncResult, SyncStatus } from '@/types/sync';
 
 const DEFAULT_STATUS: SyncStatus = { state: 'idle', lastSyncedAt: null, conflicts: 0, message: 'Ready to synchronize.' };
@@ -22,6 +22,16 @@ export function useSync() {
     return result;
   }, []);
 
+  const retry = useCallback(async (): Promise<SyncResult> => {
+    setStatus((current) => ({ ...current, state: 'syncing', message: 'Retrying synchronization with backoff.' }));
+    const result = await retrySync();
+    const pending = await getPendingConflicts();
+    const nextStatus = await getSyncStatus();
+    setStatus({ ...nextStatus, state: result.state, conflicts: pending.length, message: result.message, domains: result.domains });
+    setConflicts(pending);
+    return result;
+  }, []);
+
   const resolveKeepLocal = useCallback(async (conflictId: string): Promise<SyncConflictResolutionResult> => {
     const result = await resolveConflictKeepLocal(conflictId); await refresh(); return result;
   }, [refresh]);
@@ -35,5 +45,5 @@ export function useSync() {
     return () => { active = false; };
   }, []);
 
-  return { status, conflicts, refresh, sync, resolveKeepLocal, resolveKeepRemote };
+  return { status, conflicts, refresh, sync, retry, resolveKeepLocal, resolveKeepRemote };
 }

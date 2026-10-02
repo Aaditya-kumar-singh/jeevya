@@ -16,6 +16,7 @@ import {
   updateWorkoutSet,
 } from '@/services/workouts';
 import type { NewWorkoutSetInput, PersonalRecord, Workout } from '@/types/workout';
+import { clearRestTimerState, getRestTimerState, saveRestTimerState, saveWorkoutRecovery, getWorkoutRecovery, clearWorkoutRecovery } from '@/services/workoutAdvanced';
 
 export function useWorkoutSession(workoutId: string) {
   const [workout, setWorkout] = useState<Workout | null>(null);
@@ -42,6 +43,14 @@ export function useWorkoutSession(workoutId: string) {
         return;
       }
       setWorkout(found);
+      const recovery = await getWorkoutRecovery(workoutId);
+      if (recovery && Date.now() - Date.parse(recovery.savedAt) < 24 * 60 * 60 * 1000) {
+        setCurrentIndex(Math.max(0, Math.min(found.exercises.length - 1, recovery.currentExerciseIndex ?? 0)));
+        setElapsedSeconds(Math.max(0, recovery.elapsedSeconds ?? 0));
+        pausedRef.current = Boolean(recovery.paused);setPaused(Boolean(recovery.paused));
+      } else {
+        await clearWorkoutRecovery(workoutId);
+      }
       const firstIncomplete = found.exercises.findIndex((e) =>
         e.sets.some((s) => !s.completed),
       );
@@ -61,6 +70,21 @@ export function useWorkoutSession(workoutId: string) {
   useEffect(() => {
     startedAtRef.current = workout?.startedAt ?? null;
   }, [workout?.startedAt]);
+
+  useEffect(() => {
+    let active = true;
+    void getRestTimerState().then((state) => {
+      if (!active || !state || state.workoutId !== workoutId) return;
+      if (state.endsAt > Date.now()) { restEndsAtRef.current = state.endsAt; setRestRemaining(Math.ceil((state.endsAt - Date.now()) / 1000)); setRestActive(true); } else { void clearRestTimerState(); }
+    });
+    return () => { active = false; };
+  }, [workoutId]);
+
+  useEffect(() => {
+    if (!workout) return;
+    const id = setInterval(() => { void saveWorkoutRecovery(workoutId, { savedAt: new Date().toISOString(), currentExerciseIndex: currentIndex, elapsedSeconds, paused }); }, 5000);
+    return () => clearInterval(id);
+  }, [workout, workoutId, currentIndex, elapsedSeconds, paused]);
 
   // Single centralized ticker — elapsed & rest both derive from timestamps.
   useEffect(() => {
@@ -137,6 +161,7 @@ export function useWorkoutSession(workoutId: string) {
     setRestRemaining(0);
     setRestComplete(false);
     setRestActive(false);
+    void clearRestTimerState();
   }, []);
 
   const getPreviousPerformance = useCallback(async (exerciseId: string) => getPreviousExercisePerformance(exerciseId, await getWorkoutSessions()), []);

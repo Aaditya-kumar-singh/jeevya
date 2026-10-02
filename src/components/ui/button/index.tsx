@@ -9,6 +9,7 @@ import {
 } from '@gluestack-ui/utils/nativewind-utils';
 import { styled } from 'nativewind';
 import React from 'react';
+import { haptic } from '@/lib/accessibility';
 import { ActivityIndicator, Pressable, Text, View } from 'react-native';
 const SCOPE = 'BUTTON';
 const Root = withStyleContext(Pressable, SCOPE);
@@ -137,6 +138,10 @@ const Button = React.forwardRef<
       {...props}
       className={buttonStyle({ variant, size, class: className })}
       context={{ variant, size }}
+      onPressIn={(event) => {
+        void haptic('light');
+        props.onPressIn?.(event);
+      }}
     />
   );
 });

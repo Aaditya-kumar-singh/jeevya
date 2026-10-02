@@ -1,0 +1,49 @@
+{
+  "app": {
+    "name": "Jeevya",
+    "package": "com.aaditya001.personalityimprovementapp",
+    "scheme": "jeevya"
+  },
+  "defaults": {
+    "model": "Flash",
+    "explorer_mode": "flash",
+    "verification_level": "checkpoints",
+    "locked_app_package": "com.aaditya001.personalityimprovementapp"
+  },
+  "suites": [
+    {
+      "id": "auth-smoke",
+      "verification_level": "strict",
+      "prompt": "Launch Jeevya. Verify the authentication screen is responsive. Use only the dedicated ARTEMIS test account if credentials are supplied by the test environment. Verify successful sign-in reaches the dashboard, then sign out if available. Report crashes, blocking dialogs, navigation failures, or unexpected data exposure."
+    },
+    {
+      "id": "dashboard-smoke",
+      "prompt": "Launch Jeevya and verify the dashboard renders without crashes. Check the main sections are visible and scrollable. Open Tasks, return to the dashboard, and verify navigation remains responsive."
+    },
+    {
+      "id": "tasks-smoke",
+      "prompt": "Launch Jeevya. Open Tasks, create a temporary task named ARTEMIS Smoke Test, mark it complete, return to the dashboard, and verify today's progress reflects the completed task. Report any failure and leave the app stable."
+    },
+    {
+      "id": "health-smoke",
+      "prompt": "Launch Jeevya. Open Health, inspect the health hub, open the workout area, then return to the dashboard. Verify screens load without crashes, stuck loading states, or broken navigation. Do not modify real health data."
+    },
+    {
+      "id": "finance-smoke",
+      "verification_level": "strict",
+      "prompt": "Launch Jeevya. Open Finance and verify the finance dashboard, navigation, and test or empty states render correctly. Do not create, delete, or modify real financial records. Report crashes or data exposure."
+    },
+    {
+      "id": "widget-deeplink-smoke",
+      "verification_level": "strict",
+      "prompt": "Open Jeevya through the configured Android widget or its test deep link when available. Verify the expected destination opens and remains responsive. Report deep-link, cold-start, or navigation failures."
+    },
+    {
+      "id": "recovery-navigation",
+      "model": "Pro",
+      "explorer_mode": "pro",
+      "verification_level": "strict",
+      "prompt": "Explore Jeevya across Dashboard, Tasks, Health, Finance, and More. Exercise back navigation, repeated tab switches, and recovery after opening and closing screens. Identify crashes, dead ends, persistent loading, unexpected resets, or state loss. Produce a concise reproduction workflow for every failure."
+    }
+  ]
+}

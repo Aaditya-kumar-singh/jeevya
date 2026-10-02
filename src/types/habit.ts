@@ -1,4 +1,4 @@
-export interface Habit {
+﻿export interface Habit {
   id: string;
   name: string;
   description: string;
@@ -14,6 +14,10 @@ export interface Habit {
   isArchived: boolean;
   createdAt: string;
   updatedAt: string;
+  unit?: string;
+  skipMode?: boolean;
+  vacationWindows?: Array<{ startDate: string; endDate: string; reason?: string }>;
+  notesEnabled?: boolean;
 }
 
 export interface HabitLog {
@@ -22,8 +26,13 @@ export interface HabitLog {
   date: string;
   completed: boolean;
   value: number | null;
+  status?: 'completed' | 'failed' | 'skipped';
   createdAt: string;
   updatedAt: string;
+  unit?: string;
+  skipMode?: boolean;
+  vacationWindows?: Array<{ startDate: string; endDate: string; reason?: string }>;
+  notesEnabled?: boolean;
 }
 
 export type HabitFrequency = 'daily' | 'weekly' | 'custom';
@@ -190,3 +199,5 @@ export function getDaysInRange(startDate: string, endDate: string): string[] {
 
   return dates;
 }
+
+

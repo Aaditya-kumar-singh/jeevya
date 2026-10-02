@@ -12,7 +12,7 @@ import { Text } from '@/components/ui/text';
 import { FadeInView } from '@/components/motion/FadeInView';
 import { ScalePressable } from '@/components/motion/ScalePressable';
 import { FloatingBlobsSVG } from '@/components/visuals/FloatingBlobsSVG';
-import { exerciseLibrary, todaysWorkout } from '@/lib/mockData';
+// Real workout data comes from scheduled templates and active sessions.
 import { useWorkoutPrograms } from '@/hooks/useWorkoutPrograms';
 import { useWorkoutTemplates } from '@/hooks/useWorkoutTemplates';
 import { getActiveWorkout } from '@/services/workouts';
@@ -25,9 +25,7 @@ export default function WorkoutScreen() {
   const insets = useSafeAreaInsets();
   const topPadding = Math.max(insets.top + 12, 48);
 
-  const exercises = todaysWorkout.exerciseIds
-    .map((id) => exerciseLibrary.find((e) => e.id === id))
-    .filter((e): e is NonNullable<typeof e> => Boolean(e));
+  const exercises: { id: string; name: string; sets: number; reps: string; category: string }[] = [];
   const [done, setDone] = useState<Record<string, boolean>>({});
   const [activeWorkout, setActiveWorkout] = useState<Workout | null>(null);
   const [scheduled, setScheduled] = useState<{ schedule: { id: string; templateId: string }; template: { id: string; name: string } | null }[]>([]);
@@ -58,13 +56,13 @@ export default function WorkoutScreen() {
                   Todayâ€™s Hyper-Focus Session
                 </Text>
                 <Heading size="xl" className="mt-1 font-bold tracking-tight text-foreground">
-                  {todaysWorkout.title}
+                  {scheduled[0]?.template?.name ?? (activeWorkout?.name ?? 'No workout scheduled')}
                 </Heading>
                 <View className="mt-2 flex-row items-center gap-4">
                   <View className="flex-row items-center gap-1.5 rounded-full bg-rose-500/15 px-2.5 py-0.5 border border-rose-500/25">
                     <Clock size={12} className="text-rose-500" />
                     <Text size="xs" className="font-bold text-rose-600 dark:text-rose-400">
-                      {todaysWorkout.durationMin} min
+                      {activeWorkout ? Math.round((activeWorkout.durationSeconds ?? 0) / 60) : '—'} min
                     </Text>
                   </View>
                   <View className="flex-row items-center gap-1.5 rounded-full bg-orange-500/15 px-2.5 py-0.5 border border-orange-500/25">
@@ -161,7 +159,7 @@ export default function WorkoutScreen() {
           </FadeInView>
 
           <FadeInView delay={208}>
-            <Link href={"/health/workout-progression" as never} asChild><ScalePressable><View className="flex-row items-center justify-center gap-2 rounded-3xl border border-border bg-card p-4 mt-2"><Text className="font-bold text-foreground size-md">Workout Progression</Text><ChevronRight size={18}/></View></ScalePressable></Link>
+            `r`n        <Link href={"/health/training-toolkit" as never} asChild><ScalePressable><View className="flex-row items-center justify-center gap-2 rounded-3xl border border-border bg-card p-4 mt-2"><Text className="font-bold text-foreground size-md">Advanced Training Toolkit</Text><ChevronRight size={18}/></View></ScalePressable></Link>
           </FadeInView>
 
           <FadeInView delay={210}>

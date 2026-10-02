@@ -10,7 +10,6 @@ import { Progress, ProgressFilledTrack } from '@/components/ui/progress';
 import { Text } from '@/components/ui/text';
 import { FadeInView } from '@/components/motion/FadeInView';
 import { FloatingBlobsSVG } from '@/components/visuals/FloatingBlobsSVG';
-import { nutritionToday, waterGoal } from '@/lib/mockData';
 import { useNutrition } from '@/hooks/useNutrition';
 import { calculateFoodQuantity, searchFoods } from '@/services/nutrition';
 import type { ServingUnit } from '@/types/nutrition';
@@ -21,12 +20,12 @@ export default function NutritionScreen() {
   const insets = useSafeAreaInsets();
   const topPadding = Math.max(insets.top + 12, 48);
   const { foods, targets, getEnergySummary, getDailySummary } = useNutrition();
-  const [drunkMl, setDrunkMl] = useState(waterGoal.drunkMl);
+  const [drunkMl, setDrunkMl] = useState(0);
   const [foodQuery, setFoodQuery] = useState('');
   const [quantityText, setQuantityText] = useState('100');
   const [quantityUnit, setQuantityUnit] = useState<ServingUnit>('g');
 
-  const waterPct = Math.min(100, Math.round((drunkMl / waterGoal.goalMl) * 100));
+  const waterPct = 0;
   const todayDate = new Date().toISOString().slice(0, 10);
   const today = getDailySummary(todayDate);
   const energy = getEnergySummary(todayDate);
@@ -42,8 +41,8 @@ export default function NutritionScreen() {
       })()
     : null;
 
-  const calorieGoal = targets?.targetCalories ?? nutritionToday.calorieGoal;
-  const proteinGoal = targets?.protein ?? nutritionToday.proteinGoal;
+  const calorieGoal = targets?.targetCalories ?? 0;
+  const proteinGoal = targets?.protein ?? 0;
   const caloriesLeft = Math.max(0, calorieGoal - today.totals.calories);
   const caloriePct = calorieGoal > 0 ? Math.min(100, Math.round((today.totals.calories / calorieGoal) * 100)) : 0;
   const proteinPct = proteinGoal > 0 ? Math.min(100, Math.round((today.totals.protein / proteinGoal) * 100)) : 0;
@@ -189,16 +188,16 @@ export default function NutritionScreen() {
                   <Droplets size={20} className="text-sky-500" />
                   <Heading size="md" className="font-bold">Water Goal</Heading>
                 </View>
-                <Text size="xs" className="font-bold text-sky-500">{drunkMl} / {waterGoal.goalMl} ml</Text>
+                <Text size="xs" className="font-bold text-sky-500">{drunkMl} / {0} ml</Text>
               </View>
               <Progress value={waterPct} className="h-2.5 rounded-full bg-sky-100 dark:bg-sky-950 mt-3">
                 <ProgressFilledTrack className="bg-sky-500" />
               </Progress>
               <View className="mt-4 flex-row gap-3">
-                <Button className="flex-1 rounded-2xl bg-sky-500 active:bg-sky-600 min-h-[44px]" onPress={() => setDrunkMl((v) => Math.min(waterGoal.goalMl, v + waterGoal.glassMl))}>
-                  <ButtonText className="font-bold text-white">+ {waterGoal.glassMl} ml Glass</ButtonText>
+                <Button className="flex-1 rounded-2xl bg-sky-500 active:bg-sky-600 min-h-[44px]" onPress={() => setDrunkMl((v) => Math.min(0, v + 250))}>
+                  <ButtonText className="font-bold text-white">+ {250} ml Glass</ButtonText>
                 </Button>
-                <Pressable onPress={() => setDrunkMl(waterGoal.drunkMl)} className="items-center justify-center rounded-2xl border border-border/60 bg-accent/40 px-4 min-h-[44px]">
+                <Pressable onPress={() => setDrunkMl(0)} className="items-center justify-center rounded-2xl border border-border/60 bg-accent/40 px-4 min-h-[44px]">
                   <Text size="xs" className="font-semibold text-muted-foreground">Reset</Text>
                 </Pressable>
               </View>

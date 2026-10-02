@@ -3,7 +3,6 @@ import { Card } from '@/components/ui/card';
 import { Heading } from '@/components/ui/heading';
 import { Text } from '@/components/ui/text';
 import { AnimatedProgress } from '@/components/motion/AnimatedProgress';
-import { dailyPulse } from '@/lib/mockData';
 import { Target } from 'lucide-react-native';
 
 interface TodaysProgressProps {
@@ -12,8 +11,8 @@ interface TodaysProgressProps {
 }
 
 export function TodaysProgress({
-  completed = dailyPulse.completedTasks,
-  total = dailyPulse.totalTasks,
+  completed = 0,
+  total = 0,
 }: TodaysProgressProps) {
   const pct = total > 0 ? Math.round((completed / total) * 100) : 0;
 

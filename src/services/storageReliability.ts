@@ -62,6 +62,33 @@ export async function readStorage<T>(key: string, fallback: T): Promise<StorageR
   }
 }
 
+export async function readStorageMany(
+  entries: Array<{ key: string; fallback: unknown }>,
+): Promise<Record<string, unknown>> {
+  if (entries.length === 0) return {};
+  try {
+    const keys = normalizedKeys(entries.map(({ key }) => key));
+    const fallbacks = new Map(entries.map(({ key, fallback }) => [key, fallback]));
+    const rows = await AsyncStorage.multiGet(keys);
+    const out: Record<string, unknown> = {};
+    for (const [key, raw] of rows) {
+      const fallback = fallbacks.get(key);
+      if (raw == null) {
+        out[key] = fallback;
+        continue;
+      }
+      try {
+        out[key] = JSON.parse(raw);
+      } catch {
+        out[key] = fallback;
+      }
+    }
+    return out;
+  } catch {
+    return Object.fromEntries(entries.map(({ key, fallback }) => [key, fallback]));
+  }
+}
+
 export async function writeStorage<T>(key: string, data: T): Promise<void> {
   const serialized = JSON.stringify(data);
   await withStorageLock([key], () => AsyncStorage.setItem(key, serialized));

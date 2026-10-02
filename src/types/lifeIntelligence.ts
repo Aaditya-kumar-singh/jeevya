@@ -3,6 +3,11 @@ import type { CivilDate } from '@/lib/date';
 export type LifeInsightSeverity = 'warning' | 'positive' | 'info';
 export type LifeInsightDomain = 'productivity' | 'health' | 'nutrition' | 'finance' | 'learning' | 'reflection' | 'goals' | 'consistency';
 
+export interface LifeInsightSourceRef {
+  domain: string;
+  recordIds: string[];
+}
+
 export interface LifeInsight {
   id: string;
   domain: LifeInsightDomain;
@@ -12,6 +17,7 @@ export interface LifeInsight {
   value?: number;
   unit?: string;
   source: string;
+  sourceRefs: LifeInsightSourceRef[];
 }
 
 export interface LifeIntelligenceResult {

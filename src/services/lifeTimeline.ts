@@ -1,4 +1,4 @@
-import AsyncStorage from '@react-native-async-storage/async-storage';
+﻿import AsyncStorage from '@react-native-async-storage/async-storage';
 import { isValidCivilDate, isoTimestamp, todayCivilDate, type CivilDate } from '@/lib/date';
 import type { Task } from '@/types/tasks';
 import type { Habit, HabitLog } from '@/types/habit';
@@ -149,7 +149,7 @@ function energyActivityEvent(activity: EnergyActivity): LifeTimelineEvent[] {
   if (!validId(activity.id) || typeof activity.name !== 'string' || !isValidCivilDate(activity.date)) return [];
   const at = eventTimestampForDate(activity.createdAt, activity.date);
   if (!at) return [];
-  return [makeEvent(`nutrition:activity:${activity.id}:logged`, 'nutrition', 'logged', `Activity logged: ${activity.name || 'Activity'}`, activity.id, at, { description: `${activity.durationMinutes ?? 0} minutes · ${activity.calories} kcal`, status: 'activity', route: '/health/nutrition', metadata: { activityDate: activity.date, calories: activity.calories } })];
+  return [makeEvent(`nutrition:activity:${activity.id}:logged`, 'nutrition', 'logged', `Activity logged: ${activity.name || 'Activity'}`, activity.id, at, { description: `${activity.durationMinutes ?? 0} minutes Â· ${activity.calories} kcal`, status: 'activity', route: '/health/nutrition', metadata: { activityDate: activity.date, calories: activity.calories } })];
 }
 
 function workoutEvents(session: WorkoutSession): LifeTimelineEvent[] {
@@ -166,7 +166,7 @@ function sleepEvent(entry: SleepEntry): LifeTimelineEvent[] {
   if (!validId(entry.id) || !isValidCivilDate(entry.date)) return [];
   const at = eventTimestamp(entry.sleepEnd) ?? eventTimestamp(entry.updatedAt) ?? eventTimestamp(entry.sleepStart);
   if (!at) return [];
-  return [makeEvent(`sleep:${entry.id}:logged`, 'sleep', 'logged', `Sleep logged`, entry.id, at, { description: `${Math.round(entry.durationMinutes)} minutes · ${entry.quality}`, status: entry.quality, route: '/health/sleep', metadata: { sleepDate: entry.date, durationMinutes: entry.durationMinutes } })];
+  return [makeEvent(`sleep:${entry.id}:logged`, 'sleep', 'logged', `Sleep logged`, entry.id, at, { description: `${Math.round(entry.durationMinutes)} minutes Â· ${entry.quality}`, status: entry.quality, route: '/health/sleep', metadata: { sleepDate: entry.date, durationMinutes: entry.durationMinutes } })];
 }
 
 function goalEvents(bookGoals: BookGoal[], savingsGoals: FinanceSavingsGoal[]): LifeTimelineEvent[] {
@@ -174,9 +174,9 @@ function goalEvents(bookGoals: BookGoal[], savingsGoals: FinanceSavingsGoal[]): 
   for (const goal of bookGoals) {
     if (!validId(goal.id)) continue;
     const created = eventTimestamp(goal.createdAt);
-    if (created) events.push(makeEvent(`goals:book:${goal.id}:created`, 'goals', 'created', 'Reading goal created', goal.id, created, { description: `${goal.type === 'books' ? 'Books' : 'Pages'} · target ${goal.target}`, status: 'goal', route: '/goals' }));
+    if (created) events.push(makeEvent(`goals:book:${goal.id}:created`, 'goals', 'created', 'Reading goal created', goal.id, created, { description: `${goal.type === 'books' ? 'Books' : 'Pages'} Â· target ${goal.target}`, status: 'goal', route: '/goals' }));
     const updated = eventTimestamp(goal.updatedAt);
-    if (updated && (!created || updated.timestamp !== created.timestamp)) events.push(makeEvent(`goals:book:${goal.id}:updated:${updated.timestamp}`, 'goals', 'updated', 'Reading goal updated', goal.id, updated, { description: `${goal.type === 'books' ? 'Books' : 'Pages'} · target ${goal.target}`, status: 'goal', route: '/goals' }));
+    if (updated && (!created || updated.timestamp !== created.timestamp)) events.push(makeEvent(`goals:book:${goal.id}:updated:${updated.timestamp}`, 'goals', 'updated', 'Reading goal updated', goal.id, updated, { description: `${goal.type === 'books' ? 'Books' : 'Pages'} Â· target ${goal.target}`, status: 'goal', route: '/goals' }));
   }
   events.push(...savingsGoals.flatMap(savingsGoalEvents));
   return events;
@@ -257,11 +257,18 @@ export async function getLifeTimeline(query: LifeTimelineQuery = {}): Promise<Li
     ...data.journal.flatMap(journalEvents),
     ...goalEvents(data.bookGoals, data.savingsGoals),
   ];
+  const seen = new Set<string>();
+  const deduped = events.filter((event) => {
+    const signature = [event.domain, event.type, event.sourceId, event.date, event.title].join('|');
+    if (seen.has(signature)) return false;
+    seen.add(signature);
+    return true;
+  });
   const allowedDomains = query.filter && query.filter !== 'all' ? new Set(FILTER_DOMAINS[query.filter].map(String)) : null;
   const normalizedSearch = query.search?.trim().toLocaleLowerCase() ?? '';
   const startDate = query.startDate && isValidCivilDate(query.startDate) ? query.startDate : undefined;
   const endDate = query.endDate && isValidCivilDate(query.endDate) ? query.endDate : undefined;
-  const filtered = events.filter((event) => {
+  const filtered = deduped.filter((event) => {
     if (allowedDomains && !allowedDomains.has(event.domain)) return false;
     if (startDate && event.date < startDate) return false;
     if (endDate && event.date > endDate) return false;
@@ -289,3 +296,5 @@ export async function getLifeTimelineToday(): Promise<LifeTimelineResult> {
   const today = todayCivilDate();
   return getLifeTimeline({ startDate: today, endDate: today });
 }
+
+

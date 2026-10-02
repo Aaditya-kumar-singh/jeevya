@@ -31,6 +31,7 @@ import {
   getBudgetSpending,
   getTotalBudgetSpending,
   getSavingsGoals,
+  getFinanceSnapshot,
   createSavingsGoal,
   updateSavingsGoal,
   deleteSavingsGoal,
@@ -68,14 +69,12 @@ export function useFinance() {
       // Seed default categories if needed
       await seedDefaultCategories();
 
-      const [accountsData, transactionsData, categoriesData, budgetsData, goalsData] =
-        await Promise.all([
-          getAccounts(),
-          getTransactions(),
-          getCategories(),
-          getBudgets(),
-          getSavingsGoals(),
-        ]);
+      const snapshotPromise = getFinanceSnapshot();
+      const [snapshot, transactionsData] = await Promise.all([
+        snapshotPromise,
+        snapshotPromise.then(({ categories }) => getTransactions(categories)),
+      ]);
+      const { accounts: accountsData, categories: categoriesData, budgets: budgetsData, savingsGoals: goalsData } = snapshot;
 
       if (requestId !== requestIdRef.current) return;
 

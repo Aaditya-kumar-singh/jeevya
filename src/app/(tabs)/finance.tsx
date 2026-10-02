@@ -453,6 +453,7 @@ function RecentTransactions({
 
 function QuickActions() {
   const actions: { label: string; href: Href; icon: typeof Wallet; variant: 'default' | 'secondary' | 'outline' }[] = [
+    { label: 'Import Payments', href: '/finance/import-payments', icon: CircleDollarSign, variant: 'default' },
     { label: 'Add Expense', href: '/finance/add-expense', icon: ArrowUpRight, variant: 'default' },
     { label: 'Add Income', href: '/finance/add-income', icon: ArrowDownLeft, variant: 'secondary' },
     { label: 'Transfer', href: TRANSFER_HREF, icon: ArrowRightLeft, variant: 'outline' },

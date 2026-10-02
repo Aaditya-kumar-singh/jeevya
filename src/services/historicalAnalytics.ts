@@ -1,14 +1,10 @@
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { addDays, isValidCivilDate, inclusiveDateRange, todayCivilDate, type CivilDate } from '@/lib/date';
-import type { Task } from '@/types/tasks';
-import type { Habit, HabitLog } from '@/types/habit';
-import type { Book, BookProgressEntry } from '@/types/books';
-import type { JournalEntry } from '@/types/journal';
-import type { FinanceTransaction, FinanceSavingsGoal } from '@/types/finance';
+import { isValidCivilDate, inclusiveDateRange, todayCivilDate, type CivilDate } from '@/lib/date';
+import { averageFinite, createFreshness, getStandardAnalyticsRange } from '@/services/analyticsCore';
+import { ANALYTICS_SOURCE_KEYS, loadSharedAnalyticsData, type AnalyticsSourceData } from '@/services/sharedAnalyticsData';
+import type { BookProgressEntry } from '@/types/books';
+import type { FinanceTransaction } from '@/types/finance';
 import type { FoodLogEntry } from '@/types/nutrition';
 import type { WorkoutSession } from '@/types/workout';
-import type { SleepEntry } from '@/services/sleep';
-import type { BookGoal } from '@/types/book-goals';
 import type {
   HistoricalAnalyticsDomain,
   HistoricalAnalyticsFilter,
@@ -20,21 +16,14 @@ import type {
   HistoricalTrend,
 } from '@/types/historicalAnalytics';
 
-const KEYS = {
-  tasks: 'jeevya:tasks', habits: 'jeevya:habits', habitLogs: 'jeevya:habit-logs', books: 'jeevya:books', progress: 'jeevya:book-progress',
-  bookGoals: 'jeevya:book-goals', journal: 'jeevya:journal', transactions: 'jeevya:finance:transactions', savingsGoals: 'jeevya:finance:savings-goals',
-  foodLogs: 'jeevya:nutrition:food-logs', workouts: 'jeevya:workouts:sessions', sleep: 'jeevya:health:sleep',
-} as const;
+const KEYS = ANALYTICS_SOURCE_KEYS;
 
 const DOMAIN_ORDER: HistoricalAnalyticsDomain[] = ['tasks', 'habits', 'workout', 'sleep', 'recovery', 'nutrition', 'finance', 'books', 'journal', 'goals'];
 const FILTER_DOMAINS: Record<Exclude<HistoricalAnalyticsFilter, 'all'>, HistoricalAnalyticsDomain[]> = {
   tasks: ['tasks'], habits: ['habits'], health: ['workout', 'sleep', 'recovery'], nutrition: ['nutrition'], finance: ['finance'], books: ['books'], journal: ['journal'], goals: ['goals'],
 };
 
-type SourceData = {
-  tasks: Task[]; habits: Habit[]; habitLogs: HabitLog[]; books: Book[]; progress: BookProgressEntry[]; bookGoals: BookGoal[];
-  journal: JournalEntry[]; transactions: FinanceTransaction[]; savingsGoals: FinanceSavingsGoal[]; foodLogs: FoodLogEntry[]; workouts: WorkoutSession[]; sleep: SleepEntry[];
-};
+type SourceData = AnalyticsSourceData;
 
 function finite(value: unknown): value is number { return typeof value === 'number' && Number.isFinite(value); }
 function validId(value: unknown): value is string { return typeof value === 'string' && value.trim().length > 0; }
@@ -46,38 +35,12 @@ function dateOf(value: unknown): CivilDate | null {
 }
 function inRange(date: CivilDate | null, start: CivilDate, end: CivilDate): boolean { return !!date && date >= start && date <= end; }
 
-async function readArray<T>(key: string): Promise<T[]> {
-  const raw = await AsyncStorage.getItem(key);
-  if (raw == null) return [];
-  const parsed: unknown = JSON.parse(raw);
-  if (!Array.isArray(parsed)) throw new Error(`Invalid persisted payload for ${key}`);
-  return parsed as T[];
-}
-
-async function loadSources(): Promise<{ data: SourceData; degradedDomains: HistoricalAnalyticsDomain[]; errors: Partial<Record<HistoricalAnalyticsDomain, string>> }> {
-  const loaders: [HistoricalAnalyticsDomain, keyof SourceData, () => Promise<unknown>][] = [
-    ['tasks', 'tasks', () => readArray<Task>(KEYS.tasks)], ['habits', 'habits', () => readArray<Habit>(KEYS.habits)], ['habits', 'habitLogs', () => readArray<HabitLog>(KEYS.habitLogs)],
-    ['books', 'books', () => readArray<Book>(KEYS.books)], ['books', 'progress', () => readArray<BookProgressEntry>(KEYS.progress)], ['goals', 'bookGoals', () => readArray<BookGoal>(KEYS.bookGoals)],
-    ['journal', 'journal', () => readArray<JournalEntry>(KEYS.journal)], ['finance', 'transactions', () => readArray<FinanceTransaction>(KEYS.transactions)], ['goals', 'savingsGoals', () => readArray<FinanceSavingsGoal>(KEYS.savingsGoals)],
-    ['nutrition', 'foodLogs', () => readArray<FoodLogEntry>(KEYS.foodLogs)], ['workout', 'workouts', () => readArray<WorkoutSession>(KEYS.workouts)], ['sleep', 'sleep', () => readArray<SleepEntry>(KEYS.sleep)],
-  ];
-  const data: Partial<SourceData> = {};
-  const degraded = new Set<HistoricalAnalyticsDomain>();
-  const errors: Partial<Record<HistoricalAnalyticsDomain, string>> = {};
-  const results = await Promise.allSettled(loaders.map(([, , loader]) => loader()));
-  results.forEach((result, index) => {
-    const [domain, key] = loaders[index];
-    if (result.status === 'rejected') {
-      degraded.add(domain);
-      if (!errors[domain]) errors[domain] = result.reason instanceof Error ? result.reason.message : 'Failed to load historical data';
-    } else data[key] = result.value as never;
-  });
-  return {
-    data: {
-      tasks: data.tasks ?? [], habits: data.habits ?? [], habitLogs: data.habitLogs ?? [], books: data.books ?? [], progress: data.progress ?? [], bookGoals: data.bookGoals ?? [], journal: data.journal ?? [], transactions: data.transactions ?? [], savingsGoals: data.savingsGoals ?? [], foodLogs: data.foodLogs ?? [], workouts: data.workouts ?? [], sleep: data.sleep ?? [],
-    },
-    degradedDomains: [...degraded].sort((a, b) => DOMAIN_ORDER.indexOf(a) - DOMAIN_ORDER.indexOf(b)), errors,
-  };
+async function loadSources(generatedAt: string): Promise<{ data: SourceData; degradedDomains: HistoricalAnalyticsDomain[]; errors: Partial<Record<HistoricalAnalyticsDomain, string>>; freshness: Partial<Record<HistoricalAnalyticsDomain, ReturnType<typeof createFreshness>>> }> {
+  const shared = await loadSharedAnalyticsData();
+  const freshness = Object.fromEntries(
+    DOMAIN_ORDER.map((domain) => [domain, createFreshness(shared.sourceUpdatedAt[domain], generatedAt)]),
+  ) as Partial<Record<HistoricalAnalyticsDomain, ReturnType<typeof createFreshness>>>;
+  return { data: shared.data, degradedDomains: shared.degradedDomains, errors: shared.errors, freshness };
 }
 
 function compareNumeric(id: string, domain: HistoricalAnalyticsDomain, label: string, current: number | null, previous: number | null, interpretation: HistoricalInterpretation, route?: string, unit?: string, rate = false, dataQuality: HistoricalMetric['dataQuality'] = 'complete'): HistoricalMetric {
@@ -95,22 +58,18 @@ function filterMetric(metric: HistoricalMetric, filter: HistoricalAnalyticsFilte
 }
 
 function rangeFor(endDate: CivilDate, period: HistoricalAnalyticsPeriod) {
-  const startDate = addDays(endDate, -(period - 1));
-  const previousEndDate = startDate ? addDays(startDate, -1) : null;
-  const previousStartDate = previousEndDate ? addDays(previousEndDate, -(period - 1)) : null;
-  if (!startDate || !previousStartDate || !previousEndDate) throw new Error('Unable to calculate historical analytics range');
-  return { startDate, endDate, previousStartDate, previousEndDate };
+  return getStandardAnalyticsRange(endDate, period);
 }
 
-function average(values: number[]): number | null { return values.length ? values.reduce((a, b) => a + b, 0) / values.length : null; }
+
 
 export async function getHistoricalAnalytics(query: HistoricalAnalyticsQuery = {}): Promise<HistoricalAnalyticsResult> {
   const period = query.period ?? 7;
   const endDate = query.endDate ?? todayCivilDate();
   const filter = query.filter ?? 'all';
-  if (![7, 30, 90].includes(period) || !isValidCivilDate(endDate)) throw new Error('Invalid historical analytics period or end date');
+  if (![7, 30, 90, 365].includes(period) || !isValidCivilDate(endDate)) throw new Error('Invalid historical analytics period or end date');
   const range = rangeFor(endDate, period);
-  const { data, degradedDomains, errors } = await loadSources();
+  const { data, degradedDomains, errors, freshness } = await loadSources(`${endDate}T23:59:59.999Z`);
   const metric: HistoricalMetric[] = [];
   const inCurrent = (d: CivilDate | null) => inRange(d, range.startDate, range.endDate);
   const inPrevious = (d: CivilDate | null) => inRange(d, range.previousStartDate, range.previousEndDate);
@@ -153,7 +112,7 @@ export async function getHistoricalAnalytics(query: HistoricalAnalyticsQuery = {
   const validSleep = data.sleep.filter((s) => validId(s.id) && isValidCivilDate(s.date) && finite(s.durationMinutes) && s.durationMinutes > 0);
   const currentSleep = validSleep.filter((s) => inCurrent(s.date as CivilDate));
   const previousSleep = validSleep.filter((s) => inPrevious(s.date as CivilDate));
-  metric.push(compareNumeric('sleep:average-duration', 'sleep', 'Average sleep duration', average(currentSleep.map((s) => s.durationMinutes)), average(previousSleep.map((s) => s.durationMinutes)), 'positive', '/health/sleep', 'min'));
+  metric.push(compareNumeric('sleep:average-duration', 'sleep', 'Average sleep duration', averageFinite(currentSleep.map((s) => s.durationMinutes)), averageFinite(previousSleep.map((s) => s.durationMinutes)), 'positive', '/health/sleep', 'min'));
   metric.push(compareNumeric('sleep:records', 'sleep', 'Sleep records', currentSleep.length, previousSleep.length, 'informational', '/health/sleep'));
 
   const foodLogs = data.foodLogs.filter((l) => validId(l.id) && isValidCivilDate(l.date) && finite(l.quantity) && l.quantity > 0);
@@ -169,9 +128,9 @@ export async function getHistoricalAnalytics(query: HistoricalAnalyticsQuery = {
   const sumType = (items: FinanceTransaction[], type: 'income' | 'expense') => items.filter((t) => t.type === type).reduce((sum, t) => sum + t.amount, 0);
   const income = sumType(currentTx, 'income'), prevIncome = sumType(previousTx, 'income');
   const expense = sumType(currentTx, 'expense'), prevExpense = sumType(previousTx, 'expense');
-  metric.push(compareNumeric('finance:income', 'finance', 'Income', income, prevIncome, 'positive', '/finance', '₹'));
-  metric.push(compareNumeric('finance:expenses', 'finance', 'Expenses', expense, prevExpense, 'negative', '/finance', '₹'));
-  metric.push(compareNumeric('finance:net-flow', 'finance', 'Net cash flow', income - expense, prevIncome - prevExpense, 'positive', '/finance', '₹'));
+  metric.push(compareNumeric('finance:income', 'finance', 'Income', income, prevIncome, 'positive', '/finance', 'Ã¢â€šÂ¹'));
+  metric.push(compareNumeric('finance:expenses', 'finance', 'Expenses', expense, prevExpense, 'negative', '/finance', 'Ã¢â€šÂ¹'));
+  metric.push(compareNumeric('finance:net-flow', 'finance', 'Net cash flow', income - expense, prevIncome - prevExpense, 'positive', '/finance', 'Ã¢â€šÂ¹'));
   metric.push(compareNumeric('finance:transactions', 'finance', 'Transactions', currentTx.length, previousTx.length, 'informational', '/finance'));
 
   const books = data.books.filter((b) => validId(b.id));
@@ -203,7 +162,7 @@ export async function getHistoricalAnalytics(query: HistoricalAnalyticsQuery = {
 
   const selected = metric.filter((m) => filterMetric(m, filter));
   selected.sort((a, b) => { const domain = DOMAIN_ORDER.indexOf(a.domain) - DOMAIN_ORDER.indexOf(b.domain); return domain || a.id.localeCompare(b.id); });
-  return { period, range, filter, metrics: selected, degradedDomains, errors };
+  return { period, range, filter, metrics: selected, degradedDomains, errors, freshness };
 }
 
 export async function getHistoricalAnalyticsFromToday(period: HistoricalAnalyticsPeriod = 7): Promise<HistoricalAnalyticsResult> {

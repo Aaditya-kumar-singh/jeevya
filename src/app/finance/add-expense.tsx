@@ -8,7 +8,8 @@ import {
   View,
 } from 'react-native';
 import { useRouter } from 'expo-router';
-import { ArrowLeft, Calendar, Check, ChevronDown } from 'lucide-react-native';
+import { ArrowLeft, Check, ChevronDown, ImagePlus, X } from 'lucide-react-native';
+import * as ImagePicker from 'expo-image-picker';
 
 import { Button, ButtonText } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -47,6 +48,9 @@ export default function AddExpenseScreen() {
   const [categoryId, setCategoryId] = useState('');
   const [date, setDate] = useState(getTodayISO());
   const [note, setNote] = useState('');
+  const [purpose, setPurpose] = useState('');
+  const [tagsText, setTagsText] = useState('');
+  const [receipt, setReceipt] = useState<ImagePicker.ImagePickerAsset | null>(null);
   const [errors, setErrors] = useState<ValidationErrors>({});
   const [saving, setSaving] = useState(false);
   const [showAccountPicker, setShowAccountPicker] = useState(false);
@@ -101,6 +105,25 @@ export default function AddExpenseScreen() {
 
   // ─── Save ─────────────────────────────────────────────────────────────────
 
+  async function pickReceipt() {
+    const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (!permission.granted) {
+      Alert.alert('Permission needed', 'Allow photo access to attach a receipt.');
+      return;
+    }
+
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ['images'],
+      allowsEditing: false,
+      quality: 0.85,
+      selectionLimit: 1,
+    });
+
+    if (!result.canceled && result.assets[0]) {
+      setReceipt(result.assets[0]);
+    }
+  }
+
   async function handleSave() {
     if (!validate()) return;
 
@@ -114,6 +137,16 @@ export default function AddExpenseScreen() {
         type: 'expense',
         date,
         note: note.trim(),
+        purpose: purpose.trim() || undefined,
+        tags: Array.from(new Set(tagsText.split(',').map((tag) => tag.trim()).filter(Boolean))),
+        receiptAttachment: receipt
+          ? {
+              uri: receipt.uri,
+              name: receipt.fileName || 'receipt.jpg',
+              mimeType: receipt.mimeType,
+              size: receipt.fileSize,
+            }
+          : undefined,
       });
 
       Alert.alert('Success', 'Expense added successfully', [
@@ -312,6 +345,66 @@ export default function AddExpenseScreen() {
                   {errors.date}
                 </Text>
               )}
+            </View>
+
+            <View>
+              <Text size="sm" className="mb-1 font-medium text-foreground">Purpose (optional)</Text>
+              <ScrollView horizontal showsHorizontalScrollIndicator={false} className="mb-2">
+                {['Food', 'Travel', 'College', 'Shopping', 'Bills', 'Family', 'Friend', 'Health', 'Work', 'Subscription', 'Personal', 'Other'].map((item) => (
+                  <Pressable key={item} onPress={() => setPurpose(purpose === item ? '' : item)} className={`mr-2 rounded-full px-3 py-2 ${purpose === item ? 'bg-primary' : 'bg-muted'}`}>
+                    <Text size="xs" className={purpose === item ? 'text-primary-foreground' : 'text-foreground'}>{item}</Text>
+                  </Pressable>
+                ))}
+              </ScrollView>
+              <Input><InputField placeholder="Or enter a custom purpose..." value={purpose} onChangeText={setPurpose} /></Input>
+            </View>
+
+            {/* Tags */}
+            <View>
+              <Text size="sm" className="mb-1 font-medium text-foreground">
+                Tags (optional)
+              </Text>
+              <Input>
+                <InputField
+                  placeholder="e.g. essential, monthly, college"
+                  value={tagsText}
+                  onChangeText={setTagsText}
+                  autoCapitalize="none"
+                />
+              </Input>
+              <Text size="xs" className="mt-1 text-muted-foreground">
+                Separate multiple tags with commas.
+              </Text>
+            </View>
+
+            {/* Receipt */}
+            <View>
+              <Text size="sm" className="mb-1 font-medium text-foreground">
+                Receipt (optional)
+              </Text>
+              {receipt ? (
+                <View className="flex-row items-center justify-between rounded-md border border-border bg-muted px-3 py-2.5">
+                  <View className="flex-1">
+                    <Text size="sm" className="text-foreground" numberOfLines={1}>
+                      {receipt.fileName || 'Receipt image'}
+                    </Text>
+                    <Text size="xs" className="text-muted-foreground">
+                      Attached to this expense
+                    </Text>
+                  </View>
+                  <Pressable onPress={() => setReceipt(null)} accessibilityLabel="Remove receipt">
+                    <X size={18} className="text-muted-foreground" />
+                  </Pressable>
+                </View>
+              ) : (
+                <Button variant="outline" onPress={pickReceipt}>
+                  <ImagePlus size={17} />
+                  <ButtonText>Attach receipt photo</ButtonText>
+                </Button>
+              )}
+              <Text size="xs" className="mt-1 text-muted-foreground">
+                The photo stays as a local attachment and is not uploaded by this flow.
+              </Text>
             </View>
 
             {/* Note */}

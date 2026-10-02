@@ -1,17 +1,18 @@
-// ─── Task Types ───────────────────────────────────────────────────────────────
+﻿// â”€â”€â”€ Task Types â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
-// ─── Helpers ──────────────────────────────────────────────────────────────────
+// â”€â”€â”€ Helpers â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 /**
  * Get today's date as ISO string (YYYY-MM-DD).
  */
 import { nowISO, todayCivilDate } from '@/lib/date';
+import type { TaskContext, TaskEnergy } from '@/types/taskIntelligence';
 
 export type TaskPriority = 'low' | 'medium' | 'high';
 
-// ─── Recurrence (Phase 1E) ────────────────────────────────────────────────────
+// â”€â”€â”€ Recurrence (Phase 1E) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
-/** Recurrence cadence. 'none' is only used in form state — persisted recurrence
+/** Recurrence cadence. 'none' is only used in form state â€” persisted recurrence
  *  objects always carry a real cadence; non-recurring tasks store `null`. */
 export type RecurrenceType = 'daily' | 'weekly' | 'monthly';
 
@@ -23,11 +24,11 @@ export interface TaskRecurrence {
   startDate: string;
   /** Optional series end date (inclusive), YYYY-MM-DD. */
   endDate: string | null;
-  /** Weekly only: selected weekdays, 0 = Sunday … 6 = Saturday. */
+  /** Weekly only: selected weekdays, 0 = Sunday â€¦ 6 = Saturday. */
   weekdays: number[];
 }
 
-// ─── Subtasks (Phase 1G-A) ────────────────────────────────────────────────────
+// â”€â”€â”€ Subtasks (Phase 1G-A) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 export interface Subtask {
   id: string;
@@ -37,7 +38,7 @@ export interface Subtask {
   completedAt: string | null;
 }
 
-// ─── Labels (Phase 1G-B) ──────────────────────────────────────────────────────
+// â”€â”€â”€ Labels (Phase 1G-B) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 export interface Label {
   id: string;
@@ -62,19 +63,29 @@ export interface Task {
   /** Stable identifier shared by all occurrences of one recurring series. */
   seriesId: string | null;
   /**
-   * Phase 1G-A: subtasks owned by this parent task. Always an array —
+   * Phase 1G-A: subtasks owned by this parent task. Always an array â€”
    * pre-1G-A records normalize to `[]`. Parent completion is independent
    * of subtask completion.
    */
   subtasks: Subtask[];
   /**
    * Phase 1G-B: label IDs referencing shared label entities. Always an
-   * array — pre-1G-B records normalize to `[]`. A task may carry many labels.
+   * array â€” pre-1G-B records normalize to `[]`. A task may carry many labels.
    */
   labelIds: string[];
+  estimatedMinutes: number | null;
+  energy: TaskEnergy | null;
+  context: TaskContext | null;
+  dependencyIds: string[];
+  templateId: string | null;
+  recurrenceExceptions?: Array<{ date: string; action: 'skip' | 'reschedule'; replacementDate?: string; reason?: string }>;
+  carryForward?: boolean;
+  goalIds?: string[];
+  habitIds?: string[];
+  reminderId?: string | null;
 }
 
-// ─── Input Types ──────────────────────────────────────────────────────────────
+// â”€â”€â”€ Input Types â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 export interface CreateTaskInput {
   title: string;
@@ -84,6 +95,11 @@ export interface CreateTaskInput {
   dueTime?: string | null;
   recurrence?: TaskRecurrence | null;
   labelIds?: string[];
+  estimatedMinutes?: number | null;
+  energy?: TaskEnergy | null;
+  context?: TaskContext | null;
+  dependencyIds?: string[];
+  templateId?: string | null;
 }
 
 export interface UpdateTaskInput {
@@ -97,9 +113,14 @@ export interface UpdateTaskInput {
   /** Pass null to turn a recurring task into a normal task. */
   recurrence?: TaskRecurrence | null;
   labelIds?: string[];
+  estimatedMinutes?: number | null;
+  energy?: TaskEnergy | null;
+  context?: TaskContext | null;
+  dependencyIds?: string[];
+  templateId?: string | null;
 }
 
-// ─── Subtask Input Types (Phase 1G-A) ─────────────────────────────────────────
+// â”€â”€â”€ Subtask Input Types (Phase 1G-A) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 export interface CreateSubtaskInput {
   title: string;
@@ -110,7 +131,7 @@ export interface UpdateSubtaskInput {
   completed?: boolean;
 }
 
-// ─── Label Input Types (Phase 1G-B) ───────────────────────────────────────────
+// â”€â”€â”€ Label Input Types (Phase 1G-B) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 export interface CreateLabelInput {
   name: string;
@@ -148,3 +169,5 @@ export const PRIORITY_WEIGHT: Record<TaskPriority, number> = {
   medium: 1,
   high: 2,
 };
+
+

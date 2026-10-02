@@ -109,7 +109,6 @@ export default function ExercisesScreen() {
               <Text size="sm" className="text-muted-foreground">Exercise database</Text>
               <Heading size="xl" className="mt-1">{displayTotal === null ? 'Loading…' : `${displayTotal.toLocaleString()} exercises`}</Heading>
             </View>
-            {source === 'fallback' && !isDownloads ? <Badge variant="outline"><BadgeText>Offline sample</BadgeText></Badge> : null}
           </View>
 
           <View className="flex-row rounded-full bg-secondary p-1">

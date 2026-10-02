@@ -30,6 +30,8 @@ import { Text } from '@/components/ui/text';
 import { useFinance } from '@/hooks/useFinance';
 import {
   generateTransactionsCsv,
+  generateFilteredTransactionsExcel,
+  writeBase64FileAndShare,
   generateAccountsCsv,
   generateBudgetsCsv,
   generateSavingsGoalsCsv,
@@ -290,6 +292,17 @@ export default function ExportScreen() {
         let result: { csv?: string; json?: string; filename: string };
 
         switch (exportId) {
+          case 'transactions-excel':
+            {
+              const excel = generateFilteredTransactionsExcel(transactions, accounts, categories, {
+                startDate: txFilter === 'selected-month' ? selectedMonth + '-01' : txFilter === 'current-month' ? formatMonthKey(new Date()) + '-01' : undefined,
+                endDate: txFilter === 'selected-month' ? selectedMonth + '-31' : txFilter === 'current-month' ? formatMonthKey(new Date()) + '-31' : undefined,
+              });
+              await writeBase64FileAndShare(excel.base64, excel.filename);
+              setSuccessMessage(`Transactions exported as ${excel.filename}`);
+            }
+            break;
+
           case 'transactions':
             result = generateTransactionsCsv(
               transactions,
@@ -506,6 +519,15 @@ export default function ExportScreen() {
           )}
         </Card>
 
+        <View className="gap-2">
+          <Button
+            variant="outline"
+            disabled={filteredTxCount === 0 || exporting !== null}
+            onPress={() => void handleExport('transactions-excel')}>
+            <FileText size={16} />
+            <ButtonText>Export Filtered Transactions as Excel</ButtonText>
+          </Button>
+        </View>
         {/* Export options */}
         <View className="gap-2">
           <Text size="sm" className="font-medium text-muted-foreground">

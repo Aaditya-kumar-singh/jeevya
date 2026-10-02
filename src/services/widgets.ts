@@ -4,8 +4,12 @@ import { buildDailyPulse } from '@/services/dailyPulse';
 import { getDailyPlan } from '@/services/dailyPlan';
 import { getLifeIntelligence } from '@/services/lifeIntelligence';
 import { getBudgetSpending } from '@/services/finance';
+import { getPendingPaymentImports } from '@/services/paymentImports';
+import { getHydrationSummary } from '@/services/hydration';
 import { readStorage, updateStorage } from '@/services/storageReliability';
 import { canAccess } from '@/services/capabilities';
+import { getPrivacySettings } from '@/services/privacyData';
+import { removeAndroidWidgetConfigurationAssociations } from '@/services/androidWidgetInstances';
 import type { AuthState } from '@/types/auth';
 import type { DailyPlanModel } from '@/types/dailyPlan';
 import type { LifeIntelligenceResult } from '@/types/lifeIntelligence';
@@ -57,6 +61,7 @@ export async function upsertWidgetConfiguration(configuration: WidgetConfigurati
 export async function deleteWidgetConfiguration(id: string): Promise<WidgetConfiguration[]> {
   const current = await getWidgetConfigurations();
   const next = current.filter((item) => item.id !== id);
+  await removeAndroidWidgetConfigurationAssociations(id);
   if (!next.length) {
     const stamp = now();
     return saveWidgetConfigurations([{ ...DEFAULT_WIDGET_CONFIGURATION, createdAt: stamp, updatedAt: stamp }]);
@@ -64,7 +69,7 @@ export async function deleteWidgetConfiguration(id: string): Promise<WidgetConfi
   return saveWidgetConfigurations(next);
 }
 
-function snapshotForModule(module: WidgetModule, state: JeevyaDailyState, plan: DailyPlanModel | null, intelligence: LifeIntelligenceResult | null, budgets: Awaited<ReturnType<typeof getBudgetSpending>>): WidgetModuleSnapshot | null {
+function snapshotForModule(module: WidgetModule, state: JeevyaDailyState, plan: DailyPlanModel | null, intelligence: LifeIntelligenceResult | null, budgets: Awaited<ReturnType<typeof getBudgetSpending>>, hydration: Awaited<ReturnType<typeof getHydrationSummary>> | null, pendingPaymentImports: number): WidgetModuleSnapshot | null {
   const degraded = new Set(state.dataQuality?.degradedDomains ?? []);
   const action = WIDGET_ACTIONS[module];
   if (module === 'tasks') {
@@ -94,7 +99,11 @@ function snapshotForModule(module: WidgetModule, state: JeevyaDailyState, plan: 
     if (!finite(value)) return null;
     return { module, available: true, values: { [key]: value }, action };
   }
-  if (module === 'water') return null;
+  if (module === 'water') {
+    if (hydration === null) return null;
+    if (hydration.loggedCount <= 0) return null;
+    return { module, available: true, values: { amountMl: hydration.amountMl, ...(hydration.goalMl ? { goalMl: hydration.goalMl, percentage: Math.min(100, Math.round((hydration.amountMl / hydration.goalMl) * 100)) } : {}) }, action };
+  }
   if (module === 'finance_spending') {
     if (degraded.has('finance') || state.finance.transactionsToday <= 0) return null;
     return { module, available: true, values: { expenseToday: state.finance.expenseToday, transactionsToday: state.finance.transactionsToday }, action };
@@ -105,6 +114,10 @@ function snapshotForModule(module: WidgetModule, state: JeevyaDailyState, plan: 
     const totalSpent = budgets.reduce((sum, item) => sum + item.spent, 0);
     if (!finite(totalBudget) || totalBudget <= 0) return null;
     return { module, available: true, values: { totalBudget, totalSpent, remaining: Math.max(0, totalBudget - totalSpent), percentage: Math.round((totalSpent / totalBudget) * 100) }, action };
+  }
+  if (module === 'finance_payment_review') {
+    if (degraded.has('finance') || pendingPaymentImports <= 0) return null;
+    return { module, available: true, values: { pending: pendingPaymentImports }, action };
   }
   if (module === 'savings') {
     const goals = state.goals.filter((goal) => goal.source === 'finance');
@@ -120,7 +133,10 @@ function snapshotForModule(module: WidgetModule, state: JeevyaDailyState, plan: 
   }
   if (module === 'goals') {
     if (degraded.has('goals') || !state.goals.length) return null;
-    return { module, available: true, values: { total: state.goals.length, active: state.goals.filter((goal) => goal.status === 'active').length, completed: state.goals.filter((goal) => goal.status === 'completed').length, behind: state.goals.filter((goal) => goal.status === 'behind').length }, action };
+    const activeGoals = state.goals.filter((goal) => goal.status === 'active' || goal.status === 'behind');
+    const progressValues = activeGoals.map((goal) => goal.progressPercentage).filter((value): value is number => typeof value === 'number' && Number.isFinite(value));
+    const averageProgress = progressValues.length ? Math.round(progressValues.reduce((sum, value) => sum + value, 0) / progressValues.length) : null;
+    return { module, available: true, values: { total: state.goals.length, active: state.goals.filter((goal) => goal.status === 'active').length, completed: state.goals.filter((goal) => goal.status === 'completed').length, behind: state.goals.filter((goal) => goal.status === 'behind').length, ...(averageProgress === null ? {} : { percentage: averageProgress }) }, action };
   }
   if (module === 'daily_pulse') {
     if (degraded.size === 0 && state.tasks.total + state.habits.activeToday + state.books.currentlyReading === 0 && !state.health.sleep && !state.health.recovery) return null;
@@ -140,19 +156,30 @@ function snapshotForModule(module: WidgetModule, state: JeevyaDailyState, plan: 
 
 export async function buildWidgetSnapshot(configuration: WidgetConfiguration, date: string = todayCivilDate(), context: { authState?: AuthState } = {}): Promise<WidgetSnapshot> {
   const authState = context.authState ?? 'guest';
+  const privacy = await getPrivacySettings();
+  const sensitiveFinanceAllowed = privacy.widgetSensitiveData;
   const state = await getJeevyaDailyState(date);
   let plan: DailyPlanModel | null = null;
   let intelligence: LifeIntelligenceResult | null = null;
   let budgets: Awaited<ReturnType<typeof getBudgetSpending>> = [];
+  let hydration: Awaited<ReturnType<typeof getHydrationSummary>> | null = null;
+  let pendingPaymentImports = 0;
   try { if (configuration.modules.includes('daily_plan') || configuration.modules.includes('daily_pulse')) plan = await getDailyPlan(date); } catch { plan = null; }
   try { if (configuration.modules.includes('life_intelligence')) intelligence = await getLifeIntelligence(date); } catch { intelligence = null; }
   try { if (configuration.modules.includes('finance_budget')) budgets = await getBudgetSpending(date.slice(0, 7)); } catch { budgets = []; }
+  try { if (configuration.modules.includes('water')) hydration = await getHydrationSummary(date); } catch { hydration = null; }
+  try { if (configuration.modules.includes('finance_payment_review')) pendingPaymentImports = (await getPendingPaymentImports()).length; } catch { pendingPaymentImports = 0; }
 
-  const modules = configuration.modules
-    .filter((module) => canUseWidgetModule(module, authState) && canAccess(module === 'daily_pulse' ? 'dailyPulse' : module === 'daily_plan' ? 'dailyPlan' : module === 'life_intelligence' ? 'lifeIntelligence' : module === 'finance_spending' || module === 'finance_budget' || module === 'savings' ? 'finance' : module === 'workout' || module === 'sleep' || module === 'recovery' || module === 'calories' || module === 'protein' || module === 'carbohydrates' || module === 'fat' || module === 'water' ? 'nutrition' : module, authState))
-    .map((module) => snapshotForModule(module, state, plan, intelligence, budgets))
+  const configuredModules = [...new Set((configuration.slots?.filter((slot) => slot.enabled).map((slot) => slot.module) ?? configuration.modules))];
+  const modules = configuredModules
+    .filter((module) => sensitiveFinanceAllowed || (module !== 'finance_spending' && module !== 'finance_budget' && module !== 'finance_payment_review' && module !== 'savings'))
+    .filter((module) => canUseWidgetModule(module, authState) && canAccess(module === 'daily_pulse' ? 'dailyPulse' : module === 'daily_plan' ? 'dailyPlan' : module === 'life_intelligence' ? 'lifeIntelligence' : module === 'finance_spending' || module === 'finance_budget' || module === 'finance_payment_review' || module === 'savings' ? 'finance' : module === 'workout' || module === 'sleep' || module === 'recovery' || module === 'calories' || module === 'protein' || module === 'carbohydrates' || module === 'fat' || module === 'water' ? 'nutrition' : module, authState))
+    .map((module) => snapshotForModule(module, state, plan, intelligence, budgets, hydration, pendingPaymentImports))
     .filter((item): item is WidgetModuleSnapshot => item !== null)
-    .map((item) => ({ ...item, values: selectValues(item.values, configuration.selectedMetrics) }))
+    .map((item) => {
+      const slot = configuration.slots?.find((candidate) => candidate.module === item.module && candidate.enabled);
+      return { ...item, ...(slot?.customTitle ? { title: slot.customTitle } : {}), values: selectValues(item.values, slot?.metricKeys?.length ? slot.metricKeys : configuration.selectedMetrics) };
+    })
     .filter((item) => Object.keys(item.values).length > 0);
 
   return {

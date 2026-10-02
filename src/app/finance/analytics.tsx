@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+﻿import { useMemo } from 'react';
 import {
   ActivityIndicator,
   Pressable,
@@ -35,8 +35,9 @@ import { Progress, ProgressFilledTrack } from '@/components/ui/progress';
 import { Text } from '@/components/ui/text';
 import { FadeInView } from '@/components/motion/FadeInView';
 import { FloatingBlobsSVG } from '@/components/visuals/FloatingBlobsSVG';
-import { useAnalytics } from '@/hooks/useAnalytics';
+import { useAnalyticsFromFinance } from '@/hooks/useAnalytics';
 import { useFinance } from '@/hooks/useFinance';
+import type { FinanceTransaction } from '@/types/finance';
 import {
   formatCurrency,
   formatCurrencySigned,
@@ -47,7 +48,9 @@ import { HorizontalBarChart } from '@/components/charts/HorizontalBarChart';
 import { DonutChart } from '@/components/charts/DonutChart';
 import { LineChart } from '@/components/charts/LineChart';
 
-// ─── Period Selector ──────────────────────────────────────────────────────────
+import { SpendHeatmapCard } from '@/components/finance/SpendHeatmapCard';
+
+// â”€â”€â”€ Period Selector â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 function PeriodSelector({
   periodType,
@@ -108,12 +111,12 @@ function PeriodSelector({
   );
 }
 
-// ─── Summary Card ─────────────────────────────────────────────────────────────
+// â”€â”€â”€ Summary Card â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 function SummaryCard({
   summary,
 }: {
-  summary: ReturnType<typeof useAnalytics>['summary'];
+  summary: ReturnType<typeof useAnalyticsFromFinance>['summary'];
 }) {
   return (
     <Card className="w-full p-4">
@@ -183,7 +186,7 @@ function SummaryCard({
             <Text size="md" className="mt-1 font-semibold">
               {summary.averageExpense > 0
                 ? formatCurrency(summary.averageExpense)
-                : '—'}
+                : 'â€”'}
             </Text>
           </View>
 
@@ -194,7 +197,16 @@ function SummaryCard({
             <Text size="md" className="mt-1 font-semibold">
               {summary.averageIncome > 0
                 ? formatCurrency(summary.averageIncome)
-                : '—'}
+                : 'â€”'}
+            </Text>
+          </View>
+
+          <View className="flex-1 rounded-2xl bg-muted p-3">
+            <Text size="xs" className="text-muted-foreground">
+              Savings Rate
+            </Text>
+            <Text size="md" className="mt-1 font-semibold">
+              {summary.savingsRate}%
             </Text>
           </View>
         </View>
@@ -203,15 +215,15 @@ function SummaryCard({
   );
 }
 
-// ─── Expense Analysis ─────────────────────────────────────────────────────────
+// â”€â”€â”€ Expense Analysis â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 function ExpenseAnalysisCard({
   expenseByCategory,
   highestExpense,
   formatCurrencyFn,
 }: {
-  expenseByCategory: ReturnType<typeof useAnalytics>['expenseByCategory'];
-  highestExpense: ReturnType<typeof useAnalytics>['highestExpense'];
+  expenseByCategory: ReturnType<typeof useAnalyticsFromFinance>['expenseByCategory'];
+  highestExpense: ReturnType<typeof useAnalyticsFromFinance>['highestExpense'];
   formatCurrencyFn: typeof formatCurrency;
 }) {
   if (expenseByCategory.length === 0) {
@@ -272,7 +284,7 @@ function ExpenseAnalysisCard({
             Top Spending
           </Text>
           <Text size="sm" className="mt-1">
-            {expenseByCategory[0].categoryName} — {formatCurrencyFn(expenseByCategory[0].total)}
+            {expenseByCategory[0].categoryName} â€” {formatCurrencyFn(expenseByCategory[0].total)}
           </Text>
         </View>
       )}
@@ -302,15 +314,15 @@ function ExpenseAnalysisCard({
   );
 }
 
-// ─── Income Analysis ──────────────────────────────────────────────────────────
+// â”€â”€â”€ Income Analysis â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 function IncomeAnalysisCard({
   incomeByCategory,
   highestIncome,
   formatCurrencyFn,
 }: {
-  incomeByCategory: ReturnType<typeof useAnalytics>['incomeByCategory'];
-  highestIncome: ReturnType<typeof useAnalytics>['highestIncome'];
+  incomeByCategory: ReturnType<typeof useAnalyticsFromFinance>['incomeByCategory'];
+  highestIncome: ReturnType<typeof useAnalyticsFromFinance>['highestIncome'];
   formatCurrencyFn: typeof formatCurrency;
 }) {
   if (incomeByCategory.length === 0) {
@@ -389,12 +401,12 @@ function IncomeAnalysisCard({
   );
 }
 
-// ─── Monthly Trend ────────────────────────────────────────────────────────────
+// â”€â”€â”€ Monthly Trend â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 function MonthlyTrendCard({
   monthlyTrends,
 }: {
-  monthlyTrends: ReturnType<typeof useAnalytics>['monthlyTrends'];
+  monthlyTrends: ReturnType<typeof useAnalyticsFromFinance>['monthlyTrends'];
 }) {
   if (monthlyTrends.length === 0) {
     return (
@@ -472,13 +484,13 @@ function MonthlyTrendCard({
   );
 }
 
-// ─── Budget vs Actual ─────────────────────────────────────────────────────────
+// â”€â”€â”€ Budget vs Actual â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 function BudgetVsActualCard({
   budgetVsActual,
   formatCurrencyFn,
 }: {
-  budgetVsActual: ReturnType<typeof useAnalytics>['budgetVsActual'];
+  budgetVsActual: ReturnType<typeof useAnalyticsFromFinance>['budgetVsActual'];
   formatCurrencyFn: typeof formatCurrency;
 }) {
   if (!budgetVsActual || budgetVsActual.items.length === 0) {
@@ -567,13 +579,13 @@ function BudgetVsActualCard({
   );
 }
 
-// ─── Account Analysis ─────────────────────────────────────────────────────────
+// â”€â”€â”€ Account Analysis â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 function AccountAnalysisCard({
   accountAnalysis,
   formatCurrencyFn,
 }: {
-  accountAnalysis: ReturnType<typeof useAnalytics>['accountAnalysis'];
+  accountAnalysis: ReturnType<typeof useAnalyticsFromFinance>['accountAnalysis'];
   formatCurrencyFn: typeof formatCurrency;
 }) {
   if (accountAnalysis.accounts.length === 0) {
@@ -630,7 +642,7 @@ function AccountAnalysisCard({
                 {item.account.name}
               </Text>
               <Text size="xs" className="text-muted-foreground">
-                {item.account.type.charAt(0).toUpperCase() + item.account.type.slice(1)} · {item.transactionCount} transactions
+                {item.account.type.charAt(0).toUpperCase() + item.account.type.slice(1)} Â· {item.transactionCount} transactions
               </Text>
             </View>
             <Text
@@ -649,13 +661,13 @@ function AccountAnalysisCard({
   );
 }
 
-// ─── Savings Analysis ─────────────────────────────────────────────────────────
+// â”€â”€â”€ Savings Analysis â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 function SavingsAnalysisCard({
   savingsAnalysis,
   formatCurrencyFn,
 }: {
-  savingsAnalysis: ReturnType<typeof useAnalytics>['savingsAnalysis'];
+  savingsAnalysis: ReturnType<typeof useAnalyticsFromFinance>['savingsAnalysis'];
   formatCurrencyFn: typeof formatCurrency;
 }) {
   if (savingsAnalysis.goals.length === 0) {
@@ -767,12 +779,12 @@ function SavingsAnalysisCard({
   );
 }
 
-// ─── Insights ─────────────────────────────────────────────────────────────────
+// â”€â”€â”€ Insights â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 function InsightsCard({
   insights,
 }: {
-  insights: ReturnType<typeof useAnalytics>['insights'];
+  insights: ReturnType<typeof useAnalyticsFromFinance>['insights'];
 }) {
   if (insights.length === 0) {
     return (
@@ -829,7 +841,7 @@ function InsightsCard({
   );
 }
 
-// ─── Empty State ──────────────────────────────────────────────────────────────
+// â”€â”€â”€ Empty State â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 function EmptyState() {
   return (
@@ -846,14 +858,15 @@ function EmptyState() {
   );
 }
 
-// ─── Main Screen ──────────────────────────────────────────────────────────────
+// â”€â”€â”€ Main Screen â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 export default function AnalyticsScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const topPadding = Math.max(insets.top + 12, 48);
-  const { loading: financeLoading, error: financeError, refresh } = useFinance();
-  const analytics = useAnalytics();
+  const finance = useFinance();
+  const { loading: financeLoading, error: financeError, refresh, transactions } = finance;
+  const analytics = useAnalyticsFromFinance(finance);
 
 
   const {
@@ -874,6 +887,7 @@ export default function AnalyticsScreen() {
     highestExpense,
     highestIncome,
     loading,
+    spendHeatmap,
     error,
   } = analytics;
 
@@ -948,7 +962,7 @@ export default function AnalyticsScreen() {
               </Button>
               <View className="flex-1">
                 <Text size="xs" className="font-semibold text-emerald-500 uppercase tracking-wider">
-                  Finance · Intelligence
+                  Finance Â· Intelligence
                 </Text>
                 <Heading size="xl" className="mt-0.5 font-bold tracking-tight text-foreground">
                   Analytics & Reports
@@ -994,6 +1008,7 @@ export default function AnalyticsScreen() {
 
         {/* Monthly Trend */}
         {hasAnyData && <MonthlyTrendCard monthlyTrends={monthlyTrends} />}
+        {hasAnyData && <SpendHeatmapCard days={spendHeatmap} />}
 
         {/* Budget vs Actual */}
         {hasAnyData && (
@@ -1016,9 +1031,71 @@ export default function AnalyticsScreen() {
         />
 
         {/* Insights */}
+        {hasAnyData && periodType === 'month' && (
+          <MonthlyFinanceReviewCard review={buildMonthlyFinanceReview(transactions, periodRange.key)} formatCurrencyFn={formatCurrency} />
+        )}
+
         {hasAnyData && <InsightsCard insights={insights} />}
       </View>
     </ScrollView>
   </View>
   );
 }
+
+type MonthlyFinanceReview = {
+  income: number;
+  expenses: number;
+  savingsRate: number;
+  expenseChangePercent: number;
+  recurringIncome: Array<{ source: string }>;
+  anomalies: FinanceTransaction[];
+  topMerchants: Array<{ merchant: string; amount: number }>;
+};
+
+function buildMonthlyFinanceReview(transactions: FinanceTransaction[], month: string): MonthlyFinanceReview {
+  const monthItems = transactions.filter((t) => t.date.startsWith(month));
+  const previous = new Date(`${month}-01T00:00:00`);
+  previous.setMonth(previous.getMonth() - 1);
+  const previousKey = previous.toISOString().slice(0, 7);
+  const previousItems = transactions.filter((t) => t.date.startsWith(previousKey));
+  const income = monthItems.filter((t) => t.type === 'income').reduce((s, t) => s + t.amount, 0);
+  const expenses = monthItems.filter((t) => t.type === 'expense').reduce((s, t) => s + t.amount, 0);
+  const previousExpenses = previousItems.filter((t) => t.type === 'expense').reduce((s, t) => s + t.amount, 0);
+  const merchantMap = new Map<string, { merchant: string; amount: number }>();
+  for (const t of monthItems) {
+    if (t.type !== 'expense') continue;
+    const merchant = t.merchant || t.title;
+    const row = merchantMap.get(merchant) ?? { merchant, amount: 0 };
+    row.amount += t.amount;
+    merchantMap.set(merchant, row);
+  }
+  return {
+    income,
+    expenses,
+    savingsRate: income > 0 ? Math.round(((income - expenses) / income) * 100) : 0,
+    expenseChangePercent: previousExpenses > 0 ? Math.round(((expenses - previousExpenses) / previousExpenses) * 100) : 0,
+    recurringIncome: [],
+    anomalies: [],
+    topMerchants: [...merchantMap.values()].sort((a, b) => b.amount - a.amount),
+  };
+}
+
+function MonthlyFinanceReviewCard({ review, formatCurrencyFn }: { review: MonthlyFinanceReview; formatCurrencyFn: typeof formatCurrency }) {
+  return (
+    <Card className="w-full p-4">
+      <View className="flex-row items-center gap-2"><Calendar size={18} className="text-primary" /><Heading size="md">Monthly Finance Review</Heading></View>
+      <View className="mt-3 gap-2">
+        <View className="flex-row gap-2">
+          <View className="flex-1 rounded-xl bg-muted p-3"><Text size="xs" className="text-muted-foreground">Income</Text><Text size="sm" className="mt-1 font-semibold text-green-600">{formatCurrencyFn(review.income)}</Text></View>
+          <View className="flex-1 rounded-xl bg-muted p-3"><Text size="xs" className="text-muted-foreground">Expenses</Text><Text size="sm" className="mt-1 font-semibold text-red-600">{formatCurrencyFn(review.expenses)}</Text></View>
+          <View className="flex-1 rounded-xl bg-muted p-3"><Text size="xs" className="text-muted-foreground">Savings</Text><Text size="sm" className="mt-1 font-semibold">{review.savingsRate}%</Text></View>
+        </View>
+        {review.expenseChangePercent !== 0 && <Text size="sm">Spending {review.expenseChangePercent > 0 ? 'increased' : 'decreased'} by {Math.abs(review.expenseChangePercent)}% versus the previous month.</Text>}
+        {review.recurringIncome.length > 0 && <Text size="sm" className="text-muted-foreground">Recurring income: {review.recurringIncome.slice(0, 2).map((item) => item.source).join(', ')}.</Text>}
+        {review.anomalies.length > 0 && <Text size="sm" className="text-orange-600">{review.anomalies.length} unusual expense{review.anomalies.length === 1 ? '' : 's'} detected.</Text>}
+        {review.topMerchants.length > 0 && <Text size="sm" className="text-muted-foreground">Top merchant: {review.topMerchants[0].merchant} ï¿½ {formatCurrencyFn(review.topMerchants[0].amount)}.</Text>}
+      </View>
+    </Card>
+  );
+}
+

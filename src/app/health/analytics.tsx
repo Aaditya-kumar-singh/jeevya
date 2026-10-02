@@ -128,11 +128,11 @@ function RecoveryCard({ data }: { data: HealthAnalyticsResult }) {
         </View>
         <View className="flex-row gap-3">
           <Metric label="Maximum" value={formatNumber(recovery.maximumReadiness, 0)} />
-          <Metric label="Sleep Contribution" value={formatNumber(recovery.averageSleepContribution, 1)} />
+          <Metric label="Sleep factor" value={formatNumber(recovery.averageSleepContribution, 1)} />
         </View>
         <View className="flex-row gap-3">
-          <Metric label="Training Contribution" value={formatNumber(recovery.averageTrainingLoadContribution, 1)} />
-          <Metric label="Consistency Contribution" value={formatNumber(recovery.averageConsistencyContribution, 1)} />
+          <Metric label="Training-load factor" value={formatNumber(recovery.averageTrainingLoadContribution, 1)} />
+          <Metric label="Consistency factor" value={formatNumber(recovery.averageConsistencyContribution, 1)} />
         </View>
         <View className="rounded-2xl bg-muted p-3">
           <Text size="xs" className="text-muted-foreground">Readiness levels</Text>

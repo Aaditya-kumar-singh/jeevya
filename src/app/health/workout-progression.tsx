@@ -11,6 +11,7 @@ import { getExercisesByIds, type Exercise } from '@/services/exercises';
 import { getWorkoutHistory } from '@/services/workoutHistory';
 import { getExercisePRs, getExerciseProgression } from '@/services/workoutProgression';
 import type { WorkoutExerciseProgression, WorkoutPR } from '@/types/workout';
+import { getProgressiveOverloadSuggestions, type ProgressiveSuggestion } from '@/services/workoutAdvanced';
 
 const PR_LABELS: Record<WorkoutPR['recordType'], string> = {
   max_weight: 'Max Weight',

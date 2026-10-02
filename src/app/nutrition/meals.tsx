@@ -23,6 +23,7 @@ import { Card } from '@/components/ui/card';
 import { Heading } from '@/components/ui/heading';
 import { Text } from '@/components/ui/text';
 import { useNutrition } from '@/hooks/useNutrition';
+import { getFavoriteFoods, getRecentFoods, repeatMeal } from '@/services/nutritionAdvanced';
 import {
   calculateNutrition,
   calculateDailyNutrition,
@@ -400,6 +401,10 @@ export default function MealsScreen() {
   const [date, setDate] = useState(getTodayDate());
   const [dateInput, setDateInput] = useState(getTodayDate());
   const [deleting, setDeleting] = useState<string | null>(null);
+  const [recentFoods, setRecentFoods] = useState<FoodItem[]>([]);
+  const [favoriteFoods, setFavoriteFoods] = useState<FoodItem[]>([]);
+
+  useEffect(() => { Promise.all([getRecentFoods(), getFavoriteFoods()]).then(([recent, favorite]) => { setRecentFoods(recent); setFavoriteFoods(favorite); }); }, []);
 
   const dayLogs = useMemo(
     () => foodLogs.filter((l) => l.date === date),
@@ -521,7 +526,13 @@ export default function MealsScreen() {
           {hasAnyLogs ? ` · ${fmt(totalCalories)} kcal total` : ''}
         </Text>
 
-        {/* Daily Nutrition Summary */}
+        <Card className="w-full p-4">
+          <Heading size="sm">Quick logging</Heading>
+          <Text size="xs" className="mt-1 text-muted-foreground">Recent and favourite foods stay one tap away.</Text>
+          {recentFoods.length > 0 ? <View className="mt-3"><Text size="xs" className="font-semibold">Recent</Text><View className="mt-2 flex-row flex-wrap gap-2">{recentFoods.slice(0,8).map(food => <Pressable key={food.id} onPress={() => router.push({pathname:'/nutrition/log',params:{foodId:food.id,date,mealType:'snack'}} as never)} className="rounded-full bg-muted px-3 py-2"><Text size="xs">{food.name}</Text></Pressable>)}</View></View> : null}
+          {favoriteFoods.length > 0 ? <View className="mt-3"><Text size="xs" className="font-semibold">Favourites</Text><View className="mt-2 flex-row flex-wrap gap-2">{favoriteFoods.slice(0,8).map(food => <Pressable key={food.id} onPress={() => router.push({pathname:'/nutrition/log',params:{foodId:food.id,date,mealType:'snack'}} as never)} className="rounded-full border border-primary/30 bg-primary/5 px-3 py-2"><Text size="xs">{food.name}</Text></Pressable>)}</View></View> : null}
+          {dayLogs.length > 0 ? <Button className="mt-3" variant="outline" onPress={async () => { await repeatMeal(date,'snack',shiftDate(date,-1)); await refresh(); }}><ButtonText>Repeat yesterday&apos;s snacks</ButtonText></Button> : null}
+        </Card>        {/* Daily Nutrition Summary */}
         {hasAnyLogs ? (
           <DailySummaryCard date={date} summary={dailySummary} targets={targets} />
         ) : null}

@@ -1,10 +1,11 @@
-// ─── Book Service (Phase 1A) ──────────────────────────────────────────────────
+﻿// â”€â”€â”€ Book Service (Phase 1A) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 // Local-first AsyncStorage CRUD, mirroring the Tasks service architecture:
 // same storage.ts helpers, same uid() IDs, same normalize-on-load pattern,
 // plain JSON records (Supabase-row compatible). No network, no auth.
 
 import { saveData, loadData } from '@/lib/storage';
 import { uid } from '@/lib/uid';
+import { invalidateUnifiedSearchIndex } from '@/services/searchIndex';
 import {
   BOOK_STATUSES,
   getNowISO,
@@ -14,11 +15,11 @@ import {
   type UpdateBookInput,
 } from '@/types/books';
 
-// ─── Storage Key ──────────────────────────────────────────────────────────────
+// â”€â”€â”€ Storage Key â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 const BOOKS_KEY = 'jeevya:books';
 
-// ─── Migration / Backward Compatibility ───────────────────────────────────────
+// â”€â”€â”€ Migration / Backward Compatibility â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 /**
  * Normalize a raw record into a fully-typed Book.
@@ -54,7 +55,7 @@ function isValidStatus(value: unknown): value is BookStatus {
   );
 }
 
-/** 0–5 inclusive, or null. Coerces numeric strings; rejects NaN/Infinity/out-of-range. */
+/** 0â€“5 inclusive, or null. Coerces numeric strings; rejects NaN/Infinity/out-of-range. */
 function toRating(value: unknown): number | null {
   if (value == null || value === '') return null;
   const n = typeof value === 'number' ? value : Number(value);
@@ -93,7 +94,7 @@ function toISOWithFallback(value: unknown): string {
 
 /**
  * Load all books from storage, normalizing any old/malformed records.
- * Never throws — returns empty array on error.
+ * Never throws â€” returns empty array on error.
  */
 async function loadNormalized(): Promise<Book[]> {
   try {
@@ -105,7 +106,7 @@ async function loadNormalized(): Promise<Book[]> {
   }
 }
 
-// ─── Validation ───────────────────────────────────────────────────────────────
+// â”€â”€â”€ Validation â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 /**
  * Validate a candidate book shape (create or merged update). Throws with a
@@ -138,7 +139,7 @@ function assertValidBook(candidate: {
   }
 }
 
-// ─── CRUD ─────────────────────────────────────────────────────────────────────
+// â”€â”€â”€ CRUD â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 /**
  * Get all books, newest first.
@@ -215,10 +216,10 @@ export async function createBook(input: CreateBookInput): Promise<Book> {
  * Update an existing book by ID.
  *
  * Status timestamp rules (transition-based, explicit input always wins):
- * - entering `reading` → set startedAt when missing
- * - entering `completed` → set completedAt to now
- * - leaving `completed` → clear completedAt (mirrors task uncomplete)
- * - leaving `reading` → startedAt is kept as history
+ * - entering `reading` â†’ set startedAt when missing
+ * - entering `completed` â†’ set completedAt to now
+ * - leaving `completed` â†’ clear completedAt (mirrors task uncomplete)
+ * - leaving `reading` â†’ startedAt is kept as history
  */
 export async function updateBook(
   id: string,
@@ -295,5 +296,8 @@ export async function deleteBook(id: string): Promise<boolean> {
   if (filtered.length === books.length) return false;
 
   await saveData(BOOKS_KEY, filtered);
+  invalidateUnifiedSearchIndex();
   return true;
 }
+
+

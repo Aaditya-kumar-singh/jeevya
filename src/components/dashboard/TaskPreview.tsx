@@ -1,31 +1,31 @@
-import { useState } from 'react';
 import { View } from 'react-native';
+import { router } from 'expo-router';
 import { Card } from '@/components/ui/card';
 import { Heading } from '@/components/ui/heading';
 import { Text } from '@/components/ui/text';
 import { AnimatedCheckbox } from '@/components/motion/AnimatedCheckbox';
-import { todayTasks } from '@/lib/mockData';
 import { CheckSquare } from 'lucide-react-native';
 
 interface Task {
   id: string;
   title: string;
-  completed: boolean;
 }
 
 interface TaskPreviewProps {
   tasks?: Task[];
+  completedToday?: number;
+  dueToday?: number;
+  onComplete?: (taskId: string) => Promise<void> | void;
 }
 
-export function TaskPreview({ tasks = todayTasks }: TaskPreviewProps) {
-  const [taskList, setTaskList] = useState(tasks);
-  const openCount = taskList.filter((t) => !t.completed).length;
-
-  const toggleTask = (id: string) => {
-    setTaskList((prev) =>
-      prev.map((t) => (t.id === id ? { ...t, completed: !t.completed } : t)),
-    );
-  };
+export function TaskPreview({
+  tasks = [],
+  completedToday = 0,
+  dueToday = tasks.length,
+  onComplete,
+}: TaskPreviewProps) {
+  const visibleTasks = tasks.slice(0, 4);
+  const remainingToday = Math.max(0, dueToday - completedToday);
 
   return (
     <Card className="w-full p-5 border border-violet-500/20 bg-card shadow-sm">
@@ -37,38 +37,46 @@ export function TaskPreview({ tasks = todayTasks }: TaskPreviewProps) {
           <View>
             <Heading size="md" className="font-bold">Daily Action Items</Heading>
             <Text size="xs" className="text-muted-foreground font-medium">
-              {openCount} remaining today
+              {remainingToday} remaining today
             </Text>
           </View>
         </View>
         <View className="rounded-full bg-violet-500/10 px-2.5 py-1 border border-violet-500/20">
           <Text size="xs" className="font-bold text-violet-600 dark:text-violet-400">
-            {taskList.length - openCount}/{taskList.length} done
+            {completedToday}/{Math.max(dueToday, completedToday)} done
           </Text>
         </View>
       </View>
 
       <View className="mt-4 gap-3">
-        {taskList.slice(0, 4).map((task) => (
-          <View key={task.id} className="flex-row items-center gap-3 py-1">
-            <AnimatedCheckbox
-              checked={task.completed}
-              onPress={() => toggleTask(task.id)}
-              checkedColor="#8B5CF6"
-              size={20}
-            />
+        {visibleTasks.length > 0 ? (
+          visibleTasks.map((task) => (
+            <View key={task.id} className="flex-row items-center gap-3 py-1">
+              <AnimatedCheckbox
+                checked={false}
+                onPress={() => void onComplete?.(task.id)}
+                checkedColor="#8B5CF6"
+                size={20}
+              />
+              <Text size="sm" className="flex-1 font-medium text-foreground">
+                {task.title}
+              </Text>
+            </View>
+          ))
+        ) : (
+          <View className="rounded-xl border border-border/50 bg-muted/20 px-4 py-3">
+            <Text size="sm" className="font-medium text-muted-foreground">
+              {dueToday === 0 ? 'No tasks due today.' : 'All tasks due today are complete.'}
+            </Text>
             <Text
-              size="sm"
-              className={`flex-1 font-medium ${
-                task.completed
-                  ? 'text-muted-foreground line-through'
-                  : 'text-foreground'
-              }`}
+              size="xs"
+              className="mt-1 font-medium text-violet-600 dark:text-violet-400"
+              onPress={() => router.push('/tasks' as never)}
             >
-              {task.title}
+              View tasks
             </Text>
           </View>
-        ))}
+        )}
       </View>
     </Card>
   );

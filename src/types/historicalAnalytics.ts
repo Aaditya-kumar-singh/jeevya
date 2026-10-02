@@ -1,6 +1,7 @@
 import type { CivilDate } from '@/lib/date';
+import type { AnalyticsFreshness } from '@/types/analyticsCore';
 
-export type HistoricalAnalyticsPeriod = 7 | 30 | 90;
+export type HistoricalAnalyticsPeriod = 7 | 30 | 90 | 365;
 export type HistoricalAnalyticsDomain = 'tasks' | 'habits' | 'workout' | 'sleep' | 'recovery' | 'nutrition' | 'finance' | 'books' | 'journal' | 'goals';
 export type HistoricalAnalyticsFilter = 'all' | 'tasks' | 'habits' | 'health' | 'nutrition' | 'finance' | 'books' | 'journal' | 'goals';
 export type HistoricalTrend = 'up' | 'down' | 'stable' | 'insufficient_data';
@@ -39,6 +40,7 @@ export interface HistoricalAnalyticsResult {
   metrics: HistoricalMetric[];
   degradedDomains: HistoricalAnalyticsDomain[];
   errors: Partial<Record<HistoricalAnalyticsDomain, string>>;
+  freshness: Partial<Record<HistoricalAnalyticsDomain, AnalyticsFreshness>>;
 }
 
 export interface HistoricalAnalyticsQuery {

@@ -3,17 +3,19 @@ import { Card } from '@/components/ui/card';
 import { Heading } from '@/components/ui/heading';
 import { Text } from '@/components/ui/text';
 import { AnimatedProgress } from '@/components/motion/AnimatedProgress';
-import { financeSnapshot } from '@/lib/mockData';
+
 import { Wallet } from 'lucide-react-native';
 
 interface FinanceSnapshotProps {
   spent?: number;
   budgetRemaining?: number;
+  importedPaymentReviewCount?: number;
 }
 
 export function FinanceSnapshot({
-  spent = financeSnapshot.spent,
-  budgetRemaining = financeSnapshot.budgetRemaining,
+  spent = 0,
+  budgetRemaining = 0,
+  importedPaymentReviewCount = 0,
 }: FinanceSnapshotProps) {
   const total = spent + budgetRemaining;
   const pct = total > 0 ? Math.round((spent / total) * 100) : 0;

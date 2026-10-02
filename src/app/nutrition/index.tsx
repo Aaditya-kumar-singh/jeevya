@@ -482,6 +482,7 @@ export default function FoodBrowserScreen() {
           </Button>
         </View>
 
+        <Button variant="outline" onPress={() => router.push('/nutrition/advanced' as never)}><ButtonText>Nutrition Intelligence</ButtonText></Button>
         {/* Search */}
         <Input className="bg-card">
           <InputSlot>

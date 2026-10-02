@@ -34,7 +34,7 @@ export const DEFAULT_WIDGET_THEME: WidgetTheme = {
 export type WidgetModule =
   | 'tasks' | 'habits' | 'workout' | 'sleep' | 'recovery'
   | 'calories' | 'protein' | 'carbohydrates' | 'fat' | 'water'
-  | 'finance_spending' | 'finance_budget' | 'savings' | 'books' | 'goals'
+  | 'finance_spending' | 'finance_budget' | 'finance_payment_review' | 'savings' | 'books' | 'goals'
   | 'daily_pulse' | 'daily_plan' | 'life_intelligence';
 
 export interface WidgetConfiguration {
@@ -63,6 +63,7 @@ export interface WidgetModuleSnapshot {
   available: boolean;
   values: Record<string, number | string | boolean>;
   action: WidgetAction;
+  title?: string;
 }
 
 export interface WidgetSnapshot {
@@ -90,14 +91,14 @@ export interface WidgetProjectionContext {
 export const WIDGET_MODULE_LABELS: Record<WidgetModule, string> = {
   tasks: 'Tasks', habits: 'Habits', workout: 'Workout', sleep: 'Sleep', recovery: 'Recovery',
   calories: 'Calories', protein: 'Protein', carbohydrates: 'Carbohydrates', fat: 'Fat', water: 'Water',
-  finance_spending: 'Spending', finance_budget: 'Budget', savings: 'Savings', books: 'Books', goals: 'Goals',
+  finance_spending: 'Spending', finance_budget: 'Budget', finance_payment_review: 'Payment review', savings: 'Savings', books: 'Books', goals: 'Goals',
   daily_pulse: 'Daily Pulse', daily_plan: 'Daily Plan', life_intelligence: 'Life Intelligence',
 };
 
 export const WIDGET_MODULES: readonly WidgetModule[] = [
   'tasks', 'habits', 'workout', 'sleep', 'recovery',
   'calories', 'protein', 'carbohydrates', 'fat', 'water',
-  'finance_spending', 'finance_budget', 'savings', 'books', 'goals',
+  'finance_spending', 'finance_budget', 'finance_payment_review', 'savings', 'books', 'goals',
   'daily_pulse', 'daily_plan', 'life_intelligence',
 ];
 
@@ -122,6 +123,7 @@ export const WIDGET_ACTIONS: Record<WidgetModule, WidgetAction> = {
   water: { label: 'Open Health', navigationTarget: '/health' },
   finance_spending: { label: 'Open Finance', navigationTarget: '/finance' },
   finance_budget: { label: 'Open Budget', navigationTarget: '/finance/budget' },
+  finance_payment_review: { label: 'Review payments', navigationTarget: '/finance/import-payments' },
   savings: { label: 'Open Savings', navigationTarget: '/finance/savings-goals' },
   books: { label: 'Open Books', navigationTarget: '/books' },
   goals: { label: 'Open Goals', navigationTarget: '/goals' },
@@ -199,6 +201,6 @@ export function sanitizeWidgetConfigurations(value: unknown, now: string): Widge
 
 export function canUseWidgetModule(module: WidgetModule, authState: AuthState = 'guest'): boolean {
   if (authState === 'loading') return false;
-  return module !== 'water';
+  return true;
 }
 

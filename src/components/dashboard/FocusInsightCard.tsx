@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { View, Pressable } from 'react-native';
 import { Heading, Text, Card } from '@/components/ui';
-import { Lightbulb, RefreshCw, Sparkles } from 'lucide-react-native';
+import { Lightbulb, RefreshCw } from 'lucide-react-native';
 
 const INSIGHTS = [
   {
@@ -64,9 +64,8 @@ export function FocusInsightCard() {
           — {current.author}
         </Text>
         <View className="flex-row items-center gap-1">
-          <Sparkles size={12} className="text-amber-400" fill="#FBBF24" />
           <Text size="xs" className="font-bold text-amber-500">
-            +50 Focus Score
+            Focus insight
           </Text>
         </View>
       </View>

@@ -16,6 +16,7 @@ function metricUnit(metric: GoalMetric): string {
     case 'books_completed': return 'books';
     case 'pages_read': return 'pages';
     case 'savings_amount': return 'saved';
+    default: return 'units';
   }
 }
 

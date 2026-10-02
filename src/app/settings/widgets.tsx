@@ -13,11 +13,12 @@ import {
   type WidgetSize,
 } from '@/types/widgets';
 import { getWidgetConfigurations, upsertWidgetConfiguration, deleteWidgetConfiguration } from '@/services/widgets';
+import { refreshAndroidJeevyaWidgets } from '@/services/androidWidgetAdapter';
 
 const presets: Record<string, WidgetModule[]> = {
   Daily: ['daily_pulse', 'tasks', 'habits', 'daily_plan'],
   Health: ['workout', 'sleep', 'recovery', 'water', 'calories', 'protein'],
-  Finance: ['finance_spending', 'finance_budget', 'savings'],
+  Finance: ['finance_spending', 'finance_budget', 'finance_payment_review', 'savings'],
   Progress: ['goals', 'books', 'daily_pulse', 'life_intelligence'],
 };
 
@@ -100,6 +101,7 @@ export default function WidgetSettingsScreen() {
     }
     const saved = await upsertWidgetConfiguration(draft);
     setConfigs(saved);
+    await refreshAndroidJeevyaWidgets().catch(() => undefined);
     Alert.alert('Saved', 'Your widget layout is ready. Add or reconfigure the Jeevya widget from the Android home screen.');
   };
 

@@ -15,6 +15,7 @@ import {
   type UpdateHabitInput,
 } from '@/services/habits';
 import { getHabitStats } from '@/services/habitStats';
+import { awardXP } from '@/services/xp';
 
 export function useHabits() {
   const [habits, setHabits] = useState<Habit[]>([]);
@@ -195,6 +196,9 @@ export function useHabits() {
 
       try {
         const log = await toggleHabitCompletion(habitId, today);
+        if (log.completed) {
+          await awardXP({ source: 'habit', sourceId: log.id, action: 'habit_completed', date: today });
+        }
 
         if (requestId !== requestIdRef.current) return;
 

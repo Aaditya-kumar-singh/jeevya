@@ -1,7 +1,8 @@
-import { saveData, loadData } from '@/lib/storage';
+﻿import { saveData, loadData } from '@/lib/storage';
 import { updateStorage } from '@/services/storageReliability';
 import { taskRepository } from '@/services/repositories/tasks';
 import { uid } from '@/lib/uid';
+import { invalidateUnifiedSearchIndex } from '@/services/searchIndex';
 import {
   getNowISO,
   type CreateSubtaskInput,
@@ -26,15 +27,16 @@ import {
 import { sanitizeLabelIds } from '@/lib/task-labels';
 import { isValidDateString } from '@/lib/task-filters';
 import { getTodayISO } from '@/types/tasks';
+import { awardXP } from '@/services/xp';
 
-// â”€â”€â”€ Storage Key â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬ Storage Key Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
 
 export const TASKS_KEY = 'jeevya:tasks';
 const LEGACY_TASKS_KEY = '@jeevya/tasks/v1';
 const TASKS_MIGRATION_KEY = 'jeevya:tasks:migration:v1';
 let migrationPromise: Promise<void> | null = null;
 
-// â”€â”€â”€ Migration / Backward Compatibility â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬ Migration / Backward Compatibility Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
 
 /**
  * Normalize a raw record into a fully-typed Task.
@@ -56,10 +58,15 @@ function normalizeTask(raw: Record<string, unknown>): Task {
     // Pre-1E records (and malformed recurrence blobs) become non-recurring.
     recurrence: sanitizeRecurrence(raw.recurrence),
     seriesId: raw.seriesId != null && raw.seriesId !== '' ? String(raw.seriesId) : null,
-    // Pre-1G-A records have no `subtasks` key â€” normalize to an empty list.
+    // Pre-1G-A records have no `subtasks` key Ã¢â‚¬â€ normalize to an empty list.
     subtasks: sanitizeSubtasks(raw.subtasks),
-    // Pre-1G-B records have no `labelIds` key â€” normalize to an empty list.
+    // Pre-1G-B records have no `labelIds` key Ã¢â‚¬â€ normalize to an empty list.
     labelIds: sanitizeLabelIds(raw.labelIds),
+    estimatedMinutes: typeof raw.estimatedMinutes === 'number' && Number.isFinite(raw.estimatedMinutes) && raw.estimatedMinutes > 0 ? Math.round(raw.estimatedMinutes) : null,
+    energy: raw.energy === 'low' || raw.energy === 'medium' || raw.energy === 'high' ? raw.energy : null,
+    context: ['anywhere','home','work','computer','phone','errand'].includes(String(raw.context)) ? raw.context as any : null,
+    dependencyIds: Array.isArray(raw.dependencyIds) ? raw.dependencyIds.map(String).filter(Boolean) : [],
+    templateId: raw.templateId ? String(raw.templateId) : null,
   };
 }
 
@@ -125,7 +132,7 @@ export async function migrateLegacyTasks(): Promise<void> {
 /**
  * Load all tasks from the canonical store, normalizing any old records.
  * Legacy migration runs once before the canonical read.
- * Never throws â€” returns empty array on error.
+ * Never throws Ã¢â‚¬â€ returns empty array on error.
  */
 async function loadNormalized(): Promise<Task[]> {
   try {
@@ -140,7 +147,7 @@ async function loadNormalized(): Promise<Task[]> {
   }
 }
 
-// â”€â”€â”€ CRUD â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬ CRUD Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
 
 /**
  * Get all tasks, newest first.
@@ -203,6 +210,11 @@ export async function createTask(input: CreateTaskInput): Promise<Task> {
     seriesId: input.recurrence ? uid('series_') : null,
     subtasks: [],
     labelIds: sanitizeLabelIds(input.labelIds),
+    estimatedMinutes: input.estimatedMinutes ?? null,
+    energy: input.energy ?? null,
+    context: input.context ?? null,
+    dependencyIds: Array.from(new Set(input.dependencyIds ?? [])).filter((dependencyId) => dependencyId !== ''),
+    templateId: input.templateId ?? null,
   };
 
   await updateStorage<Task[]>(TASKS_KEY, [], (current) => {
@@ -250,6 +262,11 @@ export async function updateTask(
           : null
         : task.seriesId,
       labelIds: 'labelIds' in input ? sanitizeLabelIds(input.labelIds) : task.labelIds,
+      estimatedMinutes: 'estimatedMinutes' in input ? (input.estimatedMinutes ?? null) : task.estimatedMinutes,
+      energy: 'energy' in input ? (input.energy ?? null) : task.energy,
+      context: 'context' in input ? (input.context ?? null) : task.context,
+      dependencyIds: 'dependencyIds' in input ? Array.from(new Set(input.dependencyIds ?? [])) : task.dependencyIds,
+      templateId: 'templateId' in input ? (input.templateId ?? null) : task.templateId,
     };
 
     if (!updated.title.trim()) throw new Error('Task title is required');
@@ -274,6 +291,7 @@ export async function deleteTask(id: string): Promise<boolean> {
     deleted = filtered.length !== tasks.length;
     return filtered;
   });
+  if (deleted) invalidateUnifiedSearchIndex();
   return deleted;
 }
 
@@ -292,17 +310,21 @@ export async function completeTask(
   nextOccurrence: Task | null;
   recurrenceWarning: string | null;
 }> {
+  const before = await getTaskById(id);
   const completed = await updateTask(id, { completed: true });
+  if (before && !before.completed && completed) {
+    await awardXP({ source: 'task', sourceId: completed.id, action: 'task_completed', date: completed.completedAt?.slice(0, 10) });
+  }
   if (!completed) return { task: null, nextOccurrence: null, recurrenceWarning: null };
 
   const rec = sanitizeRecurrence(completed.recurrence);
   if (!rec) {
-    // Normal (non-recurring) task â€” exactly the old behavior.
+    // Normal (non-recurring) task Ã¢â‚¬â€ exactly the old behavior.
     return { task: completed, nextOccurrence: null, recurrenceWarning: null };
   }
 
   try {
-    // Uncomplete â†’ re-complete is idempotent: the completed flag simply flips
+    // Uncomplete Ã¢â€ â€™ re-complete is idempotent: the completed flag simply flips
     // back on, and the duplicate guard below prevents a second occurrence.
     const tasks = await loadNormalized();
 
@@ -319,7 +341,7 @@ export async function completeTask(
 
     const nextDue = calculateNextOccurrence(rec, from);
     if (!nextDue) {
-      // Series ended (end date reached) â€” completion stands, no new occurrence.
+      // Series ended (end date reached) Ã¢â‚¬â€ completion stands, no new occurrence.
       return { task: completed, nextOccurrence: null, recurrenceWarning: null };
     }
 
@@ -344,7 +366,7 @@ export async function completeTask(
     await taskRepository.set([withSeries, ...tasks]);
     return { task: completed, nextOccurrence: withSeries, recurrenceWarning: null };
   } catch (e) {
-    // Generation failed: the completion is already persisted â€” surface why.
+    // Generation failed: the completion is already persisted Ã¢â‚¬â€ surface why.
     return {
       task: completed,
       nextOccurrence: null,
@@ -375,9 +397,9 @@ export async function restoreTask(id: string): Promise<Task | null> {
   return updateTask(id, { archived: false });
 }
 
-// â”€â”€â”€ Subtasks (Phase 1G-A) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬ Subtasks (Phase 1G-A) Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
 // Subtasks are owned by their parent task and persisted inline in the same
-// AsyncStorage record â€” no new storage keys, no new architecture.
+// AsyncStorage record Ã¢â‚¬â€ no new storage keys, no new architecture.
 
 async function persistSubtaskList(
   taskId: string,
@@ -413,7 +435,7 @@ export async function addSubtask(
 
 /**
  * Rename and/or complete/uncomplete a subtask. Parent completion is never
- * touched here â€” it stays fully independent. Returns the updated parent,
+ * touched here Ã¢â‚¬â€ it stays fully independent. Returns the updated parent,
  * or null when parent/subtask is missing. Throws on blank titles.
  */
 export async function updateSubtask(
@@ -455,6 +477,10 @@ export async function deleteSubtask(
   if (!parent.subtasks.some((s) => s.id === subtaskId)) return null;
   return persistSubtaskList(taskId, removeSubtask(parent.subtasks, subtaskId));
 }
+
+
+
+
 
 
 

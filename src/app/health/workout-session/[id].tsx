@@ -26,6 +26,7 @@ import { WorkoutSummary } from '@/components/workout/WorkoutSummary';
 import { useWorkoutSession } from '@/hooks/useWorkoutSession';
 import { getExercisesByIds, type Exercise } from '@/services/exercises';
 import type { WorkoutSet } from '@/types/workout';
+import { getProgressiveOverloadSuggestions, type ProgressiveSuggestion } from '@/services/workoutAdvanced';
 
 function formatClock(totalSeconds: number): string {
   const hours = Math.floor(totalSeconds / 3600);
@@ -48,6 +49,7 @@ export default function WorkoutSessionScreen() {
 
   const [metas, setMetas] = useState<Map<string, Exercise>>(new Map());
   const [prevSets, setPrevSets] = useState<WorkoutSet[]>([]);
+  const [suggestions, setSuggestions] = useState<ProgressiveSuggestion[]>([]);
   const [menuVisible, setMenuVisible] = useState(false);
   const [pickerVisible, setPickerVisible] = useState(false);
 

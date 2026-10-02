@@ -8,12 +8,14 @@ import { Heading } from '@/components/ui/heading';
 import { Text } from '@/components/ui/text';
 import { useJeevyaAnalytics } from '@/hooks/useJeevyaAnalytics';
 import { useHistoricalAnalytics } from '@/hooks/useHistoricalAnalytics';
+import { useAdvancedAnalytics } from '@/hooks/useAdvancedAnalytics';
 import type { JeevyaAnalyticsPeriod } from '@/types/jeevyaAnalytics';
 import type { HistoricalAnalyticsFilter, HistoricalAnalyticsPeriod } from '@/types/historicalAnalytics';
 
 const PERIODS: JeevyaAnalyticsPeriod[] = [7, 30, 90];
-const HISTORICAL_PERIODS: HistoricalAnalyticsPeriod[] = [7, 30, 90];
+const HISTORICAL_PERIODS: HistoricalAnalyticsPeriod[] = [7, 30, 90, 365];
 const HISTORICAL_FILTERS: HistoricalAnalyticsFilter[] = ['all', 'tasks', 'habits', 'health', 'nutrition', 'finance', 'books', 'journal', 'goals'];
+const INTELLIGENCE_PERIODS = [7, 30, 365] as const;
 
 const FILTER_LABELS: Record<HistoricalAnalyticsFilter, string> = {
   all: 'All', tasks: 'Tasks', habits: 'Habits', health: 'Health', nutrition: 'Nutrition', finance: 'Finance', books: 'Books', journal: 'Journal', goals: 'Goals',
@@ -45,6 +47,7 @@ export default function AnalyticsScreen() {
   const router = useRouter();
   const { period, data, loading, refreshing, error, refresh, setPeriod } = useJeevyaAnalytics();
   const historical = useHistoricalAnalytics();
+  const intelligence = useAdvancedAnalytics();
 
   if (loading && !data) {
     return (
@@ -124,6 +127,59 @@ export default function AnalyticsScreen() {
           ) : (
             <Text size="sm" className="mt-4 text-muted-foreground">No comparable historical data is available for this selection.</Text>
           )}
+        </Card>
+
+        <Card className="w-full p-4">
+          <Heading size="sm">Advanced intelligence</Heading>
+          <Text size="xs" className="mt-1 text-muted-foreground">Comparisons, cross-domain signals, anomalies and actions derived from recorded data.</Text>
+          <View className="mt-3 flex-row gap-2 flex-wrap">
+            {INTELLIGENCE_PERIODS.map((value) => (
+              <Pressable key={value} className={`rounded-full border px-4 py-2 ${intelligence.period === value ? 'border-primary bg-primary/10' : 'border-border bg-card'}`} onPress={() => intelligence.setPeriod(value)}>
+                <Text size="xs" className="font-semibold">{value === 365 ? 'Year' : `${value}d`}</Text>
+              </Pressable>
+            ))}
+          </View>
+          {intelligence.error ? <Text size="xs" className="mt-3 text-red-600 dark:text-red-400">{intelligence.error}</Text> : null}
+          {intelligence.loading && !intelligence.data ? (
+            <View className="items-center py-5"><ActivityIndicator size="small" className="text-primary" /></View>
+          ) : intelligence.data ? (
+            <View className="mt-3 gap-3">
+              {intelligence.data.recommendations.length ? intelligence.data.recommendations.map((item) => (
+                <Card key={item.id} className="p-3">
+                  <Heading size="sm">{item.title}</Heading>
+                  <Text size="sm" className="mt-1 text-muted-foreground">{item.action}</Text>
+                  <Text size="xs" className="mt-1 text-muted-foreground">Why: {item.reason}</Text>
+                </Card>
+              )) : null}
+              {intelligence.data.anomalies.length ? (
+                <Card className="p-3">
+                  <Heading size="sm">Anomalies</Heading>
+                  {intelligence.data.anomalies.slice(0, 5).map((item) => <Text key={item.id} size="sm" className="mt-1 text-muted-foreground">{item.date} · {item.metric} · {item.direction} ({item.zScore}σ)</Text>)}
+                </Card>
+              ) : null}
+              {intelligence.data.correlations.length ? (
+                <Card className="p-3">
+                  <Heading size="sm">Cross-domain relationships</Heading>
+                  <Text size="xs" className="mt-1 text-muted-foreground">Correlation is association, not proof of causation.</Text>
+                  {intelligence.data.correlations.slice(0, 5).map((item) => <Text key={item.id} size="sm" className="mt-1 text-muted-foreground">{item.leftMetric} ↔ {item.rightMetric}: {item.coefficient} ({item.strength})</Text>)}
+                </Card>
+              ) : null}
+              {intelligence.data.insights.length ? intelligence.data.insights.map((item) => {
+                const feedback = intelligence.data?.feedback.find((value) => value.insightId === item.id)?.feedback;
+                return <Card key={item.id} className="p-3">
+                  <Heading size="sm">{item.title}</Heading>
+                  <Text size="sm" className="mt-1 text-muted-foreground">{item.detail}</Text>
+                  <Text size="xs" className="mt-1 text-muted-foreground">Reason: {item.reason}</Text>
+                  <View className="mt-2 flex-row gap-2">
+                    <Pressable className={`rounded-full border px-3 py-1 ${feedback === 'helpful' ? 'border-primary bg-primary/10' : 'border-border'}`} onPress={() => void intelligence.feedback(item.id, 'helpful')}><Text size="xs">Helpful</Text></Pressable>
+                    <Pressable className={`rounded-full border px-3 py-1 ${feedback === 'not-helpful' ? 'border-primary bg-primary/10' : 'border-border'}`} onPress={() => void intelligence.feedback(item.id, 'not-helpful')}><Text size="xs">Not helpful</Text></Pressable>
+                    <Pressable className={`rounded-full border px-3 py-1 ${feedback === 'dismissed' ? 'border-primary bg-primary/10' : 'border-border'}`} onPress={() => void intelligence.feedback(item.id, 'dismissed')}><Text size="xs">Dismiss</Text></Pressable>
+                  </View>
+                </Card>;
+              }) : <Text size="sm" className="text-muted-foreground">No advanced insight is available for this period.</Text>}
+              <Text size="xs" className="text-muted-foreground">Causal-language audit: {intelligence.data.causalAudit.safe ? 'passed' : 'review required'} · History records: {intelligence.data.history.length}</Text>
+            </View>
+          ) : null}
         </Card>
 
         {summary ? (

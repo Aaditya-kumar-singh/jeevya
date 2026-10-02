@@ -1,9 +1,11 @@
-import { loadData, saveData } from '@/lib/storage';
+﻿import { loadData, saveData } from '@/lib/storage';
 import { uid } from '@/lib/uid';
+import { invalidateUnifiedSearchIndex } from '@/services/searchIndex';
 import type {
   PersonalRecord, Workout, WorkoutExercise, WorkoutExerciseConfig, WorkoutFinishResult,
   WorkoutSet, WorkoutStatus, NewWorkoutSetInput, WorkoutSession, WorkoutTotals,
 } from '@/types/workout';
+import { awardXP } from '@/services/xp';
 
 export const WORKOUTS_KEY = 'jeevya:workouts:sessions';
 const LEGACY_WORKOUTS_KEY = '@jeevya/workouts/v1';
@@ -129,7 +131,7 @@ export async function createWorkoutSessionSnapshot(session: WorkoutSession): Pro
     return toSession(snapshot);
   });
 }
-export async function deleteWorkoutSession(id:string):Promise<void>{return locked(async()=>{const list=await readAllWorkouts();await writeAllWorkouts(list.filter(w=>w.id!==id));});}
+export async function deleteWorkoutSession(id:string):Promise<void>{return locked(async()=>{const list=await readAllWorkouts();await writeAllWorkouts(list.filter(w=>w.id!==id));invalidateUnifiedSearchIndex();});}
 export async function startWorkoutSession(input:{name:string;exercises?:WorkoutExerciseConfig[]}):Promise<WorkoutSession>{return createWorkoutSession(input);}
 export async function startWorkoutById(id:string):Promise<WorkoutSession>{const w=await startWorkout(id);return toSession(w);}
 
@@ -157,7 +159,7 @@ export async function addWorkoutSet(id:string,eid:string){const w=await getWorko
 export async function removeWorkoutSet(id:string,eid:string,sid:string){const w=await getWorkout(id);if(!w)throw new Error('Workout not found');ensureActive(w);return saveWorkout({...w,exercises:w.exercises.map(e=>e.id===eid?{...e,sets:e.sets.filter(s=>s.id!==sid).map((s,i)=>({...s,setNumber:i+1}))}:e)});}
 export async function completeWorkoutSet(id:string,eid:string,sid:string,input:NewWorkoutSetInput={}){validateSetInput(input);const w=await getWorkout(id);if(!w)throw new Error('Workout not found');ensureActive(w);const now=nowIso();const weight=input.weightKg??input.weight;const distance=input.distanceKm??input.distance;const numericPatch={...(weight!==undefined?{weight,weightKg:weight}:{}),...(distance!==undefined?{distance,distanceKm:distance}:{}),};const out=await saveWorkout(patchSet(w,eid,sid,{...input,...numericPatch,completed:true,completedAt:now}));return {workout:out,newPersonalRecords:[] as PersonalRecord[]};}
 export async function uncompleteWorkoutSet(id:string,eid:string,sid:string){const w=await getWorkout(id);if(!w)throw new Error('Workout not found');ensureActive(w);return saveWorkout(patchSet(w,eid,sid,{completed:false,completedAt:null}));}
-export async function completeWorkout(id:string):Promise<Workout>{return locked(async()=>{const list=await readAllWorkouts();const w=list.find(x=>x.id===id);if(!w)throw new Error('Workout not found');ensureActive(w);const completedAt=nowIso();const out=touch({...w,status:'completed',completedAt,durationSeconds:elapsedBetween(w.startedAt,completedAt)});await writeAllWorkouts(list.map(x=>x.id===id?out:x));return out;});}
+export async function completeWorkout(id:string):Promise<Workout>{return locked(async()=>{const list=await readAllWorkouts();const w=list.find(x=>x.id===id);if(!w)throw new Error('Workout not found');ensureActive(w);const completedAt=nowIso();const out=touch({...w,status:'completed',completedAt,durationSeconds:elapsedBetween(w.startedAt,completedAt)});await writeAllWorkouts(list.map(x=>x.id===id?out:x));await awardXP({source:'workout',sourceId:out.id,action:'workout_completed',date:completedAt.slice(0,10),metadata:{durationSeconds:out.durationSeconds??0}});return out;});}
 export async function cancelWorkout(id:string):Promise<Workout>{return locked(async()=>{const list=await readAllWorkouts();const w=list.find(x=>x.id===id);if(!w)throw new Error('Workout not found');ensureActive(w);const at=nowIso();const out=touch({...w,status:'cancelled',completedAt:null,durationSeconds:elapsedBetween(w.startedAt,at)});await writeAllWorkouts(list.map(x=>x.id===id?out:x));return out;});}
 export async function finishWorkout(id:string,options:{pausedSeconds?:number}={}):Promise<WorkoutFinishResult>{const w=await completeWorkout(id);const paused=Math.max(0,Math.round(options.pausedSeconds??0));const out={...w,durationSeconds:Math.max(0,(w.durationSeconds??0)-paused)};if(out.durationSeconds!==w.durationSeconds)await saveWorkout(out);return {workout:out,newPersonalRecords:[]};}
 export async function discardWorkout(id:string){return cancelWorkout(id);}
@@ -177,5 +179,6 @@ export const updateSet = updateWorkoutSet;
 export const removeSet = removeWorkoutSet;
 export const completeSet = completeWorkoutSet;
 export const uncompleteSet = uncompleteWorkoutSet;
+
 
 

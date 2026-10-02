@@ -64,6 +64,7 @@ const STATUS_FILTERS: { key: StatusFilter; label: string }[] = [
   { key: 'want_to_read', label: 'Want to Read' },
   { key: 'reading', label: 'Reading' },
   { key: 'completed', label: 'Completed' },
+  { key: 'abandoned', label: 'Abandoned' },
 ];
 
 const SORT_OPTIONS: { key: LibrarySort; label: string }[] = [

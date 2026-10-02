@@ -1,4 +1,4 @@
-import { todayCivilDate, isValidCivilDate, parseCivilDate } from '@/lib/date';
+﻿import { todayCivilDate, isValidCivilDate, parseCivilDate } from '@/lib/date';
 import { getTasks } from '@/services/tasks';
 import { getActiveHabits, getHabitLog } from '@/services/habits';
 import { isScheduledDay } from '@/types/habit';
@@ -63,7 +63,7 @@ export async function getJeevyaDailyState(date: string = todayCivilDate()): Prom
   if (typeof window !== 'undefined') {
     await Promise.all(Object.entries(domainStorageKeys).map(async ([domain, keys]) => {
       const results = await Promise.all(keys.map((key) => readStorage<unknown>(key, null)));
-      if (results.some((result) => result.status === 'malformed' || result.status === 'unavailable')) {
+      if (results.some((result) => result != null && (result.status === 'malformed' || result.status === 'unavailable'))) {
         if (!degradedDomains.includes(domain)) degradedDomains.push(domain);
       }
     }));
@@ -155,3 +155,4 @@ export async function getJeevyaDailyState(date: string = todayCivilDate()): Prom
     goals,
   };
 }
+

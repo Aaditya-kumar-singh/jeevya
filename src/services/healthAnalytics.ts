@@ -4,6 +4,7 @@ import { calculateEstimatedOneRepMax } from '@/services/workoutProgression';
 import { listSleepEntries, type SleepEntry, type SleepQuality } from '@/services/sleep';
 import { getRecoveryForDate, getReadinessLevel, type ReadinessLevel, type RecoveryResult } from '@/services/recovery';
 import { isValidDay, todayDay } from '@/lib/journal-calendar';
+import { getStandardAnalyticsRange, type StandardAnalyticsPeriod } from '@/services/analyticsCore';
 import type { WorkoutSession, WorkoutSet } from '@/types/workout';
 
 export type HealthAnalyticsPeriod = '7d' | '30d' | '90d' | '365d' | 'all';
@@ -130,8 +131,9 @@ function daysInclusive(start: string, end: string): string[] {
 function rangeForPeriod(period: HealthAnalyticsPeriod, endDate: string): HealthAnalyticsDateRange {
   if (!isValidDay(endDate)) return { start: null, end: null };
   if (period === 'all') return { start: null, end: endDate };
-  const start = dayShift(endDate, -(PERIOD_DAYS[period] - 1));
-  return { start, end: endDate };
+  const days = PERIOD_DAYS[period];
+  const standard = getStandardAnalyticsRange(endDate, days as StandardAnalyticsPeriod);
+  return { start: standard.startDate, end: standard.endDate };
 }
 
 function sessionDate(session: WorkoutSession): string | null {

@@ -375,7 +375,7 @@ async function performSynchronization(): Promise<SyncResult> {
     for (const [domain, message] of Object.entries(local.errors)) { const existing = domainResults.get(domain as SyncDomain) ?? emptyDomain(domain as SyncDomain); existing.degraded = true; existing.error = message; domainResults.set(domain as SyncDomain, existing); }
     const state: SyncState = invalidRemoteCount > 0 ? 'error' : conflicts.length ? 'conflict_pending' : local.degradedDomains.size ? 'error' : 'synced';
     const message = invalidRemoteCount > 0 ? `${invalidRemoteCount} invalid remote record${invalidRemoteCount === 1 ? '' : 's'} were rejected safely.` : conflicts.length ? `${conflicts.length} conflict${conflicts.length === 1 ? '' : 's'} pending review.` : local.degradedDomains.size ? 'Synchronization completed with degraded local domains.' : 'Jeevya synchronization completed.';
-    await persistStatus({ state, lastSyncedAt: new Date().toISOString(), conflicts: conflicts.length, message });
+    await persistStatus({ state, lastSyncedAt: new Date().toISOString(), conflicts: conflicts.length, message, domains: [...domainResults.values()], retryAttempt: 0, nextRetryAt: null });
     return { state, uploaded: uploadedRows.length, downloaded, unchanged, conflicts, domains: [...domainResults.values()], message };
   } catch (error) {
     const state: SyncState = isNetworkFailure(error) ? 'offline' : 'error'; const message = error instanceof Error ? error.message : 'Synchronization failed.';
@@ -464,4 +464,24 @@ function resolveConflictOnce(conflictId: string, resolution: SyncResolution): Pr
 export async function resolveConflictKeepLocal(conflictId: string): Promise<SyncConflictResolutionResult> { return resolveConflictOnce(conflictId, 'keep_local'); }
 export async function resolveConflictKeepRemote(conflictId: string): Promise<SyncConflictResolutionResult> { return resolveConflictOnce(conflictId, 'keep_remote'); }
 export async function resolveConflict(conflictId: string, resolution: SyncResolution): Promise<SyncConflictResolutionResult> { return resolveConflictOnce(conflictId, resolution); }
-export async function retrySync(): Promise<SyncResult> { return synchronizeJeevya(); }
+export async function retrySync(maxAttempts = 3): Promise<SyncResult> {
+  const attempts = Math.max(1, Math.min(5, Math.floor(maxAttempts)));
+  let last: SyncResult = await synchronizeJeevya();
+  if (!['offline', 'error'].includes(last.state)) return last;
+  for (let attempt = 2; attempt <= attempts; attempt += 1) {
+    const delayMs = Math.min(8_000, 500 * 2 ** (attempt - 2));
+    const nextRetryAt = new Date(Date.now() + delayMs).toISOString();
+    await persistStatus({
+      state: 'offline',
+      lastSyncedAt: null,
+      conflicts: (await getPendingConflicts()).length,
+      message: `Retrying synchronization (attempt ${attempt}/${attempts}).`,
+      retryAttempt: attempt - 1,
+      nextRetryAt,
+    });
+    await new Promise((resolve) => setTimeout(resolve, delayMs));
+    last = await synchronizeJeevya();
+    if (!['offline', 'error'].includes(last.state)) return last;
+  }
+  return last;
+}

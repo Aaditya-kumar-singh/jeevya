@@ -73,6 +73,7 @@ import {
   syncHealthActivities as syncHealthActivitiesService,
 } from '@/services/health';
 import type { HealthSyncState } from '@/types/health';
+import { setNutritionDatasetVersion } from '@/services/nutritionAdvanced';
 
 export function useNutrition() {
   const [foods, setFoods] = useState<FoodItem[]>([]);
@@ -96,6 +97,7 @@ export function useNutrition() {
     try {
       try {
         await seedSystemFoods();
+        await setNutritionDatasetVersion('3T.14', 'Jeevya curated system food catalog', 142);
       } catch {
         // Intentionally ignored — getFoods() below reports store problems.
       }

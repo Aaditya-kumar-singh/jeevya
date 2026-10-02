@@ -2,7 +2,6 @@ import { View } from 'react-native';
 import { Card } from '@/components/ui/card';
 import { Heading } from '@/components/ui/heading';
 import { Text } from '@/components/ui/text';
-import { healthSnapshot } from '@/lib/mockData';
 import { BedDouble, Droplets, Dumbbell, Heart } from 'lucide-react-native';
 
 interface HealthSnapshotProps {
@@ -11,11 +10,7 @@ interface HealthSnapshotProps {
   workout?: string;
 }
 
-export function HealthSnapshot({
-  sleep = healthSnapshot.sleep,
-  water = healthSnapshot.water,
-  workout = healthSnapshot.workout,
-}: HealthSnapshotProps) {
+export function HealthSnapshot({ sleep = 'Not recorded', water = 'Not tracked', workout = 'Not recorded' }: HealthSnapshotProps) {
   const items = [
     { label: 'Sleep', value: sleep, icon: BedDouble, iconBg: 'bg-indigo-500/15', textColor: 'text-indigo-500' },
     { label: 'Water', value: water, icon: Droplets, iconBg: 'bg-sky-500/15', textColor: 'text-sky-500' },
@@ -30,9 +25,7 @@ export function HealthSnapshot({
         </View>
         <View>
           <Heading size="md" className="font-bold">Health & Vitality</Heading>
-          <Text size="xs" className="text-muted-foreground font-medium">
-            Sleep, hydration, and activity tracker
-          </Text>
+          <Text size="xs" className="text-muted-foreground font-medium">Sleep, hydration, and activity tracker</Text>
         </View>
       </View>
 
@@ -40,21 +33,14 @@ export function HealthSnapshot({
         {items.map((item) => {
           const Icon = item.icon;
           return (
-            <View
-              key={item.label}
-              className="flex-1 rounded-2xl bg-muted/60 p-3 border border-border/40"
-            >
+            <View key={item.label} className="flex-1 rounded-2xl bg-muted/60 p-3 border border-border/40">
               <View className="flex-row items-center gap-1.5 mb-1">
                 <View className={`h-6 w-6 items-center justify-center rounded-lg ${item.iconBg}`}>
                   <Icon size={13} className={item.textColor} />
                 </View>
-                <Text size="xs" className="text-muted-foreground font-semibold">
-                  {item.label}
-                </Text>
+                <Text size="xs" className="text-muted-foreground font-semibold">{item.label}</Text>
               </View>
-              <Text size="xs" className="mt-1 font-bold text-foreground">
-                {item.value}
-              </Text>
+              <Text size="xs" className="mt-1 font-bold text-foreground">{item.value}</Text>
             </View>
           );
         })}

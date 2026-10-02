@@ -23,12 +23,16 @@ export interface JeevyaDailyState {
     completedToday: number;
     completionRate: number | null;
     remainingToday?: Pick<Habit, 'id' | 'name'>[];
+    todayHabits?: Array<Pick<Habit, 'id' | 'name' | 'description'> & { isCompleted: boolean }>;
   };
   health: {
     activeWorkout: boolean;
     activeWorkoutId?: string | null;
     completedWorkoutsToday: number;
     completedWorkoutMinutes?: number;
+    completedWorkoutIds?: string[];
+    sleepRecordId?: string;
+    recoveryRecordId?: string;
     sleep: Pick<SleepEntry, 'date' | 'durationMinutes' | 'quality'> | null;
     recovery: Pick<RecoveryResult, 'date' | 'readinessScore' | 'readinessLevel' | 'available'> | null;
   };
@@ -36,6 +40,7 @@ export interface JeevyaDailyState {
     summary: DailyNutritionSummary;
     targets: NutritionTargets | null;
     energy: DailyEnergySummary;
+    todayFoodLogIds?: string[];
   };
   finance: {
     accountCount: number;
@@ -43,6 +48,7 @@ export interface JeevyaDailyState {
     transactionsToday: number;
     incomeToday: number;
     expenseToday: number;
+    todayTransactionIds?: string[];
   };
   books: {
     currentlyReading: number;
@@ -58,5 +64,3 @@ export interface JeevyaDailyState {
     degradedDomains: string[];
   };
 }
-
-
